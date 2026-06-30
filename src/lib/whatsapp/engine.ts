@@ -1,5 +1,4 @@
 import {
-  AppointmentSource,
   AppointmentStatus,
   Prisma,
   WhatsAppBookingDraftStatus,
@@ -10,6 +9,12 @@ import {
   WhatsAppMessageType,
 } from "@prisma/client";
 
+import {
+  buildClinicDateMarker,
+  createAppointmentSafely,
+  getAvailableSlots,
+  validateAppointmentSlot,
+} from "@/lib/appointments/availability";
 import { prisma } from "@/lib/prisma";
 
 export type WhatsAppSimulatorSender = "patient" | "clinic";
@@ -63,20 +68,6 @@ function normalizeText(value: string) {
 
 function buildListPrompt(title: string, items: string[]) {
   return `${title}\n${items.map((item, index) => `${index + 1}. ${item}`).join("\n")}`;
-}
-
-function buildWhatsAppTimeSlots(seed: string) {
-  const slotGroups = [
-    ["09:00", "10:30", "12:00"],
-    ["11:00", "13:30", "16:00"],
-    ["08:30", "12:30", "17:30"],
-    ["09:30", "14:00", "18:00"],
-  ];
-  const slotIndex =
-    seed.split("").reduce((accumulator, character) => accumulator + character.charCodeAt(0), 0) %
-    slotGroups.length;
-
-  return slotGroups[slotIndex];
 }
 
 function formatDate(date: Date, timezone = "America/Mexico_City") {
@@ -168,17 +159,14 @@ function parseTimeSelection(rawValue: string, availableSlots: string[]) {
   return availableSlots.find((slot) => normalizeText(slot) === normalized) ?? null;
 }
 
-function combineDateAndTime(date: Date, time: string) {
-  const [hours, minutes] = time.split(":").map(Number);
-
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    hours,
-    minutes,
-    0,
-    0,
+function toClinicDateMarker(date: Date, timezone: string) {
+  return buildClinicDateMarker(
+    {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+    },
+    timezone,
   );
 }
 
@@ -651,6 +639,7 @@ async function continuePatientBookingDraft(
   },
   message: string,
   timezone: string,
+  userId?: string | null,
 ): Promise<EngineResult> {
   if (draft.status === WhatsAppBookingDraftStatus.COLLECTING_SERVICE) {
     const services = await transaction.service.findMany({
@@ -776,9 +765,9 @@ async function continuePatientBookingDraft(
   }
 
   if (draft.status === WhatsAppBookingDraftStatus.COLLECTING_TIME && !draft.preferredDate) {
-    const preferredDate = parsePreferredDate(message);
+    const preferredDateSelection = parsePreferredDate(message);
 
-    if (!preferredDate) {
+    if (!preferredDateSelection) {
       return {
         reply:
           "No pude interpretar el dia. Escribe hoy, manana, un dia de la semana o una fecha como 2026-07-18.",
@@ -790,8 +779,26 @@ async function continuePatientBookingDraft(
       };
     }
 
-    const slotSeed = `${draft.doctorId ?? "doctor"}-${preferredDate.toISOString()}`;
-    const availableSlots = buildWhatsAppTimeSlots(slotSeed);
+    if (!draft.doctorId || !draft.serviceId) {
+      return {
+        reply: "El borrador ya no tiene doctor o servicio valido. Reinicia con 'quiero agendar una cita'.",
+        parsedIntent: WhatsAppIntent.AGENDAR_CITA,
+        success: false,
+        conversationStatus: WhatsAppConversationStatus.ACTIVE,
+        draftStatus: draft.status,
+        errorMessage: "DRAFT_INCOMPLETE",
+      };
+    }
+
+    const preferredDate = toClinicDateMarker(preferredDateSelection, timezone);
+    const availableSlotResult = await getAvailableSlots({
+      clinicId,
+      doctorId: draft.doctorId,
+      serviceId: draft.serviceId,
+      date: preferredDate,
+      db: transaction,
+    });
+    const availableSlots = availableSlotResult.slots.map((slot) => slot.startTime);
 
     await transaction.whatsAppBookingDraft.update({
       where: {
@@ -799,13 +806,25 @@ async function continuePatientBookingDraft(
       },
       data: {
         preferredDate,
+        preferredTime: null,
         status: WhatsAppBookingDraftStatus.COLLECTING_TIME,
       },
     });
 
+    if (!availableSlots.length) {
+      return {
+        reply: `No encontre horarios disponibles para ${formatDate(preferredDate, timezone)}. Prueba con otro dia para seguir buscando disponibilidad real.`,
+        parsedIntent: WhatsAppIntent.AGENDAR_CITA,
+        success: false,
+        conversationStatus: WhatsAppConversationStatus.ACTIVE,
+        draftStatus: WhatsAppBookingDraftStatus.COLLECTING_TIME,
+        errorMessage: "NO_AVAILABLE_SLOTS",
+      };
+    }
+
     return {
       reply: `${buildListPrompt(
-        `Estos son los horarios mock disponibles para ${formatDate(preferredDate, timezone)}:`,
+        `Estos son los horarios disponibles para ${formatDate(preferredDate, timezone)}:`,
         availableSlots,
       )}\nEscribe el numero o la hora exacta.`,
       parsedIntent: WhatsAppIntent.AGENDAR_CITA,
@@ -819,8 +838,49 @@ async function continuePatientBookingDraft(
   }
 
   if (draft.status === WhatsAppBookingDraftStatus.COLLECTING_TIME && draft.preferredDate && !draft.preferredTime) {
-    const slotSeed = `${draft.doctorId ?? "doctor"}-${draft.preferredDate.toISOString()}`;
-    const availableSlots = buildWhatsAppTimeSlots(slotSeed);
+    if (!draft.doctorId || !draft.serviceId) {
+      return {
+        reply: "El borrador ya no tiene doctor o servicio valido. Reinicia con 'quiero agendar una cita'.",
+        parsedIntent: WhatsAppIntent.AGENDAR_CITA,
+        success: false,
+        conversationStatus: WhatsAppConversationStatus.ACTIVE,
+        draftStatus: draft.status,
+        errorMessage: "DRAFT_INCOMPLETE",
+      };
+    }
+
+    const availableSlotResult = await getAvailableSlots({
+      clinicId,
+      doctorId: draft.doctorId,
+      serviceId: draft.serviceId,
+      date: draft.preferredDate,
+      db: transaction,
+    });
+    const availableSlots = availableSlotResult.slots.map((slot) => slot.startTime);
+
+    if (!availableSlots.length) {
+      await transaction.whatsAppBookingDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          preferredDate: null,
+          preferredTime: null,
+          status: WhatsAppBookingDraftStatus.COLLECTING_TIME,
+        },
+      });
+
+      return {
+        reply:
+          "Ya no quedan horarios disponibles para ese dia. Escribe otro dia para seguir buscando opciones.",
+        parsedIntent: WhatsAppIntent.AGENDAR_CITA,
+        success: false,
+        conversationStatus: WhatsAppConversationStatus.ACTIVE,
+        draftStatus: WhatsAppBookingDraftStatus.COLLECTING_TIME,
+        errorMessage: "NO_AVAILABLE_SLOTS",
+      };
+    }
+
     const selectedTime = parseTimeSelection(message, availableSlots);
 
     if (!selectedTime) {
@@ -837,12 +897,56 @@ async function continuePatientBookingDraft(
       };
     }
 
+    const selectedSlot = availableSlotResult.slots.find((slot) => slot.startTime === selectedTime);
+
+    if (!selectedSlot) {
+      return {
+        reply: `${buildListPrompt(
+          "Ese horario ya no aparece disponible. Estas son las opciones actualizadas:",
+          availableSlots,
+        )}\nElige otra hora.`,
+        parsedIntent: WhatsAppIntent.AGENDAR_CITA,
+        success: false,
+        conversationStatus: WhatsAppConversationStatus.ACTIVE,
+        draftStatus: draft.status,
+        errorMessage: "TIME_NOT_AVAILABLE",
+      };
+    }
+
+    const validation = await validateAppointmentSlot({
+      clinicId,
+      doctorId: draft.doctorId,
+      serviceId: draft.serviceId,
+      startAt: selectedSlot.startAt,
+      actorUserId: userId,
+      db: transaction,
+    });
+
+    if (!validation.ok) {
+      return {
+        reply: validation.availableSlots.length
+          ? `${validation.message}\n${buildListPrompt(
+              "Horarios disponibles actualizados:",
+              validation.availableSlots.map((slot) => slot.startTime),
+            )}\nElige otro horario.`
+          : `${validation.message}\nYa no quedan horarios para ese dia. Escribe otra fecha.`,
+        parsedIntent: WhatsAppIntent.AGENDAR_CITA,
+        success: false,
+        conversationStatus: WhatsAppConversationStatus.ACTIVE,
+        draftStatus: draft.status,
+        errorMessage: validation.reason,
+        payload: {
+          availableSlots: validation.availableSlots.map((slot) => slot.startTime),
+        },
+      };
+    }
+
     await transaction.whatsAppBookingDraft.update({
       where: {
         id: draft.id,
       },
       data: {
-        preferredTime: selectedTime,
+        preferredTime: selectedSlot.startTime,
         status: WhatsAppBookingDraftStatus.COLLECTING_PATIENT,
       },
     });
@@ -928,29 +1032,105 @@ async function continuePatientBookingDraft(
       },
       select: {
         id: true,
-        name: true,
       },
     });
 
-    const appointmentStart = combineDateAndTime(
-      resolvedDraft.preferredDate,
-      resolvedDraft.preferredTime,
-    );
-    const appointmentEnd = new Date(
-      appointmentStart.getTime() + resolvedDraft.service.durationMinutes * 60 * 1000,
+    const availableSlotResult = await getAvailableSlots({
+      clinicId,
+      doctorId: resolvedDraft.doctor.id,
+      serviceId: resolvedDraft.service.id,
+      date: resolvedDraft.preferredDate,
+      db: transaction,
+    });
+    const selectedSlot = availableSlotResult.slots.find(
+      (slot) => slot.startTime === resolvedDraft.preferredTime,
     );
 
-    const appointment = await transaction.appointment.create({
-      data: {
-        clinicId,
-        doctorId: resolvedDraft.doctor.id,
-        serviceId: resolvedDraft.service.id,
+    if (!selectedSlot) {
+      await transaction.whatsAppBookingDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          preferredTime: null,
+          status: WhatsAppBookingDraftStatus.COLLECTING_TIME,
+        },
+      });
+
+      return {
+        reply: availableSlotResult.slots.length
+          ? `${buildListPrompt(
+              "Ese horario ya no esta disponible. Estas son las opciones actualizadas:",
+              availableSlotResult.slots.map((slot) => slot.startTime),
+            )}\nElige otro horario para continuar.`
+          : "Ese horario ya no esta disponible y no quedan opciones para ese dia. Escribe otra fecha.",
+        parsedIntent: WhatsAppIntent.AGENDAR_CITA,
+        success: false,
+        conversationStatus: WhatsAppConversationStatus.ACTIVE,
+        draftStatus: WhatsAppBookingDraftStatus.COLLECTING_TIME,
         patientId: patient.id,
-        startAt: appointmentStart,
-        endAt: appointmentEnd,
-        status: DEFAULT_WHATSAPP_APPOINTMENT_STATUS,
-        source: AppointmentSource.WHATSAPP,
-        notes: "Creada desde el simulador local de WhatsApp.",
+        errorMessage: "TIME_NOT_AVAILABLE",
+        payload: {
+          availableSlots: availableSlotResult.slots.map((slot) => slot.startTime),
+        },
+      };
+    }
+
+    const validation = await validateAppointmentSlot({
+      clinicId,
+      doctorId: resolvedDraft.doctor.id,
+      serviceId: resolvedDraft.service.id,
+      patientId: patient.id,
+      startAt: selectedSlot.startAt,
+      actorUserId: userId,
+      db: transaction,
+    });
+
+    if (!validation.ok) {
+      await transaction.whatsAppBookingDraft.update({
+        where: {
+          id: draft.id,
+        },
+        data: {
+          preferredTime: null,
+          status: WhatsAppBookingDraftStatus.COLLECTING_TIME,
+        },
+      });
+
+      return {
+        reply: validation.availableSlots.length
+          ? `${validation.message}\n${buildListPrompt(
+              "Horarios disponibles actualizados:",
+              validation.availableSlots.map((slot) => slot.startTime),
+            )}\nElige otro horario.`
+          : `${validation.message}\nYa no quedan horarios para ese dia. Escribe otra fecha.`,
+        parsedIntent: WhatsAppIntent.AGENDAR_CITA,
+        success: false,
+        conversationStatus: WhatsAppConversationStatus.ACTIVE,
+        draftStatus: WhatsAppBookingDraftStatus.COLLECTING_TIME,
+        patientId: patient.id,
+        errorMessage: validation.reason,
+        payload: {
+          availableSlots: validation.availableSlots.map((slot) => slot.startTime),
+        },
+      };
+    }
+
+    const appointment = await createAppointmentSafely({
+      clinicId,
+      doctorId: resolvedDraft.doctor.id,
+      serviceId: resolvedDraft.service.id,
+      patientId: patient.id,
+      startAt: selectedSlot.startAt,
+      status: DEFAULT_WHATSAPP_APPOINTMENT_STATUS,
+      source: "WHATSAPP",
+      notes: "Creada desde el simulador local de WhatsApp.",
+      actorUserId: userId,
+      db: transaction,
+    });
+    const appointmentSummary = await transaction.appointment.findUnique({
+      where: {
+        id: appointment.id,
       },
       include: {
         doctor: {
@@ -966,26 +1146,37 @@ async function continuePatientBookingDraft(
       },
     });
 
+    if (!appointmentSummary) {
+      return {
+        reply: "La cita se creo, pero no pude cargar el resumen final. Revisa la agenda del panel.",
+        parsedIntent: WhatsAppIntent.AGENDAR_CITA,
+        success: true,
+        conversationStatus: WhatsAppConversationStatus.ACTIVE,
+        draftStatus: WhatsAppBookingDraftStatus.CONFIRMED,
+        patientId: patient.id,
+      };
+    }
+
     await transaction.whatsAppBookingDraft.update({
       where: {
         id: draft.id,
       },
       data: {
-        appointmentId: appointment.id,
+        appointmentId: appointmentSummary.id,
         status: WhatsAppBookingDraftStatus.CONFIRMED,
       },
     });
 
     return {
-      reply: `Tu cita quedo registrada para ${formatDateTime(appointment.startAt, timezone)} con ${appointment.doctor.name} para ${appointment.service.name}. Estado inicial: ${appointment.status}. Te escribiremos si hace falta algun ajuste.`,
+      reply: `Tu cita quedo registrada para ${formatDateTime(appointmentSummary.startAt, timezone)} con ${appointmentSummary.doctor.name} para ${appointmentSummary.service.name}. Estado inicial: ${appointmentSummary.status}. Te escribiremos si hace falta algun ajuste.`,
       parsedIntent: WhatsAppIntent.AGENDAR_CITA,
       success: true,
       conversationStatus: WhatsAppConversationStatus.ACTIVE,
       draftStatus: WhatsAppBookingDraftStatus.CONFIRMED,
       patientId: patient.id,
       payload: {
-        appointmentId: appointment.id,
-        appointmentStatus: appointment.status,
+        appointmentId: appointmentSummary.id,
+        appointmentStatus: appointmentSummary.status,
       },
     };
   }
@@ -1007,6 +1198,7 @@ async function handlePatientMessage(
   phoneE164: string,
   message: string,
   timezone: string,
+  userId?: string | null,
 ) {
   const activeDraft = await transaction.whatsAppBookingDraft.findFirst({
     where: {
@@ -1081,6 +1273,7 @@ async function handlePatientMessage(
       activeDraft,
       message,
       timezone,
+      userId,
     );
   }
 
@@ -1219,6 +1412,7 @@ export async function processWhatsAppSimulatorMessage({
             phoneE164,
             sanitizedMessage,
             clinic.timezone,
+            userId,
           )
         : await handleClinicMessage(
             transaction,

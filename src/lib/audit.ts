@@ -2,6 +2,8 @@ import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
+type AuditLogClient = Prisma.TransactionClient | typeof prisma;
+
 type CreateAuditLogInput = {
   clinicId?: string | null;
   userId?: string | null;
@@ -18,7 +20,7 @@ export async function createAuditLog({
   entityType,
   entityId,
   metadata,
-}: CreateAuditLogInput) {
+}: CreateAuditLogInput, client: AuditLogClient = prisma) {
   try {
     const data: Prisma.AuditLogUncheckedCreateInput = {
       clinicId: clinicId ?? null,
@@ -32,7 +34,7 @@ export async function createAuditLog({
       data.metadataJson = metadata;
     }
 
-    await prisma.auditLog.create({ data });
+    await client.auditLog.create({ data });
   } catch (error) {
     console.error("No se pudo registrar el audit log.", error);
   }

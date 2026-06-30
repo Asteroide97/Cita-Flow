@@ -1,4 +1,10 @@
-import { AppointmentSource, AppointmentStatus, PrismaClient, Role } from "@prisma/client";
+import {
+  AppointmentSource,
+  AppointmentStatus,
+  PrismaClient,
+  Role,
+  Weekday,
+} from "@prisma/client";
 
 import {
   DEMO_CLINIC_ID,
@@ -123,6 +129,47 @@ async function main() {
       isActive: true,
     },
   });
+
+  const weeklyAvailability = [
+    { dayOfWeek: Weekday.MONDAY, startTime: "09:00", endTime: "14:00" },
+    { dayOfWeek: Weekday.MONDAY, startTime: "16:00", endTime: "19:00" },
+    { dayOfWeek: Weekday.TUESDAY, startTime: "09:00", endTime: "14:00" },
+    { dayOfWeek: Weekday.TUESDAY, startTime: "16:00", endTime: "19:00" },
+    { dayOfWeek: Weekday.WEDNESDAY, startTime: "09:00", endTime: "14:00" },
+    { dayOfWeek: Weekday.WEDNESDAY, startTime: "16:00", endTime: "19:00" },
+    { dayOfWeek: Weekday.THURSDAY, startTime: "09:00", endTime: "14:00" },
+    { dayOfWeek: Weekday.THURSDAY, startTime: "16:00", endTime: "19:00" },
+    { dayOfWeek: Weekday.FRIDAY, startTime: "09:00", endTime: "14:00" },
+    { dayOfWeek: Weekday.FRIDAY, startTime: "16:00", endTime: "19:00" },
+    { dayOfWeek: Weekday.SATURDAY, startTime: "09:00", endTime: "13:00" },
+  ];
+
+  for (const doctorId of [DEMO_DOCTOR_1_ID, DEMO_DOCTOR_2_ID]) {
+    for (const block of weeklyAvailability) {
+      await prisma.doctorAvailability.upsert({
+        where: {
+          doctorId_dayOfWeek_startTime_endTime: {
+            doctorId,
+            dayOfWeek: block.dayOfWeek,
+            startTime: block.startTime,
+            endTime: block.endTime,
+          },
+        },
+        update: {
+          clinicId: DEMO_CLINIC_ID,
+          isActive: true,
+        },
+        create: {
+          clinicId: DEMO_CLINIC_ID,
+          doctorId,
+          dayOfWeek: block.dayOfWeek,
+          startTime: block.startTime,
+          endTime: block.endTime,
+          isActive: true,
+        },
+      });
+    }
+  }
 
   await prisma.service.upsert({
     where: { id: DEMO_SERVICE_1_ID },

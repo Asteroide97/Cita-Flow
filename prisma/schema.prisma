@@ -43,6 +43,16 @@ enum PaymentStatus {
   CANCELLED
 }
 
+enum Weekday {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
 enum WhatsAppConversationStatus {
   ACTIVE
   NEEDS_HUMAN
@@ -146,6 +156,9 @@ model Clinic {
   whatsAppMessages      WhatsAppMessage[]
   whatsAppBookingDrafts WhatsAppBookingDraft[]
   whatsAppCommandLogs   WhatsAppCommandLog[]
+  doctorAvailabilities  DoctorAvailability[]
+  doctorTimeOffs        DoctorTimeOff[]
+  blockedTimes          ClinicBlockedTime[]
 
   @@index([isActive])
 }
@@ -180,6 +193,8 @@ model Doctor {
   user         User?         @relation("DoctorLinkedUser", fields: [userId], references: [id], onDelete: SetNull)
   appointments Appointment[]
   whatsAppBookingDrafts WhatsAppBookingDraft[]
+  availabilityBlocks   DoctorAvailability[]
+  timeOffs             DoctorTimeOff[]
 
   @@unique([clinicId, userId])
   @@index([clinicId, isActive])
@@ -299,6 +314,53 @@ model AuditLog {
   @@index([clinicId, createdAt])
   @@index([userId, createdAt])
   @@index([entityType, entityId])
+}
+
+model DoctorAvailability {
+  id        String   @id @default(cuid())
+  clinicId  String
+  doctorId  String
+  dayOfWeek Weekday
+  startTime String
+  endTime   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, dayOfWeek, startTime, endTime])
+  @@index([clinicId, doctorId, dayOfWeek, isActive])
+  @@index([doctorId, dayOfWeek])
+}
+
+model DoctorTimeOff {
+  id        String   @id @default(cuid())
+  clinicId  String
+  doctorId  String
+  startAt   DateTime
+  endAt     DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([clinicId, doctorId, startAt, endAt])
+  @@index([doctorId, startAt])
+}
+
+model ClinicBlockedTime {
+  id        String   @id @default(cuid())
+  clinicId  String
+  startAt   DateTime
+  endAt     DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@index([clinicId, startAt, endAt])
 }
 
 model WhatsAppConversation {

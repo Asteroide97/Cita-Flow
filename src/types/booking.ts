@@ -1,0 +1,88 @@
+import type { Prisma } from "@prisma/client";
+
+import type { GetAvailableSlotsResult } from "@/lib/appointments/availability";
+
+export type BookingPageSearchParams = {
+  serviceId?: string;
+  doctorId?: string;
+  date?: string;
+  slotTime?: string;
+  status?: string;
+  error?: string;
+};
+
+export type BookingClinic = {
+  id: string;
+  name: string;
+  slug: string;
+  timezone: string;
+  currency: string;
+  brandColor: string | null;
+};
+
+export type BookingServiceOption = {
+  id: string;
+  name: string;
+  description: string | null;
+  durationMinutes: number;
+  priceCents: number | null;
+  depositRequired: boolean;
+  depositCents: number | null;
+};
+
+export type BookingDoctorOption = {
+  id: string;
+  name: string;
+  specialty: string | null;
+  bio: string | null;
+};
+
+export type BookingFlashMessage = {
+  tone: "success" | "error";
+  message: string;
+};
+
+export type BookingConfirmationData = {
+  clinicSlug: string;
+  clinicName: string;
+  serviceName: string;
+  doctorName: string;
+  startAtIso: string;
+  timezone: string;
+  statusLabel: string;
+};
+
+export type BookingAppointmentSummary = Prisma.AppointmentGetPayload<{
+  include: {
+    patient: {
+      select: {
+        name: true;
+        phoneE164: true;
+        email: true;
+      };
+    };
+    doctor: {
+      select: {
+        name: true;
+        specialty: true;
+      };
+    };
+    service: {
+      select: {
+        name: true;
+        durationMinutes: true;
+        priceCents: true;
+        depositRequired: true;
+        depositCents: true;
+      };
+    };
+  };
+}>;
+
+export type BookingStepState = {
+  selectedService: BookingServiceOption | null;
+  selectedDoctor: BookingDoctorOption | null;
+  selectedDate: string;
+  selectedSlotTime: string;
+  availableSlotResult: GetAvailableSlotsResult | null;
+};

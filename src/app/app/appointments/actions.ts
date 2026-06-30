@@ -51,6 +51,45 @@ function buildAppointmentsPath(options: AppointmentsPathOptions = {}) {
   return `/app/appointments${query ? `?${query}` : ""}`;
 }
 
+function resolveSafeRedirectPath(
+  value: FormDataEntryValue | null,
+  fallbackPath: string,
+) {
+  const normalized = String(value ?? "").trim();
+
+  if (!normalized.startsWith("/app/")) {
+    return fallbackPath;
+  }
+
+  return normalized;
+}
+
+function appendFeedbackToPath(
+  path: string,
+  params: {
+    status?: string;
+    error?: string;
+  },
+) {
+  const [pathname, existingQuery = ""] = path.split("?");
+  const query = new URLSearchParams(existingQuery);
+
+  query.delete("status");
+  query.delete("error");
+
+  if (params.status) {
+    query.set("status", params.status);
+  }
+
+  if (params.error) {
+    query.set("error", params.error);
+  }
+
+  const serialized = query.toString();
+
+  return `${pathname}${serialized ? `?${serialized}` : ""}`;
+}
+
 function normalizeOptionalText(value: FormDataEntryValue | null) {
   const normalized = String(value ?? "").trim();
 
@@ -63,6 +102,7 @@ function isValidEmail(value: string) {
 
 function revalidateAppointmentViews() {
   revalidatePath("/app/appointments");
+  revalidatePath("/app/calendar");
   revalidatePath("/app/dashboard");
   revalidatePath("/app/doctors");
   revalidatePath("/app/services");
@@ -387,9 +427,14 @@ export async function updateAppointmentStatusAction(formData: FormData) {
   const authContext = await requireAuthContext();
   const appointmentId = String(formData.get("appointmentId") ?? "").trim();
   const intent = String(formData.get("intent") ?? "").trim();
+  const fallbackPath = buildAppointmentsPath();
+  const redirectPath = resolveSafeRedirectPath(
+    formData.get("redirectPath"),
+    fallbackPath,
+  );
 
   if (!appointmentId) {
-    redirect(buildAppointmentsPath({ error: "appointment-not-found" }));
+    redirect(appendFeedbackToPath(redirectPath, { error: "appointment-not-found" }));
   }
 
   const appointment = await prisma.appointment.findFirst({
@@ -410,7 +455,7 @@ export async function updateAppointmentStatusAction(formData: FormData) {
   });
 
   if (!appointment) {
-    redirect(buildAppointmentsPath({ error: "appointment-not-found" }));
+    redirect(appendFeedbackToPath(redirectPath, { error: "appointment-not-found" }));
   }
 
   let nextStatus: AppointmentStatus | null = null;
@@ -420,7 +465,7 @@ export async function updateAppointmentStatusAction(formData: FormData) {
   switch (intent) {
     case "confirm":
       if (appointment.status !== AppointmentStatus.PENDING) {
-        redirect(buildAppointmentsPath({ error: "appointment-action-invalid" }));
+        redirect(appendFeedbackToPath(redirectPath, { error: "appointment-action-invalid" }));
       }
 
       nextStatus = AppointmentStatus.CONFIRMED;
@@ -432,7 +477,7 @@ export async function updateAppointmentStatusAction(formData: FormData) {
         appointment.status !== AppointmentStatus.PENDING &&
         appointment.status !== AppointmentStatus.CONFIRMED
       ) {
-        redirect(buildAppointmentsPath({ error: "appointment-action-invalid" }));
+        redirect(appendFeedbackToPath(redirectPath, { error: "appointment-action-invalid" }));
       }
 
       nextStatus = AppointmentStatus.CANCELLED;
@@ -444,7 +489,7 @@ export async function updateAppointmentStatusAction(formData: FormData) {
         appointment.status !== AppointmentStatus.PENDING &&
         appointment.status !== AppointmentStatus.CONFIRMED
       ) {
-        redirect(buildAppointmentsPath({ error: "appointment-action-invalid" }));
+        redirect(appendFeedbackToPath(redirectPath, { error: "appointment-action-invalid" }));
       }
 
       nextStatus = AppointmentStatus.COMPLETED;
@@ -456,7 +501,7 @@ export async function updateAppointmentStatusAction(formData: FormData) {
         appointment.status !== AppointmentStatus.PENDING &&
         appointment.status !== AppointmentStatus.CONFIRMED
       ) {
-        redirect(buildAppointmentsPath({ error: "appointment-action-invalid" }));
+        redirect(appendFeedbackToPath(redirectPath, { error: "appointment-action-invalid" }));
       }
 
       nextStatus = AppointmentStatus.NO_SHOW;
@@ -464,7 +509,7 @@ export async function updateAppointmentStatusAction(formData: FormData) {
       successStatus = "appointment-no-show";
       break;
     default:
-      redirect(buildAppointmentsPath({ error: "appointment-action-invalid" }));
+      redirect(appendFeedbackToPath(redirectPath, { error: "appointment-action-invalid" }));
   }
 
   await prisma.$transaction(async (transaction) => {
@@ -499,5 +544,5 @@ export async function updateAppointmentStatusAction(formData: FormData) {
   });
 
   revalidateAppointmentViews();
-  redirect(buildAppointmentsPath({ status: successStatus }));
+  redirect(appendFeedbackToPath(redirectPath, { status: successStatus }));
 }

@@ -1,13 +1,16 @@
 import { MetricCard } from "@/components/app/metric-card";
 import { PanelPage } from "@/components/app/panel-page";
 import { dashboardMetrics } from "@/data/panel";
+import { getCurrentClinicContext } from "@/lib/tenant";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const clinic = await getCurrentClinicContext();
+
   return (
     <PanelPage
       eyebrow="Dashboard"
       title="Resumen del clinic"
-      description="Este dashboard inicial deja lista la base del SaaS para conectar datos reales por tenant sin afectar la landing publica."
+      description="Este dashboard inicial ya corre sobre sesion real y deja lista la base del SaaS para conectar datos operativos por tenant sin afectar la landing publica."
     >
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {dashboardMetrics.map((metric) => (
@@ -49,22 +52,22 @@ export default function DashboardPage() {
 
         <div className="surface-card p-7">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Tenant actual
+            Clinica actual
           </p>
           <div className="mt-6 space-y-4">
             <div className="rounded-[24px] border border-brand-100 bg-brand-50 p-5">
-              <p className="text-sm font-semibold text-brand-700">Clinica Demo</p>
+              <p className="text-sm font-semibold text-brand-700">{clinic.clinicName}</p>
               <p className="mt-3 text-sm leading-7 text-ink">
-                Helper multi-tenant temporal activo para aislar datos por clinic desde la
-                base del proyecto.
+                El tenant ya se resuelve desde la sesion activa del usuario y mantiene
+                aislados los datos del consultorio actual.
               </p>
             </div>
 
             <div className="rounded-[24px] border border-line/80 bg-white p-5">
               <p className="text-sm font-semibold text-ink">Siguiente paso tecnico</p>
               <p className="mt-3 text-sm leading-7 text-muted">
-                Conectar auth real para resolver clinicId desde membresias y no desde
-                valores hardcodeados.
+                Conectar queries, CRUD y permisos por rol para que cada modulo opere
+                sobre datos reales del clinic actual.
               </p>
             </div>
           </div>

@@ -148,7 +148,7 @@ export const panelSections: Record<string, PanelSectionContent> = {
     highlights: [
       "Slug unico, timezone y currency.",
       "Color de marca y estado del clinic.",
-      "Base lista para permisos y auth real mas adelante.",
+      "Base lista para permisos finos y selector de clinic mas adelante.",
     ],
   },
 };

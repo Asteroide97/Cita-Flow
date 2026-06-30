@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { PanelShell } from "@/components/app/panel-shell";
-import { getCurrentClinicContext } from "@/lib/tenant";
+import { requireAuthContext } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   title: "CitaFlow App",
-  description: "Base inicial del panel SaaS multi-tenant de CitaFlow.",
+  description: "Panel protegido del SaaS multi-tenant de CitaFlow.",
 };
 
-export default function SaaSLayout({ children }: { children: ReactNode }) {
-  const clinic = getCurrentClinicContext();
+export default async function SaaSLayout({ children }: { children: ReactNode }) {
+  const authContext = await requireAuthContext();
 
-  return <PanelShell clinic={clinic}>{children}</PanelShell>;
+  return <PanelShell auth={authContext}>{children}</PanelShell>;
 }

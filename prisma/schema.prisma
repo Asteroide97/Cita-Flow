@@ -55,8 +55,22 @@ model User {
   clinicMemberships ClinicMember[]
   doctorProfiles    Doctor[]       @relation("DoctorLinkedUser")
   auditLogs         AuditLog[]
+  sessions          Session[]
 
   @@index([isActive])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt, revokedAt])
 }
 
 model Clinic {

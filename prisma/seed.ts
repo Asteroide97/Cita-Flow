@@ -11,8 +11,8 @@ import { hashPassword } from "../src/lib/security/password";
 const prisma = new PrismaClient();
 
 const DEMO_USER_ID = "user_demo_owner";
-const DEMO_USER_EMAIL = "owner@citaflow.demo";
-const DEMO_USER_PASSWORD = "Demo12345!";
+const DEMO_USER_EMAIL = "demo@citaflow.app";
+const DEMO_USER_PASSWORD = "Demo123456";
 const DEMO_CLINIC_MEMBER_ID = "clinic_member_demo_owner";
 const DEMO_DOCTOR_1_ID = "doctor_demo_1";
 const DEMO_DOCTOR_2_ID = "doctor_demo_2";

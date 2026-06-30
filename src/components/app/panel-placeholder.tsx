@@ -41,8 +41,8 @@ export function PanelPlaceholder({ highlights }: PanelPlaceholderProps) {
           <div className="rounded-[24px] border border-line/80 bg-white p-5">
             <p className="text-sm font-semibold text-ink">Siguiente fase</p>
             <p className="mt-3 text-sm leading-7 text-muted">
-              Conectar auth, queries por clinic y operaciones reales sobre Prisma sin
-              permitir acceso cruzado entre tenants.
+              Conectar queries por clinic, permisos por rol y operaciones reales sobre
+              Prisma sin permitir acceso cruzado entre tenants.
             </p>
           </div>
         </div>

@@ -9,9 +9,18 @@ import { cn } from "@/lib/utils";
 type AppSidebarProps = {
   clinicName: string;
   clinicSlug: string;
+  userName: string;
+  userEmail: string;
+  roleLabel: string;
 };
 
-export function AppSidebar({ clinicName, clinicSlug }: AppSidebarProps) {
+export function AppSidebar({
+  clinicName,
+  clinicSlug,
+  userName,
+  userEmail,
+  roleLabel,
+}: AppSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -30,16 +39,32 @@ export function AppSidebar({ clinicName, clinicSlug }: AppSidebarProps) {
 
             <div>
               <p className="text-lg font-extrabold tracking-[-0.05em]">CitaFlow</p>
-              <p className="text-sm text-slate-400">Panel SaaS inicial</p>
+              <p className="text-sm text-slate-400">Panel SaaS protegido</p>
             </div>
           </Link>
 
           <div className="mt-8 rounded-[28px] border border-white/10 bg-white/5 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Clinic actual
+              Clinica actual
             </p>
             <p className="mt-3 text-base font-semibold text-white">{clinicName}</p>
             <p className="mt-1 text-sm text-slate-400">/{clinicSlug}</p>
+          </div>
+
+          <div className="mt-4 rounded-[28px] border border-white/10 bg-white/5 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Sesion activa
+                </p>
+                <p className="mt-3 text-base font-semibold text-white">{userName}</p>
+                <p className="mt-1 text-sm text-slate-400">{userEmail}</p>
+              </div>
+
+              <span className="rounded-full border border-brand-400/30 bg-brand-500/12 px-3 py-1 text-xs font-semibold text-blue-100">
+                {roleLabel}
+              </span>
+            </div>
           </div>
 
           <nav className="mt-8 flex flex-1 flex-col gap-2">
@@ -88,11 +113,11 @@ export function AppSidebar({ clinicName, clinicSlug }: AppSidebarProps) {
 
           <div className="rounded-[28px] border border-emerald-500/20 bg-emerald-500/10 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
-              Tenant temporal
+              Tenant actual
             </p>
             <p className="mt-3 text-sm leading-6 text-slate-200">
-              El clinic actual se resuelve por helper local. Luego se conectara a auth
-              real y membresias.
+              La clinica se resuelve desde la sesion del usuario. Si existen varias
+              membresias, por ahora se usa la primera clinica activa.
             </p>
           </div>
         </div>
@@ -113,9 +138,16 @@ export function AppSidebar({ clinicName, clinicSlug }: AppSidebarProps) {
               <p className="text-base font-extrabold tracking-[-0.04em] text-ink">
                 CitaFlow
               </p>
-              <p className="text-xs text-muted">{clinicName}</p>
+              <p className="text-xs text-muted">
+                {clinicName} · {roleLabel}
+              </p>
             </div>
           </Link>
+        </div>
+
+        <div className="mt-4 rounded-[22px] border border-line/80 bg-white px-4 py-3">
+          <p className="text-sm font-semibold text-ink">{userName}</p>
+          <p className="mt-1 text-xs text-muted">{userEmail}</p>
         </div>
 
         <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">

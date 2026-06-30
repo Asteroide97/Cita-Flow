@@ -7,7 +7,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
   },
   "keywords": [
     "nextjs",
@@ -16,9 +20,13 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@prisma/client": "^7.8.0",
+    "dotenv": "^17.4.2",
     "next": "^16.2.9",
+    "prisma": "^7.8.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "tsx": "^4.22.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.2",

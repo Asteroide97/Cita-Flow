@@ -12,5 +12,8 @@ export default defineConfig({
     url:
       process.env.DATABASE_URL ??
       "postgresql://postgres:postgres@localhost:5432/citaflow?schema=public",
+    shadowDatabaseUrl:
+      process.env.SHADOW_DATABASE_URL ??
+      "postgresql://postgres:postgres@localhost:5432/citaflow_shadow?schema=public",
   },
 });

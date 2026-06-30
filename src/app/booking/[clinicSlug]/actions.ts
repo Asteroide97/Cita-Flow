@@ -27,6 +27,7 @@ import {
   getPublicBookingRateLimitStatus,
   registerPublicBookingAttempt,
 } from "@/lib/booking/rate-limit";
+import { enqueueAppointmentCreatedNotifications } from "@/lib/notifications/outbox";
 import { prisma } from "@/lib/prisma";
 import { normalizeWhatsAppPhone } from "@/lib/whatsapp/engine";
 
@@ -637,6 +638,13 @@ export async function createPublicBookingAction(formData: FormData) {
         },
         transaction,
       );
+
+      await enqueueAppointmentCreatedNotifications({
+        clinicId: clinic.id,
+        appointmentId: createdAppointment.id,
+        selfServiceLinks: createdAppointment.selfServiceLinks,
+        db: transaction,
+      });
 
       return createdAppointment;
     });

@@ -7,7 +7,10 @@ import {
 
 import { createAuditLog } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
-import { createAppointmentTokens } from "@/lib/appointments/tokens";
+import {
+  createAppointmentTokens,
+  type AppointmentSelfServiceLinks,
+} from "@/lib/appointments/tokens";
 
 type AvailabilityClient = Prisma.TransactionClient | typeof prisma;
 
@@ -130,6 +133,7 @@ export type CreateAppointmentSafelyResult = {
   status: AppointmentStatus;
   source: AppointmentSource;
   notes: string | null;
+  selfServiceLinks: AppointmentSelfServiceLinks | null;
 };
 
 type CandidateContext = {
@@ -1198,18 +1202,29 @@ export async function createAppointmentSafely({
     db,
   );
 
+  let selfServiceLinks: AppointmentSelfServiceLinks | null = null;
+
   if (
     source === AppointmentSource.ADMIN ||
     source === AppointmentSource.PUBLIC_BOOKING ||
     source === AppointmentSource.WHATSAPP
   ) {
-    await createAppointmentTokens({
+    const tokenBundle = await createAppointmentTokens({
       clinicId,
       appointmentId: appointment.id,
       appointmentStartAt: appointment.startAt,
       db,
     });
+
+    selfServiceLinks = {
+      confirmUrl: tokenBundle.confirm.url,
+      cancelUrl: tokenBundle.cancel.url,
+      rescheduleUrl: tokenBundle.reschedule.url,
+    };
   }
 
-  return appointment;
+  return {
+    ...appointment,
+    selfServiceLinks,
+  };
 }

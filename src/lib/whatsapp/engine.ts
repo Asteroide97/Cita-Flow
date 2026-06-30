@@ -15,6 +15,10 @@ import {
   getAvailableSlots,
   validateAppointmentSlot,
 } from "@/lib/appointments/availability";
+import {
+  enqueueAppointmentCreatedNotifications,
+  enqueueAppointmentStatusChangedNotification,
+} from "@/lib/notifications/outbox";
 import { prisma } from "@/lib/prisma";
 
 export type WhatsAppSimulatorSender = "patient" | "clinic";
@@ -559,8 +563,9 @@ async function handlePatientAppointmentLookup(
   }
 
   if (intent === WhatsAppIntent.CONFIRMAR_CITA) {
+    const statusChanged = appointment.status !== AppointmentStatus.CONFIRMED;
     const confirmedAppointment =
-      appointment.status === AppointmentStatus.CONFIRMED
+      !statusChanged
         ? appointment
         : await transaction.appointment.update({
             where: {
@@ -582,6 +587,16 @@ async function handlePatientAppointmentLookup(
               },
             },
           });
+
+    if (statusChanged) {
+      await enqueueAppointmentStatusChangedNotification({
+        clinicId,
+        appointmentId: confirmedAppointment.id,
+        changeType: "CONFIRMED",
+        actorUserId: null,
+        db: transaction,
+      });
+    }
 
     return {
       reply: `Listo. Tu cita quedo confirmada para ${formatDateTime(confirmedAppointment.startAt, timezone)} con ${confirmedAppointment.doctor.name}.`,
@@ -612,6 +627,14 @@ async function handlePatientAppointmentLookup(
         },
       },
     },
+  });
+
+  await enqueueAppointmentStatusChangedNotification({
+    clinicId,
+    appointmentId: cancelledAppointment.id,
+    changeType: "CANCELLED",
+    actorUserId: null,
+    db: transaction,
   });
 
   return {
@@ -1128,6 +1151,15 @@ async function continuePatientBookingDraft(
       actorUserId: userId,
       db: transaction,
     });
+
+    await enqueueAppointmentCreatedNotifications({
+      clinicId,
+      appointmentId: appointment.id,
+      selfServiceLinks: appointment.selfServiceLinks,
+      actorUserId: userId,
+      db: transaction,
+    });
+
     const appointmentSummary = await transaction.appointment.findUnique({
       where: {
         id: appointment.id,

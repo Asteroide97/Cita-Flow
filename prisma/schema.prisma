@@ -43,6 +43,18 @@ enum PaymentStatus {
   CANCELLED
 }
 
+enum NotificationChannel {
+  WHATSAPP
+  EMAIL
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
 enum Weekday {
   MONDAY
   TUESDAY
@@ -103,55 +115,55 @@ enum WhatsAppBookingDraftStatus {
 }
 
 model User {
-  id                String         @id @default(cuid())
-  name              String
-  email             String         @unique
-  passwordHash      String
-  phoneE164         String?
-  isActive          Boolean        @default(true)
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  clinicMemberships ClinicMember[]
-  doctorProfiles    Doctor[]       @relation("DoctorLinkedUser")
-  auditLogs         AuditLog[]
-  sessions          Session[]
+  id                  String               @id @default(cuid())
+  name                String
+  email               String               @unique
+  passwordHash        String
+  phoneE164           String?
+  isActive            Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  clinicMemberships   ClinicMember[]
+  doctorProfiles      Doctor[]             @relation("DoctorLinkedUser")
+  auditLogs           AuditLog[]
+  sessions            Session[]
   whatsAppCommandLogs WhatsAppCommandLog[]
 
   @@index([isActive])
 }
 
 model Session {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
-  tokenHash String   @unique
+  tokenHash String    @unique
   expiresAt DateTime
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   revokedAt DateTime?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([expiresAt, revokedAt])
 }
 
 model Clinic {
-  id           String             @id @default(cuid())
-  name         String
-  slug         String             @unique
-  legalName    String?
-  timezone     String
-  currency     String
-  brandColor   String?
-  isActive     Boolean            @default(true)
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  members      ClinicMember[]
-  doctors      Doctor[]
-  services     Service[]
-  patients     Patient[]
-  appointments Appointment[]
-  tokens       AppointmentToken[]
-  payments     Payment[]
-  auditLogs    AuditLog[]
+  id                    String                 @id @default(cuid())
+  name                  String
+  slug                  String                 @unique
+  legalName             String?
+  timezone              String
+  currency              String
+  brandColor            String?
+  isActive              Boolean                @default(true)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  members               ClinicMember[]
+  doctors               Doctor[]
+  services              Service[]
+  patients              Patient[]
+  appointments          Appointment[]
+  tokens                AppointmentToken[]
+  payments              Payment[]
+  auditLogs             AuditLog[]
   whatsAppConversations WhatsAppConversation[]
   whatsAppMessages      WhatsAppMessage[]
   whatsAppBookingDrafts WhatsAppBookingDraft[]
@@ -159,6 +171,7 @@ model Clinic {
   doctorAvailabilities  DoctorAvailability[]
   doctorTimeOffs        DoctorTimeOff[]
   blockedTimes          ClinicBlockedTime[]
+  notifications         NotificationOutbox[]
 
   @@index([isActive])
 }
@@ -180,21 +193,21 @@ model ClinicMember {
 }
 
 model Doctor {
-  id           String        @id @default(cuid())
-  clinicId     String
-  userId       String?
-  name         String
-  specialty    String?
-  bio          String?
-  isActive     Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  user         User?         @relation("DoctorLinkedUser", fields: [userId], references: [id], onDelete: SetNull)
-  appointments Appointment[]
+  id                    String                 @id @default(cuid())
+  clinicId              String
+  userId                String?
+  name                  String
+  specialty             String?
+  bio                   String?
+  isActive              Boolean                @default(true)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  clinic                Clinic                 @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  user                  User?                  @relation("DoctorLinkedUser", fields: [userId], references: [id], onDelete: SetNull)
+  appointments          Appointment[]
   whatsAppBookingDrafts WhatsAppBookingDraft[]
-  availabilityBlocks   DoctorAvailability[]
-  timeOffs             DoctorTimeOff[]
+  availabilityBlocks    DoctorAvailability[]
+  timeOffs              DoctorTimeOff[]
 
   @@unique([clinicId, userId])
   @@index([clinicId, isActive])
@@ -202,19 +215,19 @@ model Doctor {
 }
 
 model Service {
-  id              String        @id @default(cuid())
-  clinicId        String
-  name            String
-  description     String?
-  durationMinutes Int
-  priceCents      Int?
-  depositRequired Boolean       @default(false)
-  depositCents    Int?
-  isActive        Boolean       @default(true)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  clinic          Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  appointments    Appointment[]
+  id                    String                 @id @default(cuid())
+  clinicId              String
+  name                  String
+  description           String?
+  durationMinutes       Int
+  priceCents            Int?
+  depositRequired       Boolean                @default(false)
+  depositCents          Int?
+  isActive              Boolean                @default(true)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  clinic                Clinic                 @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointments          Appointment[]
   whatsAppBookingDrafts WhatsAppBookingDraft[]
 
   @@unique([clinicId, name])
@@ -222,42 +235,44 @@ model Service {
 }
 
 model Patient {
-  id           String        @id @default(cuid())
-  clinicId     String
-  name         String
-  phoneE164    String
-  email        String?
-  notes        String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  appointments Appointment[]
+  id                    String                 @id @default(cuid())
+  clinicId              String
+  name                  String
+  phoneE164             String
+  email                 String?
+  notes                 String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  clinic                Clinic                 @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointments          Appointment[]
   whatsAppConversations WhatsAppConversation[]
+  notifications         NotificationOutbox[]
 
   @@unique([clinicId, phoneE164])
   @@index([clinicId, name])
 }
 
 model Appointment {
-  id         String            @id @default(cuid())
-  clinicId   String
-  doctorId   String
-  serviceId  String
-  patientId  String
-  startAt    DateTime
-  endAt      DateTime
-  status     AppointmentStatus @default(PENDING)
-  source     AppointmentSource @default(ADMIN)
-  notes      String?
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  clinic     Clinic            @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  doctor     Doctor            @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  service    Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  patient    Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  tokens     AppointmentToken[]
-  payments   Payment[]
+  id                    String                 @id @default(cuid())
+  clinicId              String
+  doctorId              String
+  serviceId             String
+  patientId             String
+  startAt               DateTime
+  endAt                 DateTime
+  status                AppointmentStatus      @default(PENDING)
+  source                AppointmentSource      @default(ADMIN)
+  notes                 String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  clinic                Clinic                 @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor                Doctor                 @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  service               Service                @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  patient               Patient                @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  tokens                AppointmentToken[]
+  payments              Payment[]
   whatsAppBookingDrafts WhatsAppBookingDraft[]
+  notifications         NotificationOutbox[]
 
   @@index([clinicId, startAt])
   @@index([clinicId, status, startAt])
@@ -297,6 +312,34 @@ model Payment {
 
   @@index([clinicId, status, createdAt])
   @@index([appointmentId])
+}
+
+model NotificationOutbox {
+  id            String              @id @default(cuid())
+  clinicId      String
+  appointmentId String?
+  patientId     String?
+  channel       NotificationChannel
+  recipient     String
+  templateKey   String
+  subject       String?
+  body          String
+  payloadJson   Json?
+  status        NotificationStatus  @default(PENDING)
+  scheduledFor  DateTime?
+  sentAt        DateTime?
+  failedAt      DateTime?
+  errorMessage  String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  clinic        Clinic              @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointment   Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  patient       Patient?            @relation(fields: [patientId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId, status, createdAt])
+  @@index([clinicId, scheduledFor])
+  @@index([appointmentId])
+  @@index([patientId])
 }
 
 model AuditLog {
@@ -400,24 +443,24 @@ model WhatsAppMessage {
 }
 
 model WhatsAppBookingDraft {
-  id            String                     @id @default(cuid())
-  clinicId      String
+  id             String                     @id @default(cuid())
+  clinicId       String
   conversationId String
-  patientName   String?
-  phoneE164     String
-  serviceId     String?
-  doctorId      String?
-  preferredDate DateTime?
-  preferredTime String?
-  appointmentId String?
-  status        WhatsAppBookingDraftStatus @default(COLLECTING_SERVICE)
-  createdAt     DateTime                   @default(now())
-  updatedAt     DateTime                   @updatedAt
-  clinic        Clinic                     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  conversation  WhatsAppConversation       @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  service       Service?                   @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-  doctor        Doctor?                    @relation(fields: [doctorId], references: [id], onDelete: SetNull)
-  appointment   Appointment?               @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  patientName    String?
+  phoneE164      String
+  serviceId      String?
+  doctorId       String?
+  preferredDate  DateTime?
+  preferredTime  String?
+  appointmentId  String?
+  status         WhatsAppBookingDraftStatus @default(COLLECTING_SERVICE)
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+  clinic         Clinic                     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  conversation   WhatsAppConversation       @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  service        Service?                   @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  doctor         Doctor?                    @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+  appointment    Appointment?               @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
 
   @@index([clinicId, conversationId, status])
   @@index([clinicId, phoneE164, status])

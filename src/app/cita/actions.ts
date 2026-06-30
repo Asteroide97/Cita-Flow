@@ -23,12 +23,14 @@ import {
   validateAppointmentToken,
 } from "@/lib/appointments/tokens";
 import { createAuditLog } from "@/lib/audit";
+import { enqueueAppointmentStatusChangedNotification } from "@/lib/notifications/outbox";
 import { prisma } from "@/lib/prisma";
 
 function revalidatePublicAppointmentViews() {
   revalidatePath("/app/appointments");
   revalidatePath("/app/calendar");
   revalidatePath("/app/dashboard");
+  revalidatePath("/app/notifications");
   revalidatePath("/app/whatsapp-simulator");
 }
 
@@ -164,6 +166,13 @@ export async function confirmAppointmentByTokenAction(formData: FormData) {
       transaction,
     );
 
+    await enqueueAppointmentStatusChangedNotification({
+      clinicId: validation.context.clinicId,
+      appointmentId: appointment.id,
+      changeType: "CONFIRMED",
+      db: transaction,
+    });
+
     return appointment;
   });
 
@@ -265,6 +274,13 @@ export async function cancelAppointmentByTokenAction(formData: FormData) {
       },
       transaction,
     );
+
+    await enqueueAppointmentStatusChangedNotification({
+      clinicId: validation.context.clinicId,
+      appointmentId: appointment.id,
+      changeType: "CANCELLED",
+      db: transaction,
+    });
 
     return appointment;
   });
@@ -423,7 +439,7 @@ export async function rescheduleAppointmentByTokenAction(formData: FormData) {
       db: transaction,
     });
 
-    await createAppointmentTokens({
+    const tokenBundle = await createAppointmentTokens({
       clinicId: validation.context.clinicId,
       appointmentId: appointment.id,
       appointmentStartAt: appointment.startAt,
@@ -449,6 +465,18 @@ export async function rescheduleAppointmentByTokenAction(formData: FormData) {
       },
       transaction,
     );
+
+    await enqueueAppointmentStatusChangedNotification({
+      clinicId: validation.context.clinicId,
+      appointmentId: appointment.id,
+      changeType: "RESCHEDULED",
+      selfServiceLinks: {
+        confirmUrl: tokenBundle.confirm.url,
+        cancelUrl: tokenBundle.cancel.url,
+        rescheduleUrl: tokenBundle.reschedule.url,
+      },
+      db: transaction,
+    });
 
     return appointment;
   });

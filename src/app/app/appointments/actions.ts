@@ -13,6 +13,10 @@ import {
 import { createAppointmentTokens } from "@/lib/appointments/tokens";
 import { createAuditLog } from "@/lib/audit";
 import { requireAuthContext } from "@/lib/auth/session";
+import {
+  enqueueAppointmentCreatedNotifications,
+  enqueueAppointmentStatusChangedNotification,
+} from "@/lib/notifications/outbox";
 import { prisma } from "@/lib/prisma";
 import { normalizeWhatsAppPhone } from "@/lib/whatsapp/engine";
 import type { AppointmentSelfServiceLinksState } from "@/types/appointments";
@@ -107,6 +111,7 @@ function revalidateAppointmentViews() {
   revalidatePath("/app/calendar");
   revalidatePath("/app/dashboard");
   revalidatePath("/app/doctors");
+  revalidatePath("/app/notifications");
   revalidatePath("/app/services");
   revalidatePath("/app/whatsapp-simulator");
 }
@@ -386,6 +391,14 @@ export async function createAdminAppointmentAction(formData: FormData) {
         },
         transaction,
       );
+
+      await enqueueAppointmentCreatedNotifications({
+        clinicId: authContext.clinic.id,
+        appointmentId: appointment.id,
+        selfServiceLinks: appointment.selfServiceLinks,
+        actorUserId: authContext.user.id,
+        db: transaction,
+      });
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -543,6 +556,26 @@ export async function updateAppointmentStatusAction(formData: FormData) {
       },
       transaction,
     );
+
+    if (nextStatus === AppointmentStatus.CONFIRMED) {
+      await enqueueAppointmentStatusChangedNotification({
+        clinicId: authContext.clinic.id,
+        appointmentId: appointment.id,
+        changeType: "CONFIRMED",
+        actorUserId: authContext.user.id,
+        db: transaction,
+      });
+    }
+
+    if (nextStatus === AppointmentStatus.CANCELLED) {
+      await enqueueAppointmentStatusChangedNotification({
+        clinicId: authContext.clinic.id,
+        appointmentId: appointment.id,
+        changeType: "CANCELLED",
+        actorUserId: authContext.user.id,
+        db: transaction,
+      });
+    }
   });
 
   revalidateAppointmentViews();

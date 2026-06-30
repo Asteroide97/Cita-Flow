@@ -62,6 +62,12 @@ export const panelNavigation: PanelNavItem[] = [
     description: "Simulador local del motor conversacional.",
   },
   {
+    label: "Notificaciones",
+    href: "/app/notifications",
+    shortLabel: "NT",
+    description: "Outbox transaccional para WhatsApp y email.",
+  },
+  {
     label: "Configuracion",
     href: "/app/settings",
     shortLabel: "CF",
@@ -145,6 +151,16 @@ export const panelSections: Record<string, PanelSectionContent> = {
       "Duracion estandar por servicio.",
       "Precio y anticipo opcional por cita.",
       "Preparado para reservas y pagina publica futura.",
+    ],
+  },
+  notifications: {
+    title: "Notificaciones",
+    description:
+      "Outbox transaccional por clinica para preparar mensajes de WhatsApp y email antes de conectar proveedores reales.",
+    highlights: [
+      "Mensajes pendientes, enviados, fallidos o cancelados.",
+      "Templates internos con contexto de cita y enlaces publicos.",
+      "Base lista para conectar Meta Cloud API y email mas adelante.",
     ],
   },
   settings: {

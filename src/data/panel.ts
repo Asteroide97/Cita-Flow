@@ -56,6 +56,12 @@ export const panelNavigation: PanelNavItem[] = [
     description: "Catalogo base de servicios y duraciones.",
   },
   {
+    label: "WhatsApp",
+    href: "/app/whatsapp-simulator",
+    shortLabel: "WA",
+    description: "Simulador local del motor conversacional.",
+  },
+  {
     label: "Configuracion",
     href: "/app/settings",
     shortLabel: "CF",

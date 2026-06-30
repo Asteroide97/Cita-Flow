@@ -43,6 +43,55 @@ enum PaymentStatus {
   CANCELLED
 }
 
+enum WhatsAppConversationStatus {
+  ACTIVE
+  NEEDS_HUMAN
+  CLOSED
+}
+
+enum WhatsAppIntent {
+  AGENDAR_CITA
+  CONFIRMAR_CITA
+  CANCELAR_CITA
+  REAGENDAR_CITA
+  VER_CITA
+  HABLAR_CON_PERSONA
+  VER_AGENDA_HOY
+  VER_AGENDA_MANANA
+  CREAR_CITA
+  BLOQUEAR_HORARIO
+  RESUMEN_DIA
+}
+
+enum WhatsAppMessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum WhatsAppMessageType {
+  TEXT
+  INTERACTIVE
+  TEMPLATE
+  SYSTEM
+}
+
+enum WhatsAppMessageStatus {
+  RECEIVED
+  PROCESSED
+  SENT
+  FAILED
+}
+
+enum WhatsAppBookingDraftStatus {
+  COLLECTING_SERVICE
+  COLLECTING_DOCTOR
+  COLLECTING_TIME
+  COLLECTING_PATIENT
+  READY_TO_CONFIRM
+  CONFIRMED
+  CANCELLED
+}
+
 model User {
   id                String         @id @default(cuid())
   name              String
@@ -56,6 +105,7 @@ model User {
   doctorProfiles    Doctor[]       @relation("DoctorLinkedUser")
   auditLogs         AuditLog[]
   sessions          Session[]
+  whatsAppCommandLogs WhatsAppCommandLog[]
 
   @@index([isActive])
 }
@@ -92,6 +142,10 @@ model Clinic {
   tokens       AppointmentToken[]
   payments     Payment[]
   auditLogs    AuditLog[]
+  whatsAppConversations WhatsAppConversation[]
+  whatsAppMessages      WhatsAppMessage[]
+  whatsAppBookingDrafts WhatsAppBookingDraft[]
+  whatsAppCommandLogs   WhatsAppCommandLog[]
 
   @@index([isActive])
 }
@@ -125,6 +179,7 @@ model Doctor {
   clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   user         User?         @relation("DoctorLinkedUser", fields: [userId], references: [id], onDelete: SetNull)
   appointments Appointment[]
+  whatsAppBookingDrafts WhatsAppBookingDraft[]
 
   @@unique([clinicId, userId])
   @@index([clinicId, isActive])
@@ -145,6 +200,7 @@ model Service {
   updatedAt       DateTime      @updatedAt
   clinic          Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   appointments    Appointment[]
+  whatsAppBookingDrafts WhatsAppBookingDraft[]
 
   @@unique([clinicId, name])
   @@index([clinicId, isActive])
@@ -161,6 +217,7 @@ model Patient {
   updatedAt    DateTime      @updatedAt
   clinic       Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   appointments Appointment[]
+  whatsAppConversations WhatsAppConversation[]
 
   @@unique([clinicId, phoneE164])
   @@index([clinicId, name])
@@ -185,6 +242,7 @@ model Appointment {
   patient    Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
   tokens     AppointmentToken[]
   payments   Payment[]
+  whatsAppBookingDrafts WhatsAppBookingDraft[]
 
   @@index([clinicId, startAt])
   @@index([clinicId, status, startAt])
@@ -241,4 +299,83 @@ model AuditLog {
   @@index([clinicId, createdAt])
   @@index([userId, createdAt])
   @@index([entityType, entityId])
+}
+
+model WhatsAppConversation {
+  id            String                     @id @default(cuid())
+  clinicId      String
+  patientId     String?
+  phoneE164     String
+  status        WhatsAppConversationStatus @default(ACTIVE)
+  currentIntent WhatsAppIntent?
+  lastMessageAt DateTime                   @default(now())
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
+  clinic        Clinic                     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient       Patient?                   @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  messages      WhatsAppMessage[]
+  bookingDrafts WhatsAppBookingDraft[]
+  commandLogs   WhatsAppCommandLog[]
+
+  @@unique([clinicId, phoneE164])
+  @@index([clinicId, status, lastMessageAt])
+}
+
+model WhatsAppMessage {
+  id             String                   @id @default(cuid())
+  clinicId       String
+  conversationId String
+  direction      WhatsAppMessageDirection
+  messageType    WhatsAppMessageType
+  body           String?
+  payloadJson    Json?
+  status         WhatsAppMessageStatus    @default(RECEIVED)
+  createdAt      DateTime                 @default(now())
+  clinic         Clinic                   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  conversation   WhatsAppConversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([clinicId, conversationId, createdAt])
+}
+
+model WhatsAppBookingDraft {
+  id            String                     @id @default(cuid())
+  clinicId      String
+  conversationId String
+  patientName   String?
+  phoneE164     String
+  serviceId     String?
+  doctorId      String?
+  preferredDate DateTime?
+  preferredTime String?
+  appointmentId String?
+  status        WhatsAppBookingDraftStatus @default(COLLECTING_SERVICE)
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
+  clinic        Clinic                     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  conversation  WhatsAppConversation       @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  service       Service?                   @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  doctor        Doctor?                    @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+  appointment   Appointment?               @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId, conversationId, status])
+  @@index([clinicId, phoneE164, status])
+}
+
+model WhatsAppCommandLog {
+  id             String                @id @default(cuid())
+  clinicId       String
+  userId         String?
+  conversationId String?
+  command        String
+  parsedIntent   WhatsAppIntent?
+  success        Boolean
+  errorMessage   String?
+  metadataJson   Json?
+  createdAt      DateTime              @default(now())
+  clinic         Clinic                @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  user           User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+  conversation   WhatsAppConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId, createdAt])
+  @@index([conversationId, createdAt])
 }

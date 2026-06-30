@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+@theme inline {
+  --font-sans: var(--font-manrope);
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-ink: #0f172a;
+  --color-muted: #475569;
+  --color-line: #dbe4f0;
+  --shadow-card: 0 25px 60px -40px rgba(15, 23, 42, 0.3);
+  --shadow-float: 0 30px 90px -50px rgba(37, 99, 235, 0.35);
+}
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-white text-ink antialiased;
+    background-image:
+      radial-gradient(circle at 12% 0%, rgba(37, 99, 235, 0.13), transparent 28%),
+      radial-gradient(circle at 85% 10%, rgba(14, 165, 233, 0.08), transparent 24%),
+      linear-gradient(180deg, #f8fbff 0%, #f5f7fb 28%, #ffffff 100%);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 46px 46px;
+    mask-image: linear-gradient(180deg, rgba(255, 255, 255, 0.6), transparent 80%);
+  }
+}
+
+@layer utilities {
+  .container-shell {
+    @apply mx-auto w-full max-w-6xl px-6 sm:px-8 lg:px-10;
+  }
+
+  .section-space {
+    @apply py-20 sm:py-24;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "cita-flow",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Landing page de CitaFlow construida con Next.js, TypeScript y Tailwind CSS.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "nextjs",
+    "landing-page",
+    "medical-saas"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "next": "^16.2.9",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.2",
+    "@types/node": "^26.0.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.9",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^6.0.3"
+  }
+}

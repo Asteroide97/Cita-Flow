@@ -1,3 +1,4 @@
+import { PrismaPg } from "@prisma/adapter-pg";
 import {
   AppointmentSource,
   AppointmentStatus,
@@ -14,7 +15,25 @@ import {
 } from "../src/lib/demo-tenant";
 import { hashPassword } from "../src/lib/security/password";
 
-const prisma = new PrismaClient();
+function getDatabaseUrl() {
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+
+  if (!databaseUrl) {
+    throw new Error(
+      "DATABASE_URL no esta configurada. Define la conexion PostgreSQL antes de ejecutar el seed.",
+    );
+  }
+
+  return databaseUrl;
+}
+
+const adapter = new PrismaPg({
+  connectionString: getDatabaseUrl(),
+});
+
+const prisma = new PrismaClient({
+  adapter,
+});
 
 const DEMO_USER_ID = "user_demo_owner";
 const DEMO_USER_EMAIL = "demo@citaflow.app";

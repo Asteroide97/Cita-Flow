@@ -7,6 +7,7 @@ import {
 
 import { createAuditLog } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
+import { createAppointmentTokens } from "@/lib/appointments/tokens";
 
 type AvailabilityClient = Prisma.TransactionClient | typeof prisma;
 
@@ -996,17 +997,26 @@ export async function getAvailableSlots(
     doctorId,
     serviceId,
     date,
+    excludeAppointmentId,
     db = prisma,
   }: {
     clinicId: string;
     doctorId: string;
     serviceId: string;
     date: Date;
+    excludeAppointmentId?: string;
     db?: AvailabilityClient;
   },
   skipValidationAudit = false,
 ): Promise<GetAvailableSlotsResult> {
-  const loaded = await loadAvailabilityContext(clinicId, doctorId, serviceId, date, db);
+  const loaded = await loadAvailabilityContext(
+    clinicId,
+    doctorId,
+    serviceId,
+    date,
+    db,
+    excludeAppointmentId,
+  );
   const timezone = loaded.clinic?.timezone ?? "America/Mexico_City";
 
   if (
@@ -1187,6 +1197,19 @@ export async function createAppointmentSafely({
     },
     db,
   );
+
+  if (
+    source === AppointmentSource.ADMIN ||
+    source === AppointmentSource.PUBLIC_BOOKING ||
+    source === AppointmentSource.WHATSAPP
+  ) {
+    await createAppointmentTokens({
+      clinicId,
+      appointmentId: appointment.id,
+      appointmentStartAt: appointment.startAt,
+      db,
+    });
+  }
 
   return appointment;
 }

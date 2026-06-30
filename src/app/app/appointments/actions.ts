@@ -10,10 +10,12 @@ import {
   getAvailableSlots,
   parseIsoDateInput,
 } from "@/lib/appointments/availability";
+import { createAppointmentTokens } from "@/lib/appointments/tokens";
 import { createAuditLog } from "@/lib/audit";
 import { requireAuthContext } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { normalizeWhatsAppPhone } from "@/lib/whatsapp/engine";
+import type { AppointmentSelfServiceLinksState } from "@/types/appointments";
 
 type AppointmentsPathOptions = {
   status?: string;
@@ -545,4 +547,60 @@ export async function updateAppointmentStatusAction(formData: FormData) {
 
   revalidateAppointmentViews();
   redirect(appendFeedbackToPath(redirectPath, { status: successStatus }));
+}
+
+export async function generateAppointmentSelfServiceLinksAction(
+  _previousState: AppointmentSelfServiceLinksState,
+  formData: FormData,
+): Promise<AppointmentSelfServiceLinksState> {
+  const authContext = await requireAuthContext();
+  const appointmentId = String(formData.get("appointmentId") ?? "").trim();
+
+  if (process.env.NODE_ENV === "production") {
+    return {
+      error: "Los enlaces de prueba solo estan disponibles en desarrollo.",
+      links: null,
+    };
+  }
+
+  if (!appointmentId) {
+    return {
+      error: "No encontre la cita para generar enlaces de autoservicio.",
+      links: null,
+    };
+  }
+
+  const appointment = await prisma.appointment.findFirst({
+    where: {
+      id: appointmentId,
+      clinicId: authContext.clinic.id,
+    },
+    select: {
+      id: true,
+      clinicId: true,
+      startAt: true,
+    },
+  });
+
+  if (!appointment) {
+    return {
+      error: "No encontre la cita dentro de la clinica actual.",
+      links: null,
+    };
+  }
+
+  const tokenBundle = await createAppointmentTokens({
+    clinicId: appointment.clinicId,
+    appointmentId: appointment.id,
+    appointmentStartAt: appointment.startAt,
+  });
+
+  return {
+    error: null,
+    links: {
+      confirmUrl: tokenBundle.confirm.url,
+      cancelUrl: tokenBundle.cancel.url,
+      rescheduleUrl: tokenBundle.reschedule.url,
+    },
+  };
 }

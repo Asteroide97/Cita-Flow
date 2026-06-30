@@ -1,4 +1,5 @@
 import type { AppointmentListItem } from "@/types/appointments";
+import { getDevelopmentAppointmentLinks } from "@/lib/appointments/tokens";
 
 import {
   appointmentSourceLabels,
@@ -6,6 +7,7 @@ import {
   formatAppointmentPhone,
 } from "./appointment-helpers";
 import { AppointmentActions } from "./appointment-actions";
+import { AppointmentSelfServiceLinks } from "./appointment-self-service-links";
 import { AppointmentStatusBadge } from "./appointment-status-badge";
 import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
 
@@ -22,6 +24,11 @@ export function AppointmentCard({
   currency,
   statusAction,
 }: AppointmentCardProps) {
+  const initialLinks =
+    process.env.NODE_ENV !== "production"
+      ? getDevelopmentAppointmentLinks(appointment.id)
+      : null;
+
   return (
     <article className="surface-card p-6 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -94,6 +101,13 @@ export function AppointmentCard({
         status={appointment.status}
         action={statusAction}
       />
+
+      {process.env.NODE_ENV !== "production" ? (
+        <AppointmentSelfServiceLinks
+          appointmentId={appointment.id}
+          initialLinks={initialLinks}
+        />
+      ) : null}
     </article>
   );
 }

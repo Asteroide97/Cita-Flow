@@ -103,3 +103,12 @@ export type AppointmentCreateContext = {
 export type AppointmentStatusLabels = Record<AppointmentStatus, string>;
 
 export type AppointmentSourceLabels = Record<AppointmentSource, string>;
+
+export type AppointmentSelfServiceLinksState = {
+  error: string | null;
+  links: {
+    confirmUrl: string;
+    cancelUrl: string;
+    rescheduleUrl: string;
+  } | null;
+};

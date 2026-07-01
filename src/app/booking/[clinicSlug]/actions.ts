@@ -4,6 +4,7 @@ import {
   AppointmentSource,
   AppointmentStatus,
   Prisma,
+  WaitlistStatus,
 } from "@prisma/client";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -21,14 +22,19 @@ import {
   getBookingClientIp,
   isValidBookingEmail,
   normalizeBookingEmail,
+  resolvePreferredTimeRange,
 } from "@/lib/booking/public";
 import {
   clearPublicBookingRateLimit,
   getPublicBookingRateLimitStatus,
   registerPublicBookingAttempt,
 } from "@/lib/booking/rate-limit";
-import { enqueueAppointmentCreatedNotifications } from "@/lib/notifications/outbox";
+import {
+  enqueueAppointmentCreatedNotifications,
+  enqueueWaitlistEntryCreatedNotifications,
+} from "@/lib/notifications/outbox";
 import { prisma } from "@/lib/prisma";
+import type { BookingStepAnchor } from "@/types/booking";
 import { normalizeWhatsAppPhone } from "@/lib/whatsapp/engine";
 
 type BookingRedirectState = {
@@ -39,6 +45,16 @@ type BookingRedirectState = {
   slotTime?: string | null;
   error?: string | null;
   status?: string | null;
+  focus?: BookingStepAnchor | null;
+  waitlist?: boolean | null;
+};
+
+type PublicClinicContext = {
+  id: string;
+  name: string;
+  slug: string;
+  timezone: string;
+  isActive: boolean;
 };
 
 function normalizeOptionalText(value: FormDataEntryValue | null) {
@@ -55,6 +71,8 @@ function buildBookingRedirectPath(state: BookingRedirectState) {
     slotTime: state.slotTime,
     error: state.error,
     status: state.status,
+    focus: state.focus,
+    waitlist: state.waitlist,
   });
 }
 
@@ -68,6 +86,21 @@ function buildPhoneRateLimitKey(rawValue: string) {
   const digits = rawValue.replace(/\D/g, "");
 
   return digits || "unknown";
+}
+
+async function loadPublicClinic(clinicSlug: string) {
+  return prisma.clinic.findUnique({
+    where: {
+      slug: clinicSlug,
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      timezone: true,
+      isActive: true,
+    },
+  }) as Promise<PublicClinicContext | null>;
 }
 
 async function registerPublicBookingFailure(params: {
@@ -102,12 +135,13 @@ async function registerPublicBookingFailure(params: {
   });
 }
 
-async function resolvePublicBookingPatient(params: {
+async function resolvePublicPatient(params: {
   transaction: Prisma.TransactionClient;
   clinicId: string;
   patientName: string;
   patientPhone: string;
   patientEmail: string | null;
+  createAuditAction: string;
 }) {
   const existingPatient = await params.transaction.patient.findUnique({
     where: {
@@ -156,7 +190,7 @@ async function resolvePublicBookingPatient(params: {
   await createAuditLog(
     {
       clinicId: params.clinicId,
-      action: "PUBLIC_BOOKING_PATIENT_CREATED",
+      action: params.createAuditAction,
       entityType: "PATIENT",
       entityId: createdPatient.id,
       metadata: {
@@ -171,6 +205,42 @@ async function resolvePublicBookingPatient(params: {
   return {
     id: createdPatient.id,
     wasCreated: true,
+  };
+}
+
+async function resolveActiveBookingCatalog(params: {
+  clinicId: string;
+  serviceId: string;
+  doctorId: string;
+}) {
+  const [service, doctor] = await Promise.all([
+    prisma.service.findFirst({
+      where: {
+        id: params.serviceId,
+        clinicId: params.clinicId,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+    prisma.doctor.findFirst({
+      where: {
+        id: params.doctorId,
+        clinicId: params.clinicId,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+  ]);
+
+  return {
+    service,
+    doctor,
   };
 }
 
@@ -195,18 +265,7 @@ export async function createPublicBookingAction(formData: FormData) {
     redirect("/");
   }
 
-  const clinic = await prisma.clinic.findUnique({
-    where: {
-      slug: clinicSlug,
-    },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      timezone: true,
-      isActive: true,
-    },
-  });
+  const clinic = await loadPublicClinic(clinicSlug);
 
   if (!clinic || !clinic.isActive) {
     await registerPublicBookingFailure({
@@ -265,6 +324,7 @@ export async function createPublicBookingAction(formData: FormData) {
         date,
         slotTime,
         error: "rate-limited",
+        focus: "datos",
       }),
     );
   }
@@ -282,7 +342,13 @@ export async function createPublicBookingAction(formData: FormData) {
       phone: patientPhoneRaw,
     });
 
-    redirect(buildBookingRedirectPath({ clinicSlug, error: "service-required" }));
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        error: "service-required",
+        focus: "servicio",
+      }),
+    );
   }
 
   if (!doctorId) {
@@ -303,6 +369,7 @@ export async function createPublicBookingAction(formData: FormData) {
         clinicSlug,
         serviceId,
         error: "doctor-required",
+        focus: "doctor",
       }),
     );
   }
@@ -326,6 +393,7 @@ export async function createPublicBookingAction(formData: FormData) {
         serviceId,
         doctorId,
         error: "date-required",
+        focus: "fecha-hora",
       }),
     );
   }
@@ -350,6 +418,7 @@ export async function createPublicBookingAction(formData: FormData) {
         doctorId,
         date,
         error: "slot-required",
+        focus: "fecha-hora",
       }),
     );
   }
@@ -375,6 +444,7 @@ export async function createPublicBookingAction(formData: FormData) {
         date,
         slotTime,
         error: "patient-name-required",
+        focus: "datos",
       }),
     );
   }
@@ -400,6 +470,7 @@ export async function createPublicBookingAction(formData: FormData) {
         date,
         slotTime,
         error: "patient-phone-required",
+        focus: "datos",
       }),
     );
   }
@@ -429,6 +500,7 @@ export async function createPublicBookingAction(formData: FormData) {
         date,
         slotTime,
         error: "patient-phone-invalid",
+        focus: "datos",
       }),
     );
   }
@@ -456,6 +528,7 @@ export async function createPublicBookingAction(formData: FormData) {
         date,
         slotTime,
         error: "patient-email-invalid",
+        focus: "datos",
       }),
     );
   }
@@ -483,34 +556,16 @@ export async function createPublicBookingAction(formData: FormData) {
         serviceId,
         doctorId,
         error: "date-required",
+        focus: "fecha-hora",
       }),
     );
   }
 
-  const [service, doctor] = await Promise.all([
-    prisma.service.findFirst({
-      where: {
-        id: serviceId,
-        clinicId: clinic.id,
-        isActive: true,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    }),
-    prisma.doctor.findFirst({
-      where: {
-        id: doctorId,
-        clinicId: clinic.id,
-        isActive: true,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    }),
-  ]);
+  const { service, doctor } = await resolveActiveBookingCatalog({
+    clinicId: clinic.id,
+    serviceId,
+    doctorId,
+  });
 
   if (!service) {
     registerPublicBookingAttempt(ipAddress, phoneRateLimitKey);
@@ -531,6 +586,7 @@ export async function createPublicBookingAction(formData: FormData) {
       buildBookingRedirectPath({
         clinicSlug,
         error: "service-unavailable",
+        focus: "servicio",
       }),
     );
   }
@@ -555,6 +611,7 @@ export async function createPublicBookingAction(formData: FormData) {
         clinicSlug,
         serviceId,
         error: "doctor-unavailable",
+        focus: "doctor",
       }),
     );
   }
@@ -594,18 +651,20 @@ export async function createPublicBookingAction(formData: FormData) {
         doctorId,
         date,
         error: "slot-unavailable",
+        focus: "fecha-hora",
       }),
     );
   }
 
   try {
     const appointment = await prisma.$transaction(async (transaction) => {
-      const patient = await resolvePublicBookingPatient({
+      const patient = await resolvePublicPatient({
         transaction,
         clinicId: clinic.id,
         patientName,
         patientPhone: normalizedPhone,
         patientEmail,
+        createAuditAction: "PUBLIC_BOOKING_PATIENT_CREATED",
       });
 
       const createdAppointment = await createAppointmentSafely({
@@ -709,6 +768,342 @@ export async function createPublicBookingAction(formData: FormData) {
         doctorId,
         date,
         error: isSlotStillAvailable ? "booking-save" : "slot-unavailable",
+        focus: isSlotStillAvailable ? "datos" : "fecha-hora",
+      }),
+    );
+  }
+}
+
+export async function createPublicWaitlistEntryAction(formData: FormData) {
+  const requestHeaders = await headers();
+  const ipAddress = getBookingClientIp(requestHeaders);
+  const clinicSlug = String(formData.get("clinicSlug") ?? "").trim();
+  const serviceId = String(formData.get("serviceId") ?? "").trim();
+  const doctorId = String(formData.get("doctorId") ?? "").trim();
+  const selectedDate = String(formData.get("returnDate") ?? "").trim();
+  const patientName = normalizeOptionalText(formData.get("patientName"));
+  const patientPhoneRaw = normalizeOptionalText(formData.get("patientPhone"));
+  const patientEmailRaw = normalizeOptionalText(formData.get("patientEmail"));
+  const preferredDateRaw = normalizeOptionalText(formData.get("preferredDate"));
+  const preferredRange = String(formData.get("preferredRange") ?? "ANY").trim();
+  const autoAccept = String(formData.get("autoAccept") ?? "") === "1";
+  const notes = normalizeOptionalText(formData.get("notes"));
+  const patientEmail = patientEmailRaw
+    ? normalizeBookingEmail(patientEmailRaw)
+    : null;
+  const phoneRateLimitKey = buildPhoneRateLimitKey(patientPhoneRaw ?? "");
+
+  if (!clinicSlug) {
+    redirect("/");
+  }
+
+  const clinic = await loadPublicClinic(clinicSlug);
+
+  if (!clinic || !clinic.isActive) {
+    await registerPublicBookingFailure({
+      clinicId: clinic?.id ?? null,
+      clinicSlug,
+      reason: "CLINIC_UNAVAILABLE",
+      ipAddress,
+      serviceId,
+      doctorId,
+      date: selectedDate,
+      phone: patientPhoneRaw,
+    });
+
+    redirect(buildBookingRedirectPath({ clinicSlug, error: "clinic-unavailable" }));
+  }
+
+  const rateLimitStatus = getPublicBookingRateLimitStatus(
+    ipAddress,
+    phoneRateLimitKey,
+  );
+
+  if (!rateLimitStatus.allowed) {
+    await registerPublicBookingFailure({
+      clinicId: clinic.id,
+      clinicSlug,
+      reason: "WAITLIST_RATE_LIMITED",
+      ipAddress,
+      serviceId,
+      doctorId,
+      date: selectedDate,
+      phone: patientPhoneRaw,
+      retryAfterSeconds: rateLimitStatus.retryAfterSeconds,
+    });
+
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId,
+        doctorId,
+        date: selectedDate,
+        error: "rate-limited",
+        focus: "lista-espera",
+        waitlist: true,
+      }),
+    );
+  }
+
+  if (!serviceId) {
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        error: "service-required",
+        focus: "servicio",
+      }),
+    );
+  }
+
+  if (!doctorId) {
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId,
+        error: "doctor-required",
+        focus: "doctor",
+      }),
+    );
+  }
+
+  if (!patientName) {
+    await registerPublicBookingFailure({
+      clinicId: clinic.id,
+      clinicSlug,
+      reason: "WAITLIST_NAME_REQUIRED",
+      ipAddress,
+      serviceId,
+      doctorId,
+      date: selectedDate,
+      phone: patientPhoneRaw,
+    });
+
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId,
+        doctorId,
+        date: selectedDate,
+        error: "waitlist-name-required",
+        focus: "lista-espera",
+        waitlist: true,
+      }),
+    );
+  }
+
+  if (!patientPhoneRaw) {
+    await registerPublicBookingFailure({
+      clinicId: clinic.id,
+      clinicSlug,
+      reason: "WAITLIST_PHONE_REQUIRED",
+      ipAddress,
+      serviceId,
+      doctorId,
+      date: selectedDate,
+      phone: patientPhoneRaw,
+    });
+
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId,
+        doctorId,
+        date: selectedDate,
+        error: "waitlist-phone-required",
+        focus: "lista-espera",
+        waitlist: true,
+      }),
+    );
+  }
+
+  const normalizedPhone = normalizeWhatsAppPhone(patientPhoneRaw);
+
+  if (!normalizedPhone) {
+    registerPublicBookingAttempt(ipAddress, phoneRateLimitKey);
+
+    await registerPublicBookingFailure({
+      clinicId: clinic.id,
+      clinicSlug,
+      reason: "WAITLIST_PHONE_INVALID",
+      ipAddress,
+      serviceId,
+      doctorId,
+      date: selectedDate,
+      phone: patientPhoneRaw,
+    });
+
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId,
+        doctorId,
+        date: selectedDate,
+        error: "waitlist-phone-invalid",
+        focus: "lista-espera",
+        waitlist: true,
+      }),
+    );
+  }
+
+  if (patientEmail && !isValidBookingEmail(patientEmail)) {
+    registerPublicBookingAttempt(ipAddress, phoneRateLimitKey);
+
+    await registerPublicBookingFailure({
+      clinicId: clinic.id,
+      clinicSlug,
+      reason: "WAITLIST_EMAIL_INVALID",
+      ipAddress,
+      serviceId,
+      doctorId,
+      date: selectedDate,
+      phone: normalizedPhone,
+    });
+
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId,
+        doctorId,
+        date: selectedDate,
+        error: "waitlist-email-invalid",
+        focus: "lista-espera",
+        waitlist: true,
+      }),
+    );
+  }
+
+  const { service, doctor } = await resolveActiveBookingCatalog({
+    clinicId: clinic.id,
+    serviceId,
+    doctorId,
+  });
+
+  if (!service) {
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        error: "service-unavailable",
+        focus: "servicio",
+      }),
+    );
+  }
+
+  if (!doctor) {
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId,
+        error: "doctor-unavailable",
+        focus: "doctor",
+      }),
+    );
+  }
+
+  const preferredDateParts = preferredDateRaw
+    ? parseIsoDateInput(preferredDateRaw)
+    : null;
+  const preferredDate = preferredDateParts
+    ? buildClinicDateMarker(preferredDateParts, clinic.timezone)
+    : null;
+  const preferredWindow = resolvePreferredTimeRange(preferredRange);
+
+  try {
+    await prisma.$transaction(async (transaction) => {
+      const patient = await resolvePublicPatient({
+        transaction,
+        clinicId: clinic.id,
+        patientName,
+        patientPhone: normalizedPhone,
+        patientEmail,
+        createAuditAction: "PUBLIC_BOOKING_PATIENT_CREATED",
+      });
+
+      const waitlistEntry = await transaction.waitlistEntry.create({
+        data: {
+          clinicId: clinic.id,
+          patientId: patient.id,
+          serviceId: service.id,
+          doctorId: doctor.id,
+          preferredDate,
+          preferredStartTime: preferredWindow.startTime,
+          preferredEndTime: preferredWindow.endTime,
+          notes,
+          autoAccept,
+          status: WaitlistStatus.ACTIVE,
+        },
+        select: {
+          id: true,
+          preferredDate: true,
+        },
+      });
+
+      await createAuditLog(
+        {
+          clinicId: clinic.id,
+          action: "WAITLIST_ENTRY_CREATED",
+          entityType: "WAITLIST_ENTRY",
+          entityId: waitlistEntry.id,
+          metadata: {
+            patientId: patient.id,
+            serviceId: service.id,
+            doctorId: doctor.id,
+            preferredDate: waitlistEntry.preferredDate?.toISOString() ?? null,
+            preferredRange,
+            autoAccept,
+            notes,
+          },
+        },
+        transaction,
+      );
+
+      await enqueueWaitlistEntryCreatedNotifications({
+        clinicId: clinic.id,
+        waitlistEntryId: waitlistEntry.id,
+        db: transaction,
+      });
+    });
+
+    clearPublicBookingRateLimit(ipAddress, phoneRateLimitKey);
+
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId,
+        doctorId,
+        date: preferredDateRaw ?? selectedDate,
+        status: "waitlist-created",
+        focus: "fecha-hora",
+      }),
+    );
+  } catch (error) {
+    registerPublicBookingAttempt(ipAddress, phoneRateLimitKey);
+    console.error("No se pudo registrar la lista de espera publica.", error);
+
+    await registerPublicBookingFailure({
+      clinicId: clinic.id,
+      clinicSlug,
+      reason: "WAITLIST_SAVE_FAILED",
+      ipAddress,
+      serviceId,
+      doctorId,
+      date: preferredDateRaw ?? selectedDate,
+      phone: normalizedPhone,
+      metadata: {
+        errorMessage: error instanceof Error ? error.message : "UNKNOWN_ERROR",
+        preferredRange,
+        autoAccept,
+      },
+    });
+
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId,
+        doctorId,
+        date: preferredDateRaw ?? selectedDate,
+        error: "waitlist-save",
+        focus: "lista-espera",
+        waitlist: true,
       }),
     );
   }

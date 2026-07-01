@@ -55,6 +55,22 @@ enum NotificationStatus {
   CANCELLED
 }
 
+enum WaitlistStatus {
+  ACTIVE
+  OFFERED
+  CONVERTED
+  CANCELLED
+  EXPIRED
+}
+
+enum WaitlistOfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
+}
+
 enum Weekday {
   MONDAY
   TUESDAY
@@ -172,6 +188,8 @@ model Clinic {
   doctorTimeOffs        DoctorTimeOff[]
   blockedTimes          ClinicBlockedTime[]
   notifications         NotificationOutbox[]
+  waitlistEntries       WaitlistEntry[]
+  waitlistOffers        WaitlistOffer[]
 
   @@index([isActive])
 }
@@ -208,6 +226,7 @@ model Doctor {
   whatsAppBookingDrafts WhatsAppBookingDraft[]
   availabilityBlocks    DoctorAvailability[]
   timeOffs              DoctorTimeOff[]
+  waitlistEntries       WaitlistEntry[]
 
   @@unique([clinicId, userId])
   @@index([clinicId, isActive])
@@ -229,6 +248,7 @@ model Service {
   clinic                Clinic                 @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   appointments          Appointment[]
   whatsAppBookingDrafts WhatsAppBookingDraft[]
+  waitlistEntries       WaitlistEntry[]
 
   @@unique([clinicId, name])
   @@index([clinicId, isActive])
@@ -247,6 +267,7 @@ model Patient {
   appointments          Appointment[]
   whatsAppConversations WhatsAppConversation[]
   notifications         NotificationOutbox[]
+  waitlistEntries       WaitlistEntry[]
 
   @@unique([clinicId, phoneE164])
   @@index([clinicId, name])
@@ -273,6 +294,7 @@ model Appointment {
   payments              Payment[]
   whatsAppBookingDrafts WhatsAppBookingDraft[]
   notifications         NotificationOutbox[]
+  waitlistOffers        WaitlistOffer[]
 
   @@index([clinicId, startAt])
   @@index([clinicId, status, startAt])
@@ -340,6 +362,54 @@ model NotificationOutbox {
   @@index([clinicId, scheduledFor])
   @@index([appointmentId])
   @@index([patientId])
+}
+
+model WaitlistEntry {
+  id                 String          @id @default(cuid())
+  clinicId           String
+  patientId          String
+  serviceId          String
+  doctorId           String?
+  preferredDate      DateTime?
+  preferredStartTime String?
+  preferredEndTime   String?
+  notes              String?
+  autoAccept         Boolean         @default(false)
+  status             WaitlistStatus  @default(ACTIVE)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  clinic             Clinic          @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient            Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  service            Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  doctor             Doctor?         @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+  offers             WaitlistOffer[]
+
+  @@index([clinicId, status, createdAt])
+  @@index([clinicId, serviceId, status, createdAt])
+  @@index([clinicId, doctorId, status, createdAt])
+  @@index([patientId, createdAt])
+}
+
+model WaitlistOffer {
+  id             String              @id @default(cuid())
+  clinicId       String
+  waitlistEntryId String
+  appointmentId  String?
+  offeredStartAt DateTime
+  offeredEndAt   DateTime
+  status         WaitlistOfferStatus @default(PENDING)
+  expiresAt      DateTime
+  tokenHash      String              @unique
+  consumedAt     DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  clinic         Clinic              @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  waitlistEntry  WaitlistEntry       @relation(fields: [waitlistEntryId], references: [id], onDelete: Cascade)
+  appointment    Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId, status, expiresAt])
+  @@index([waitlistEntryId, createdAt])
+  @@index([appointmentId])
 }
 
 model AuditLog {

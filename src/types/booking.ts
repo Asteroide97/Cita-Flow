@@ -9,7 +9,27 @@ export type BookingPageSearchParams = {
   slotTime?: string;
   status?: string;
   error?: string;
+  focus?: BookingStepAnchor;
+  waitlist?: string;
 };
+
+export type BookingStepAnchor =
+  | "servicio"
+  | "doctor"
+  | "fecha-hora"
+  | "datos"
+  | "lista-espera";
+
+export type BookingDateOption = {
+  value: string;
+  dayLabel: string;
+  monthLabel: string;
+  weekdayLabel: string;
+  fullLabel: string;
+  isToday: boolean;
+};
+
+export type BookingPreferredRange = "MORNING" | "AFTERNOON" | "ANY";
 
 export type BookingClinic = {
   id: string;

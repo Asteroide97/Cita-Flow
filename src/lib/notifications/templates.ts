@@ -12,6 +12,11 @@ export const notificationTemplateKeys = [
   "APPOINTMENT_RESCHEDULED",
   "APPOINTMENT_REMINDER_24H",
   "APPOINTMENT_REMINDER_2H",
+  "WAITLIST_ENTRY_CREATED",
+  "WAITLIST_SLOT_OFFERED",
+  "WAITLIST_AUTO_ASSIGNED",
+  "WAITLIST_OFFER_ACCEPTED",
+  "WAITLIST_OFFER_EXPIRED",
 ] as const;
 
 export type NotificationTemplateKey = (typeof notificationTemplateKeys)[number];
@@ -25,6 +30,11 @@ export const notificationTemplateLabels: Record<NotificationTemplateKey, string>
   APPOINTMENT_RESCHEDULED: "Cita reagendada",
   APPOINTMENT_REMINDER_24H: "Recordatorio 24 horas",
   APPOINTMENT_REMINDER_2H: "Recordatorio 2 horas",
+  WAITLIST_ENTRY_CREATED: "Entrada creada en lista de espera",
+  WAITLIST_SLOT_OFFERED: "Espacio ofrecido desde lista de espera",
+  WAITLIST_AUTO_ASSIGNED: "Horario asignado automaticamente desde lista de espera",
+  WAITLIST_OFFER_ACCEPTED: "Oferta de lista de espera aceptada",
+  WAITLIST_OFFER_EXPIRED: "Oferta de lista de espera expirada",
 };
 
 export type AppointmentNotificationTemplateContext = {
@@ -73,6 +83,60 @@ export type RenderedNotificationTemplate = {
     body: string;
   } | null;
   payload: Prisma.InputJsonValue;
+};
+
+export type WaitlistNotificationTemplateContext = {
+  clinic: {
+    id: string;
+    name: string;
+    slug: string;
+    timezone: string;
+    currency: string;
+    brandColor: string | null;
+  };
+  patient: {
+    id: string;
+    name: string;
+    phoneE164: string;
+    email: string | null;
+  };
+  service: {
+    id: string;
+    name: string;
+    durationMinutes: number;
+    priceCents: number | null;
+    depositRequired: boolean;
+    depositCents: number | null;
+  };
+  doctor?: {
+    id: string;
+    name: string;
+    specialty: string | null;
+  } | null;
+  waitlistEntry: {
+    id: string;
+    preferredDate: Date | null;
+    preferredStartTime: string | null;
+    preferredEndTime: string | null;
+    autoAccept: boolean;
+    notes: string | null;
+    createdAt: Date;
+  };
+  offer?: {
+    id: string;
+    offeredStartAt: Date;
+    offeredEndAt: Date;
+    expiresAt: Date;
+    acceptUrl?: string | null;
+    rejectUrl?: string | null;
+  } | null;
+  appointment?: {
+    id: string;
+    startAt: Date;
+    endAt: Date;
+    source: AppointmentSource;
+    status: AppointmentStatus;
+  } | null;
 };
 
 function formatMoney(cents: number | null, currency: string) {
@@ -161,6 +225,89 @@ function buildPricingLines(context: AppointmentNotificationTemplateContext) {
   }
 
   return lines;
+}
+
+function buildWaitlistPreferenceLines(context: WaitlistNotificationTemplateContext) {
+  const lines = [`Servicio: ${context.service.name}`];
+
+  if (context.doctor) {
+    lines.push(
+      `Doctor preferido: ${context.doctor.name}${context.doctor.specialty ? ` - ${context.doctor.specialty}` : ""}`,
+    );
+  } else {
+    lines.push("Doctor preferido: Cualquier doctor disponible");
+  }
+
+  if (context.waitlistEntry.preferredDate) {
+    lines.push(
+      `Fecha preferida: ${formatDateTimeInTimeZone(
+        context.waitlistEntry.preferredDate,
+        context.clinic.timezone,
+      ).replace(/, 12:00$/, "")}`,
+    );
+  }
+
+  if (
+    context.waitlistEntry.preferredStartTime ||
+    context.waitlistEntry.preferredEndTime
+  ) {
+    lines.push(
+      `Horario preferido: ${context.waitlistEntry.preferredStartTime ?? "00:00"} - ${context.waitlistEntry.preferredEndTime ?? "23:59"}`,
+    );
+  } else {
+    lines.push("Horario preferido: Cualquier horario");
+  }
+
+  lines.push(
+    `Asignacion automatica: ${context.waitlistEntry.autoAccept ? "Si" : "No"}`,
+  );
+
+  if (context.waitlistEntry.notes) {
+    lines.push(`Notas: ${context.waitlistEntry.notes}`);
+  }
+
+  return lines;
+}
+
+function buildWaitlistOfferLines(context: WaitlistNotificationTemplateContext) {
+  if (!context.offer) {
+    return [];
+  }
+
+  return [
+    `Horario ofrecido: ${formatDateTimeInTimeZone(
+      context.offer.offeredStartAt,
+      context.clinic.timezone,
+    )}`,
+    `Vence: ${formatDateTimeInTimeZone(context.offer.expiresAt, context.clinic.timezone)}`,
+  ];
+}
+
+function buildWaitlistOfferLinks(context: WaitlistNotificationTemplateContext) {
+  if (!context.offer?.acceptUrl || !context.offer.rejectUrl) {
+    return [];
+  }
+
+  return [
+    "Responde a esta oferta desde estos enlaces:",
+    `Aceptar: ${context.offer.acceptUrl}`,
+    `Rechazar: ${context.offer.rejectUrl}`,
+  ];
+}
+
+function buildWaitlistAppointmentLines(context: WaitlistNotificationTemplateContext) {
+  if (!context.appointment || !context.doctor) {
+    return [];
+  }
+
+  return [
+    `Doctor asignado: ${context.doctor.name}${context.doctor.specialty ? ` - ${context.doctor.specialty}` : ""}`,
+    `Horario asignado: ${formatDateTimeInTimeZone(
+      context.appointment.startAt,
+      context.clinic.timezone,
+    )}`,
+    `Estado inicial: ${getAppointmentStatusLabel(context.appointment.status)}`,
+  ];
 }
 
 function buildMessage(params: {
@@ -386,4 +533,160 @@ export function renderNotificationTemplate(
       };
     }
   }
+
+  throw new Error(`Template de notificacion no soportado: ${templateKey}`);
+}
+
+function buildWaitlistPayload(
+  templateKey: NotificationTemplateKey,
+  context: WaitlistNotificationTemplateContext,
+) {
+  return {
+    templateKey,
+    clinic: context.clinic,
+    patient: context.patient,
+    service: context.service,
+    doctor: context.doctor ?? null,
+    waitlistEntry: {
+      id: context.waitlistEntry.id,
+      preferredDate: context.waitlistEntry.preferredDate?.toISOString() ?? null,
+      preferredStartTime: context.waitlistEntry.preferredStartTime,
+      preferredEndTime: context.waitlistEntry.preferredEndTime,
+      autoAccept: context.waitlistEntry.autoAccept,
+      notes: context.waitlistEntry.notes,
+      createdAt: context.waitlistEntry.createdAt.toISOString(),
+    },
+    offer: context.offer
+      ? {
+          id: context.offer.id,
+          offeredStartAt: context.offer.offeredStartAt.toISOString(),
+          offeredEndAt: context.offer.offeredEndAt.toISOString(),
+          expiresAt: context.offer.expiresAt.toISOString(),
+          acceptUrl: context.offer.acceptUrl ?? null,
+          rejectUrl: context.offer.rejectUrl ?? null,
+        }
+      : null,
+    appointment: context.appointment
+      ? {
+          id: context.appointment.id,
+          startAt: context.appointment.startAt.toISOString(),
+          endAt: context.appointment.endAt.toISOString(),
+          source: context.appointment.source,
+          status: context.appointment.status,
+        }
+      : null,
+  } satisfies Prisma.InputJsonValue;
+}
+
+export function renderWaitlistNotificationTemplate(
+  templateKey: Extract<
+    NotificationTemplateKey,
+    | "WAITLIST_ENTRY_CREATED"
+    | "WAITLIST_SLOT_OFFERED"
+    | "WAITLIST_AUTO_ASSIGNED"
+    | "WAITLIST_OFFER_ACCEPTED"
+    | "WAITLIST_OFFER_EXPIRED"
+  >,
+  context: WaitlistNotificationTemplateContext,
+): RenderedNotificationTemplate {
+  const preferences = buildWaitlistPreferenceLines(context);
+  const offerLines = buildWaitlistOfferLines(context);
+  const offerLinks = buildWaitlistOfferLinks(context);
+  const appointmentLines = buildWaitlistAppointmentLines(context);
+
+  switch (templateKey) {
+    case "WAITLIST_ENTRY_CREATED": {
+      const subject = `Te agregamos a la lista de espera - ${context.clinic.name}`;
+      const body = buildMessage({
+        intro: [
+          `Hola ${context.patient.name}, tu solicitud para lista de espera ya quedo registrada en ${context.clinic.name}.`,
+        ],
+        details: preferences,
+        footer: [
+          context.waitlistEntry.autoAccept
+            ? "Si se libera un espacio compatible, podremos asignarlo automaticamente en estado pendiente."
+            : "Si se libera un espacio compatible, te enviaremos una oferta para que la aceptes.",
+        ],
+      });
+
+      return {
+        whatsappBody: body,
+        email: context.patient.email ? { subject, body } : null,
+        payload: buildWaitlistPayload(templateKey, context),
+      };
+    }
+
+    case "WAITLIST_SLOT_OFFERED": {
+      const subject = `Se libero un horario para ti - ${context.clinic.name}`;
+      const body = buildMessage({
+        intro: [
+          `Hola ${context.patient.name}, encontramos un espacio compatible con tu lista de espera en ${context.clinic.name}.`,
+        ],
+        details: [...preferences, ...offerLines],
+        links: offerLinks,
+        footer: ["La oferta caduca automaticamente cuando venza el tiempo indicado."],
+      });
+
+      return {
+        whatsappBody: body,
+        email: context.patient.email ? { subject, body } : null,
+        payload: buildWaitlistPayload(templateKey, context),
+      };
+    }
+
+    case "WAITLIST_AUTO_ASSIGNED": {
+      const subject = `Te asignamos un horario compatible - ${context.clinic.name}`;
+      const body = buildMessage({
+        intro: [
+          `Hola ${context.patient.name}, se libero un espacio compatible y te lo asignamos automaticamente en ${context.clinic.name}.`,
+        ],
+        details: [...preferences, ...appointmentLines],
+        footer: [
+          "La cita se creo en estado pendiente para que el consultorio termine de confirmarla.",
+        ],
+      });
+
+      return {
+        whatsappBody: body,
+        email: context.patient.email ? { subject, body } : null,
+        payload: buildWaitlistPayload(templateKey, context),
+      };
+    }
+
+    case "WAITLIST_OFFER_ACCEPTED": {
+      const subject = `Confirmamos tu lugar desde lista de espera - ${context.clinic.name}`;
+      const body = buildMessage({
+        intro: [
+          `Hola ${context.patient.name}, registramos tu aceptacion de la oferta en ${context.clinic.name}.`,
+        ],
+        details: [...preferences, ...appointmentLines],
+        footer: ["Tu cita ya quedo creada y el consultorio dara seguimiento al horario."],
+      });
+
+      return {
+        whatsappBody: body,
+        email: context.patient.email ? { subject, body } : null,
+        payload: buildWaitlistPayload(templateKey, context),
+      };
+    }
+
+    case "WAITLIST_OFFER_EXPIRED": {
+      const subject = `La oferta de lista de espera expiro - ${context.clinic.name}`;
+      const body = buildMessage({
+        intro: [
+          `Hola ${context.patient.name}, la oferta que te hicimos desde la lista de espera ya expiro en ${context.clinic.name}.`,
+        ],
+        details: [...preferences, ...offerLines],
+        footer: ["Si sigues interesado, mantendremos tu entrada activa para futuras coincidencias."],
+      });
+
+      return {
+        whatsappBody: body,
+        email: context.patient.email ? { subject, body } : null,
+        payload: buildWaitlistPayload(templateKey, context),
+      };
+    }
+  }
+
+  throw new Error(`Template de lista de espera no soportado: ${templateKey}`);
 }

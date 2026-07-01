@@ -25,9 +25,9 @@ export function PatientDetailsStep({
   action,
 }: PatientDetailsStepProps) {
   return (
-    <section className="surface-card p-6 sm:p-7">
+    <section id="datos" className="surface-card scroll-mt-6 p-6 sm:p-7" tabIndex={-1}>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-        Paso 5
+        Paso 4
       </p>
       <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
         Completa tus datos

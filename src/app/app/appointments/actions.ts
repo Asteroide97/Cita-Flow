@@ -18,6 +18,7 @@ import {
   enqueueAppointmentStatusChangedNotification,
 } from "@/lib/notifications/outbox";
 import { prisma } from "@/lib/prisma";
+import { processWaitlistForCancelledAppointment } from "@/lib/waitlist/matching";
 import { normalizeWhatsAppPhone } from "@/lib/whatsapp/engine";
 import type { AppointmentSelfServiceLinksState } from "@/types/appointments";
 
@@ -113,6 +114,7 @@ function revalidateAppointmentViews() {
   revalidatePath("/app/doctors");
   revalidatePath("/app/notifications");
   revalidatePath("/app/services");
+  revalidatePath("/app/waitlist");
   revalidatePath("/app/whatsapp-simulator");
 }
 
@@ -572,6 +574,13 @@ export async function updateAppointmentStatusAction(formData: FormData) {
         clinicId: authContext.clinic.id,
         appointmentId: appointment.id,
         changeType: "CANCELLED",
+        actorUserId: authContext.user.id,
+        db: transaction,
+      });
+
+      await processWaitlistForCancelledAppointment({
+        clinicId: authContext.clinic.id,
+        cancelledAppointmentId: appointment.id,
         actorUserId: authContext.user.id,
         db: transaction,
       });

@@ -1,5 +1,6 @@
 import {
   AppointmentSource,
+  AppointmentStatus,
   NotificationChannel,
   NotificationStatus,
   Prisma,
@@ -14,6 +15,8 @@ import {
   type AppointmentNotificationTemplateContext,
   type NotificationTemplateKey,
   renderNotificationTemplate,
+  renderWaitlistNotificationTemplate,
+  type WaitlistNotificationTemplateContext,
 } from "./templates";
 
 type NotificationClient = Prisma.TransactionClient | typeof prisma;
@@ -78,6 +81,80 @@ type EnqueueAppointmentNotificationInput = {
 type AppointmentChangeType = "CONFIRMED" | "CANCELLED" | "RESCHEDULED";
 type ReminderType = "24H" | "2H";
 
+const waitlistEntryNotificationInclude = {
+  clinic: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      timezone: true,
+      currency: true,
+      brandColor: true,
+    },
+  },
+  patient: {
+    select: {
+      id: true,
+      name: true,
+      phoneE164: true,
+      email: true,
+    },
+  },
+  service: {
+    select: {
+      id: true,
+      name: true,
+      durationMinutes: true,
+      priceCents: true,
+      depositRequired: true,
+      depositCents: true,
+    },
+  },
+  doctor: {
+    select: {
+      id: true,
+      name: true,
+      specialty: true,
+    },
+  },
+} satisfies Prisma.WaitlistEntryInclude;
+
+type WaitlistEntryNotificationRecord = Prisma.WaitlistEntryGetPayload<{
+  include: typeof waitlistEntryNotificationInclude;
+}>;
+
+const waitlistOfferNotificationInclude = {
+  clinic: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      timezone: true,
+      currency: true,
+      brandColor: true,
+    },
+  },
+  waitlistEntry: {
+    include: waitlistEntryNotificationInclude,
+  },
+  appointment: {
+    select: {
+      id: true,
+      startAt: true,
+      endAt: true,
+      source: true,
+      status: true,
+      doctor: {
+        select: {
+          id: true,
+          name: true,
+          specialty: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.WaitlistOfferInclude;
+
 function toTemplateContext(
   appointment: AppointmentNotificationRecord,
   selfServiceLinks: AppointmentSelfServiceLinks | null,
@@ -131,6 +208,46 @@ function resolveReminderTemplateKey(reminderType: ReminderType): NotificationTem
     : "APPOINTMENT_REMINDER_2H";
 }
 
+function toWaitlistTemplateContext(
+  entry: WaitlistEntryNotificationRecord,
+  options: {
+    offer?: {
+      id: string;
+      offeredStartAt: Date;
+      offeredEndAt: Date;
+      expiresAt: Date;
+      acceptUrl?: string | null;
+      rejectUrl?: string | null;
+    } | null;
+    appointment?: {
+      id: string;
+      startAt: Date;
+      endAt: Date;
+      source: AppointmentSource;
+      status: AppointmentStatus;
+    } | null;
+    doctorOverride?: WaitlistNotificationTemplateContext["doctor"];
+  } = {},
+): WaitlistNotificationTemplateContext {
+  return {
+    clinic: entry.clinic,
+    patient: entry.patient,
+    service: entry.service,
+    doctor: options.doctorOverride ?? entry.doctor,
+    waitlistEntry: {
+      id: entry.id,
+      preferredDate: entry.preferredDate,
+      preferredStartTime: entry.preferredStartTime,
+      preferredEndTime: entry.preferredEndTime,
+      autoAccept: entry.autoAccept,
+      notes: entry.notes,
+      createdAt: entry.createdAt,
+    },
+    offer: options.offer ?? null,
+    appointment: options.appointment ?? null,
+  };
+}
+
 async function loadAppointmentNotificationRecord(
   clinicId: string,
   appointmentId: string,
@@ -149,6 +266,46 @@ async function loadAppointmentNotificationRecord(
   }
 
   return appointment;
+}
+
+async function loadWaitlistEntryNotificationRecord(
+  clinicId: string,
+  waitlistEntryId: string,
+  db: NotificationClient,
+) {
+  const waitlistEntry = await db.waitlistEntry.findFirst({
+    where: {
+      id: waitlistEntryId,
+      clinicId,
+    },
+    include: waitlistEntryNotificationInclude,
+  });
+
+  if (!waitlistEntry) {
+    throw new Error("notification-waitlist-entry-not-found");
+  }
+
+  return waitlistEntry;
+}
+
+async function loadWaitlistOfferNotificationRecord(
+  clinicId: string,
+  waitlistOfferId: string,
+  db: NotificationClient,
+) {
+  const waitlistOffer = await db.waitlistOffer.findFirst({
+    where: {
+      id: waitlistOfferId,
+      clinicId,
+    },
+    include: waitlistOfferNotificationInclude,
+  });
+
+  if (!waitlistOffer) {
+    throw new Error("notification-waitlist-offer-not-found");
+  }
+
+  return waitlistOffer;
 }
 
 function resolveSelfServiceLinks(params: {
@@ -507,4 +664,356 @@ export async function listNotificationOutbox({
       },
     },
   });
+}
+
+export async function enqueueWaitlistEntryCreatedNotifications({
+  clinicId,
+  waitlistEntryId,
+  actorUserId = null,
+  db = prisma,
+}: {
+  clinicId: string;
+  waitlistEntryId: string;
+  actorUserId?: string | null;
+  db?: NotificationClient;
+}) {
+  const waitlistEntry = await loadWaitlistEntryNotificationRecord(
+    clinicId,
+    waitlistEntryId,
+    db,
+  );
+  const templateKey = "WAITLIST_ENTRY_CREATED" as const;
+  const rendered = renderWaitlistNotificationTemplate(
+    templateKey,
+    toWaitlistTemplateContext(waitlistEntry),
+  );
+
+  const results = [];
+
+  results.push(
+    await enqueueAppointmentNotification({
+      clinicId,
+      patientId: waitlistEntry.patient.id,
+      channel: NotificationChannel.WHATSAPP,
+      recipient: waitlistEntry.patient.phoneE164,
+      templateKey,
+      body: rendered.whatsappBody,
+      payloadJson: rendered.payload,
+      actorUserId,
+      db,
+    }),
+  );
+
+  if (waitlistEntry.patient.email && rendered.email) {
+    results.push(
+      await enqueueAppointmentNotification({
+        clinicId,
+        patientId: waitlistEntry.patient.id,
+        channel: NotificationChannel.EMAIL,
+        recipient: waitlistEntry.patient.email,
+        templateKey,
+        subject: rendered.email.subject,
+        body: rendered.email.body,
+        payloadJson: rendered.payload,
+        actorUserId,
+        db,
+      }),
+    );
+  }
+
+  return results;
+}
+
+export async function enqueueWaitlistSlotOfferedNotifications({
+  clinicId,
+  waitlistOfferId,
+  acceptUrl,
+  rejectUrl,
+  actorUserId = null,
+  db = prisma,
+}: {
+  clinicId: string;
+  waitlistOfferId: string;
+  acceptUrl: string;
+  rejectUrl: string;
+  actorUserId?: string | null;
+  db?: NotificationClient;
+}) {
+  const waitlistOffer = await loadWaitlistOfferNotificationRecord(
+    clinicId,
+    waitlistOfferId,
+    db,
+  );
+  const templateKey = "WAITLIST_SLOT_OFFERED" as const;
+  const doctorContext =
+    waitlistOffer.waitlistEntry.doctor ?? waitlistOffer.appointment?.doctor ?? null;
+  const rendered = renderWaitlistNotificationTemplate(
+    templateKey,
+    toWaitlistTemplateContext(waitlistOffer.waitlistEntry, {
+      doctorOverride: doctorContext,
+      offer: {
+        id: waitlistOffer.id,
+        offeredStartAt: waitlistOffer.offeredStartAt,
+        offeredEndAt: waitlistOffer.offeredEndAt,
+        expiresAt: waitlistOffer.expiresAt,
+        acceptUrl,
+        rejectUrl,
+      },
+    }),
+  );
+
+  const results = [];
+
+  results.push(
+    await enqueueAppointmentNotification({
+      clinicId,
+      appointmentId: waitlistOffer.appointmentId,
+      patientId: waitlistOffer.waitlistEntry.patient.id,
+      channel: NotificationChannel.WHATSAPP,
+      recipient: waitlistOffer.waitlistEntry.patient.phoneE164,
+      templateKey,
+      body: rendered.whatsappBody,
+      payloadJson: rendered.payload,
+      scheduledFor: waitlistOffer.expiresAt,
+      actorUserId,
+      db,
+    }),
+  );
+
+  if (waitlistOffer.waitlistEntry.patient.email && rendered.email) {
+    results.push(
+      await enqueueAppointmentNotification({
+        clinicId,
+        appointmentId: waitlistOffer.appointmentId,
+        patientId: waitlistOffer.waitlistEntry.patient.id,
+        channel: NotificationChannel.EMAIL,
+        recipient: waitlistOffer.waitlistEntry.patient.email,
+        templateKey,
+        subject: rendered.email.subject,
+        body: rendered.email.body,
+        payloadJson: rendered.payload,
+        scheduledFor: waitlistOffer.expiresAt,
+        actorUserId,
+        db,
+      }),
+    );
+  }
+
+  return results;
+}
+
+export async function enqueueWaitlistAutoAssignedNotifications({
+  clinicId,
+  waitlistEntryId,
+  appointmentId,
+  actorUserId = null,
+  db = prisma,
+}: {
+  clinicId: string;
+  waitlistEntryId: string;
+  appointmentId: string;
+  actorUserId?: string | null;
+  db?: NotificationClient;
+}) {
+  const [waitlistEntry, appointment] = await Promise.all([
+    loadWaitlistEntryNotificationRecord(clinicId, waitlistEntryId, db),
+    loadAppointmentNotificationRecord(clinicId, appointmentId, db),
+  ]);
+  const templateKey = "WAITLIST_AUTO_ASSIGNED" as const;
+  const rendered = renderWaitlistNotificationTemplate(
+    templateKey,
+    toWaitlistTemplateContext(waitlistEntry, {
+      doctorOverride: appointment.doctor,
+      appointment: {
+        id: appointment.id,
+        startAt: appointment.startAt,
+        endAt: appointment.endAt,
+        source: appointment.source,
+        status: appointment.status,
+      },
+    }),
+  );
+
+  const results = [];
+
+  results.push(
+    await enqueueAppointmentNotification({
+      clinicId,
+      appointmentId,
+      patientId: waitlistEntry.patient.id,
+      channel: NotificationChannel.WHATSAPP,
+      recipient: waitlistEntry.patient.phoneE164,
+      templateKey,
+      body: rendered.whatsappBody,
+      payloadJson: rendered.payload,
+      actorUserId,
+      db,
+    }),
+  );
+
+  if (waitlistEntry.patient.email && rendered.email) {
+    results.push(
+      await enqueueAppointmentNotification({
+        clinicId,
+        appointmentId,
+        patientId: waitlistEntry.patient.id,
+        channel: NotificationChannel.EMAIL,
+        recipient: waitlistEntry.patient.email,
+        templateKey,
+        subject: rendered.email.subject,
+        body: rendered.email.body,
+        payloadJson: rendered.payload,
+        actorUserId,
+        db,
+      }),
+    );
+  }
+
+  return results;
+}
+
+export async function enqueueWaitlistOfferAcceptedNotifications({
+  clinicId,
+  waitlistOfferId,
+  appointmentId,
+  actorUserId = null,
+  db = prisma,
+}: {
+  clinicId: string;
+  waitlistOfferId: string;
+  appointmentId: string;
+  actorUserId?: string | null;
+  db?: NotificationClient;
+}) {
+  const [waitlistOffer, appointment] = await Promise.all([
+    loadWaitlistOfferNotificationRecord(clinicId, waitlistOfferId, db),
+    loadAppointmentNotificationRecord(clinicId, appointmentId, db),
+  ]);
+  const templateKey = "WAITLIST_OFFER_ACCEPTED" as const;
+  const rendered = renderWaitlistNotificationTemplate(
+    templateKey,
+    toWaitlistTemplateContext(waitlistOffer.waitlistEntry, {
+      doctorOverride: appointment.doctor,
+      offer: {
+        id: waitlistOffer.id,
+        offeredStartAt: waitlistOffer.offeredStartAt,
+        offeredEndAt: waitlistOffer.offeredEndAt,
+        expiresAt: waitlistOffer.expiresAt,
+      },
+      appointment: {
+        id: appointment.id,
+        startAt: appointment.startAt,
+        endAt: appointment.endAt,
+        source: appointment.source,
+        status: appointment.status,
+      },
+    }),
+  );
+
+  const results = [];
+
+  results.push(
+    await enqueueAppointmentNotification({
+      clinicId,
+      appointmentId,
+      patientId: waitlistOffer.waitlistEntry.patient.id,
+      channel: NotificationChannel.WHATSAPP,
+      recipient: waitlistOffer.waitlistEntry.patient.phoneE164,
+      templateKey,
+      body: rendered.whatsappBody,
+      payloadJson: rendered.payload,
+      actorUserId,
+      db,
+    }),
+  );
+
+  if (waitlistOffer.waitlistEntry.patient.email && rendered.email) {
+    results.push(
+      await enqueueAppointmentNotification({
+        clinicId,
+        appointmentId,
+        patientId: waitlistOffer.waitlistEntry.patient.id,
+        channel: NotificationChannel.EMAIL,
+        recipient: waitlistOffer.waitlistEntry.patient.email,
+        templateKey,
+        subject: rendered.email.subject,
+        body: rendered.email.body,
+        payloadJson: rendered.payload,
+        actorUserId,
+        db,
+      }),
+    );
+  }
+
+  return results;
+}
+
+export async function enqueueWaitlistOfferExpiredNotifications({
+  clinicId,
+  waitlistOfferId,
+  actorUserId = null,
+  db = prisma,
+}: {
+  clinicId: string;
+  waitlistOfferId: string;
+  actorUserId?: string | null;
+  db?: NotificationClient;
+}) {
+  const waitlistOffer = await loadWaitlistOfferNotificationRecord(
+    clinicId,
+    waitlistOfferId,
+    db,
+  );
+  const templateKey = "WAITLIST_OFFER_EXPIRED" as const;
+  const doctorContext =
+    waitlistOffer.waitlistEntry.doctor ?? waitlistOffer.appointment?.doctor ?? null;
+  const rendered = renderWaitlistNotificationTemplate(
+    templateKey,
+    toWaitlistTemplateContext(waitlistOffer.waitlistEntry, {
+      doctorOverride: doctorContext,
+      offer: {
+        id: waitlistOffer.id,
+        offeredStartAt: waitlistOffer.offeredStartAt,
+        offeredEndAt: waitlistOffer.offeredEndAt,
+        expiresAt: waitlistOffer.expiresAt,
+      },
+    }),
+  );
+
+  const results = [];
+
+  results.push(
+    await enqueueAppointmentNotification({
+      clinicId,
+      appointmentId: waitlistOffer.appointmentId,
+      patientId: waitlistOffer.waitlistEntry.patient.id,
+      channel: NotificationChannel.WHATSAPP,
+      recipient: waitlistOffer.waitlistEntry.patient.phoneE164,
+      templateKey,
+      body: rendered.whatsappBody,
+      payloadJson: rendered.payload,
+      actorUserId,
+      db,
+    }),
+  );
+
+  if (waitlistOffer.waitlistEntry.patient.email && rendered.email) {
+    results.push(
+      await enqueueAppointmentNotification({
+        clinicId,
+        appointmentId: waitlistOffer.appointmentId,
+        patientId: waitlistOffer.waitlistEntry.patient.id,
+        channel: NotificationChannel.EMAIL,
+        recipient: waitlistOffer.waitlistEntry.patient.email,
+        templateKey,
+        subject: rendered.email.subject,
+        body: rendered.email.body,
+        payloadJson: rendered.payload,
+        actorUserId,
+        db,
+      }),
+    );
+  }
+
+  return results;
 }

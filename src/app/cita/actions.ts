@@ -25,12 +25,14 @@ import {
 import { createAuditLog } from "@/lib/audit";
 import { enqueueAppointmentStatusChangedNotification } from "@/lib/notifications/outbox";
 import { prisma } from "@/lib/prisma";
+import { processWaitlistForCancelledAppointment } from "@/lib/waitlist/matching";
 
 function revalidatePublicAppointmentViews() {
   revalidatePath("/app/appointments");
   revalidatePath("/app/calendar");
   revalidatePath("/app/dashboard");
   revalidatePath("/app/notifications");
+  revalidatePath("/app/waitlist");
   revalidatePath("/app/whatsapp-simulator");
 }
 
@@ -279,6 +281,12 @@ export async function cancelAppointmentByTokenAction(formData: FormData) {
       clinicId: validation.context.clinicId,
       appointmentId: appointment.id,
       changeType: "CANCELLED",
+      db: transaction,
+    });
+
+    await processWaitlistForCancelledAppointment({
+      clinicId: validation.context.clinicId,
+      cancelledAppointmentId: appointment.id,
       db: transaction,
     });
 

@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BookingConfirmation } from "@/components/booking/booking-confirmation";
+import { BookingScrollManager } from "@/components/booking/booking-scroll-manager";
 import { BookingShell } from "@/components/booking/booking-shell";
 import { BookingSummary } from "@/components/booking/booking-summary";
 import { DateStep } from "@/components/booking/date-step";
 import { DoctorStep } from "@/components/booking/doctor-step";
 import { PatientDetailsStep } from "@/components/booking/patient-details-step";
 import { ServiceStep } from "@/components/booking/service-step";
-import { SlotsStep } from "@/components/booking/slots-step";
 import {
   buildClinicDateMarker,
   getAvailableSlots,
@@ -17,6 +17,7 @@ import {
 import { readPublicBookingConfirmationCookie } from "@/lib/booking/confirmation";
 import {
   buildBookingPath,
+  getBookingDateOptions,
   getBookingClinicDescription,
   getBookingTodayDateValue,
   normalizeBookingBrandColor,
@@ -30,7 +31,10 @@ import type {
   BookingServiceOption,
 } from "@/types/booking";
 
-import { createPublicBookingAction } from "./actions";
+import {
+  createPublicBookingAction,
+  createPublicWaitlistEntryAction,
+} from "./actions";
 
 type BookingPageProps = {
   params: Promise<{
@@ -188,6 +192,8 @@ export default async function PublicBookingPage({
       : resolveBookingFlashMessage(query.status, query.error);
   const brandColor = normalizeBookingBrandColor(typedClinic.brandColor);
   const minDate = getBookingTodayDateValue(typedClinic.timezone);
+  const dateOptions = getBookingDateOptions(typedClinic.timezone);
+  const waitlistOpen = query.waitlist === "1";
 
   return (
     <BookingShell
@@ -208,6 +214,8 @@ export default async function PublicBookingPage({
         )
       }
     >
+      <BookingScrollManager focusTarget={query.focus ?? null} />
+
       {flash ? (
         <div
           className={
@@ -249,18 +257,14 @@ export default async function PublicBookingPage({
               selectedServiceId={selectedService.id}
               selectedDoctorId={selectedDoctor.id}
               selectedDate={selectedDate}
-              minDate={minDate}
-            />
-          ) : null}
-
-          {selectedService && selectedDoctor && selectedDateParts ? (
-            <SlotsStep
-              clinicSlug={typedClinic.slug}
-              selectedServiceId={selectedService.id}
-              selectedDoctorId={selectedDoctor.id}
-              selectedDate={selectedDate}
               selectedSlotTime={selectedSlotTime}
+              minDate={minDate}
+              dateOptions={dateOptions}
               availableSlotResult={availableSlotResult}
+              waitlistOpen={waitlistOpen}
+              selectedService={selectedService}
+              selectedDoctor={selectedDoctor}
+              waitlistAction={createPublicWaitlistEntryAction}
             />
           ) : null}
 

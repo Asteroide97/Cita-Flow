@@ -20,6 +20,7 @@ import {
   enqueueAppointmentStatusChangedNotification,
 } from "@/lib/notifications/outbox";
 import { prisma } from "@/lib/prisma";
+import { processWaitlistForCancelledAppointment } from "@/lib/waitlist/matching";
 
 export type WhatsAppSimulatorSender = "patient" | "clinic";
 
@@ -634,6 +635,12 @@ async function handlePatientAppointmentLookup(
     appointmentId: cancelledAppointment.id,
     changeType: "CANCELLED",
     actorUserId: null,
+    db: transaction,
+  });
+
+  await processWaitlistForCancelledAppointment({
+    clinicId,
+    cancelledAppointmentId: cancelledAppointment.id,
     db: transaction,
   });
 

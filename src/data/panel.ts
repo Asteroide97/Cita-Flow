@@ -68,6 +68,12 @@ export const panelNavigation: PanelNavItem[] = [
     description: "Outbox transaccional para WhatsApp y email.",
   },
   {
+    label: "Lista de espera",
+    href: "/app/waitlist",
+    shortLabel: "LE",
+    description: "Solicitudes y ofertas por horarios liberados.",
+  },
+  {
     label: "Configuracion",
     href: "/app/settings",
     shortLabel: "CF",
@@ -161,6 +167,16 @@ export const panelSections: Record<string, PanelSectionContent> = {
       "Mensajes pendientes, enviados, fallidos o cancelados.",
       "Templates internos con contexto de cita y enlaces publicos.",
       "Base lista para conectar Meta Cloud API y email mas adelante.",
+    ],
+  },
+  waitlist: {
+    title: "Lista de espera",
+    description:
+      "Solicitudes publicas para ocupar espacios liberados con matching por servicio, doctor y preferencia horaria.",
+    highlights: [
+      "Entradas activas, ofertadas, convertidas o expiradas.",
+      "Ofertas publicas con expiracion y aceptacion por token.",
+      "Base lista para conectar recordatorios y canales reales despues.",
     ],
   },
   settings: {

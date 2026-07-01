@@ -3,6 +3,8 @@ import type {
   BookingServiceOption,
 } from "@/types/booking";
 
+import { BookingSubmitButton } from "./booking-submit-button";
+
 type PatientDetailsStepProps = {
   clinicSlug: string;
   serviceId: string;
@@ -83,13 +85,7 @@ export function PatientDetailsStep({
           />
         </label>
 
-        <button
-          type="submit"
-          className="mt-2 inline-flex rounded-full px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: "var(--booking-brand)" }}
-        >
-          Confirmar solicitud de cita
-        </button>
+        <BookingSubmitButton />
       </form>
     </section>
   );

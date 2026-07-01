@@ -181,74 +181,35 @@ export default async function NotificationsPage({
     (notification) => notification.status === NotificationStatus.CANCELLED,
   ).length;
 
+  const stats = [
+    { label: "Pendientes", value: pendingCount },
+    { label: "Enviadas", value: sentCount },
+    { label: "Fallidas", value: failedCount },
+    { label: "Canceladas", value: cancelledCount },
+  ];
+
   return (
     <PanelPage
       eyebrow="Notificaciones"
-      title="Outbox transaccional del consultorio"
-      description="Aqui se preparan los mensajes de WhatsApp y email sin enviarlos todavia. Cada registro queda aislado por clinica, con template, destinatario y contexto de cita listo para conectar proveedores reales despues."
+      title="Notificaciones"
+      description="Mensajes pendientes para WhatsApp y email."
     >
       <div className="grid gap-6">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <article className="surface-card p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Pendientes
-            </p>
-            <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
-              {pendingCount}
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Mensajes listos para salir cuando se conecte un proveedor real.
-            </p>
-          </article>
-
-          <article className="surface-card p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Enviadas
-            </p>
-            <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
-              {sentCount}
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Confirmadas manualmente desde este panel de desarrollo.
-            </p>
-          </article>
-
-          <article className="surface-card p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Fallidas
-            </p>
-            <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
-              {failedCount}
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Util para probar reintentos y manejo de errores mas adelante.
-            </p>
-          </article>
-
-          <article className="surface-card p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Canceladas
-            </p>
-            <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
-              {cancelledCount}
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Notificaciones pendientes descartadas antes de enviarse.
-            </p>
-          </article>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {stats.map((stat) => (
+            <article key={stat.label} className="surface-card p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                {stat.label}
+              </p>
+              <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
+                {stat.value}
+              </p>
+            </article>
+          ))}
         </div>
 
-        <article className="surface-card p-6 sm:p-7">
-          <div className="grid gap-3 text-sm text-muted">
-            <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
-              Por ahora esta capa solo crea registros `PENDING`; no existe envio real a
-              WhatsApp ni email.
-            </div>
-            <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-              Las acciones de esta pantalla son solo para desarrollo y ayudan a probar el
-              flujo antes de conectar Meta Cloud API o un proveedor de correo.
-            </div>
-          </div>
+        <article className="surface-card px-5 py-4 text-sm text-muted">
+          El envio real sigue desactivado. Esta vista solo prepara y revisa mensajes.
         </article>
 
         {flash ? (
@@ -264,19 +225,18 @@ export default async function NotificationsPage({
         ) : null}
 
         <article className="surface-card p-6 sm:p-7">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
                 Cola de salida
               </p>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-muted">
-                Cada notificacion conserva canal, template y cuerpo final renderizado con
-                el contexto real de la cita.
+              <p className="mt-2 text-sm text-muted">
+                {notifications.length} mensajes preparados.
               </p>
             </div>
 
             <div className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-muted">
-              {notifications.length} registros
+              Clinic ID: {authContext.clinic.id}
             </div>
           </div>
 
@@ -284,13 +244,13 @@ export default async function NotificationsPage({
             <div className="mt-6 grid gap-4">
               {notifications.map((notification) => {
                 const appointmentSummary = notification.appointment
-                  ? `${notification.appointment.patient.name} · ${notification.appointment.service.name} · ${formatDateTimeInTimeZone(notification.appointment.startAt, authContext.clinic.timezone)}`
+                  ? `${formatDateTimeInTimeZone(notification.appointment.startAt, authContext.clinic.timezone)} - ${notification.appointment.patient.name} - ${notification.appointment.service.name}`
                   : "Sin cita relacionada";
 
                 return (
                   <article
                     key={notification.id}
-                    className="rounded-[28px] border border-line/80 bg-white p-5 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
+                    className="rounded-[26px] border border-line/80 bg-white p-5 shadow-[0_16px_50px_rgba(15,23,42,0.05)]"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex flex-wrap gap-2">
@@ -307,165 +267,154 @@ export default async function NotificationsPage({
                       </div>
 
                       <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
-                        Creada {formatDateTimeInTimeZone(notification.createdAt, authContext.clinic.timezone)}
+                        {formatDateTimeInTimeZone(
+                          notification.createdAt,
+                          authContext.clinic.timezone,
+                        )}
                       </p>
                     </div>
 
-                    <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)]">
+                    <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
                       <div className="grid gap-4">
                         <div>
                           <h2 className="text-lg font-semibold tracking-[-0.03em] text-ink">
                             {resolveTemplateLabel(notification.templateKey)}
                           </h2>
-                          <p className="mt-2 text-sm leading-7 text-muted">
-                            Destinatario:{" "}
-                            <span className="font-semibold text-ink">
-                              {notification.recipient}
-                            </span>
-                            {notification.subject ? ` · ${notification.subject}` : ""}
-                          </p>
-                        </div>
-
-                        <div className="rounded-[24px] border border-line/80 bg-surface-soft px-4 py-4 text-sm leading-7 text-muted">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                            Cita relacionada
-                          </p>
-                          <p className="mt-2 text-sm font-medium text-ink">
-                            {appointmentSummary}
-                          </p>
                           <p className="mt-2 text-sm text-muted">
-                            {notification.appointment
-                              ? `Estado actual: ${getAppointmentStatusLabel(notification.appointment.status)} · Origen: ${getAppointmentSourceLabel(notification.appointment.source)}`
-                              : "Este registro no tiene una cita asociada."}
+                            {notification.recipient}
+                            {notification.subject ? ` - ${notification.subject}` : ""}
                           </p>
-                          {notification.patient ? (
-                            <p className="mt-2 text-sm text-muted">
-                              Paciente: {notification.patient.name} · {notification.patient.phoneE164}
-                              {notification.patient.email
-                                ? ` · ${notification.patient.email}`
-                                : ""}
-                            </p>
-                          ) : null}
                         </div>
 
-                        <div className="rounded-[24px] border border-line/80 bg-slate-950 px-4 py-4 text-sm leading-7 text-slate-100">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
-                            Cuerpo renderizado
-                          </p>
+                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                          <div className="rounded-[20px] border border-line/80 bg-surface-soft px-4 py-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                              Cita
+                            </p>
+                            <p className="mt-2 text-sm font-medium text-ink">
+                              {appointmentSummary}
+                            </p>
+                          </div>
+
+                          <div className="rounded-[20px] border border-line/80 bg-white px-4 py-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                              Estado cita
+                            </p>
+                            <p className="mt-2 text-sm font-medium text-ink">
+                              {notification.appointment
+                                ? getAppointmentStatusLabel(notification.appointment.status)
+                                : "Sin cita"}
+                            </p>
+                            <p className="mt-1 text-xs text-muted">
+                              {notification.appointment
+                                ? getAppointmentSourceLabel(notification.appointment.source)
+                                : "Sin origen"}
+                            </p>
+                          </div>
+
+                          <div className="rounded-[20px] border border-line/80 bg-white px-4 py-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                              Programada
+                            </p>
+                            <p className="mt-2 text-sm font-medium text-ink">
+                              {notification.scheduledFor
+                                ? formatDateTimeInTimeZone(
+                                    notification.scheduledFor,
+                                    authContext.clinic.timezone,
+                                  )
+                                : "Inmediata"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {notification.patient ? (
+                          <div className="rounded-[20px] border border-line/80 bg-white px-4 py-3 text-sm text-muted">
+                            Paciente:{" "}
+                            <span className="font-medium text-ink">
+                              {notification.patient.name}
+                            </span>
+                            {" - "}
+                            <span className="font-medium text-ink">
+                              {notification.patient.phoneE164}
+                            </span>
+                            {notification.patient.email
+                              ? ` - ${notification.patient.email}`
+                              : ""}
+                          </div>
+                        ) : null}
+
+                        <details className="rounded-[20px] border border-line/80 bg-slate-950 px-4 py-4 text-slate-100">
+                          <summary className="cursor-pointer list-none text-sm font-semibold text-slate-100 [&::-webkit-details-marker]:hidden">
+                            Ver mensaje
+                          </summary>
                           <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-7 text-slate-100">
                             {notification.body}
                           </pre>
-                        </div>
+                        </details>
 
                         {notification.errorMessage ? (
-                          <div className="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm leading-7 text-rose-700">
-                            <span className="font-semibold">Ultimo error:</span>{" "}
+                          <div className="rounded-[20px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                            <span className="font-semibold">Error:</span>{" "}
                             {notification.errorMessage}
                           </div>
                         ) : null}
                       </div>
 
-                      <div className="grid gap-4 self-start rounded-[24px] border border-line/80 bg-white px-4 py-4">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                            Metadatos
-                          </p>
-                          <div className="mt-3 grid gap-2 text-sm text-muted">
-                            <p>
-                              Programada:{" "}
-                              <span className="font-medium text-ink">
-                                {notification.scheduledFor
-                                  ? formatDateTimeInTimeZone(
-                                      notification.scheduledFor,
-                                      authContext.clinic.timezone,
-                                    )
-                                  : "Inmediata"}
-                              </span>
-                            </p>
-                            <p>
-                              Enviada:{" "}
-                              <span className="font-medium text-ink">
-                                {notification.sentAt
-                                  ? formatDateTimeInTimeZone(
-                                      notification.sentAt,
-                                      authContext.clinic.timezone,
-                                    )
-                                  : "No"}
-                              </span>
-                            </p>
-                            <p>
-                              Fallida:{" "}
-                              <span className="font-medium text-ink">
-                                {notification.failedAt
-                                  ? formatDateTimeInTimeZone(
-                                      notification.failedAt,
-                                      authContext.clinic.timezone,
-                                    )
-                                  : "No"}
-                              </span>
-                            </p>
-                            <p>
-                              ID: <span className="font-medium text-ink">{notification.id}</span>
-                            </p>
-                          </div>
-                        </div>
+                      <div className="grid gap-2 lg:min-w-[220px]">
+                        {notification.status !== NotificationStatus.SENT &&
+                        notification.status !== NotificationStatus.CANCELLED ? (
+                          <form action={markNotificationSentAction}>
+                            <input
+                              type="hidden"
+                              name="notificationId"
+                              value={notification.id}
+                            />
+                            <button
+                              type="submit"
+                              className={actionButtonClassName("sent")}
+                            >
+                              Marcar como enviada
+                            </button>
+                          </form>
+                        ) : null}
 
-                        <div className="grid gap-2">
-                          {notification.status !== NotificationStatus.SENT &&
-                          notification.status !== NotificationStatus.CANCELLED ? (
-                            <form action={markNotificationSentAction}>
-                              <input
-                                type="hidden"
-                                name="notificationId"
-                                value={notification.id}
-                              />
-                              <button
-                                type="submit"
-                                className={actionButtonClassName("sent")}
-                              >
-                                Marcar como enviada
-                              </button>
-                            </form>
-                          ) : null}
+                        {notification.status !== NotificationStatus.SENT &&
+                        notification.status !== NotificationStatus.CANCELLED ? (
+                          <form action={markNotificationFailedAction}>
+                            <input
+                              type="hidden"
+                              name="notificationId"
+                              value={notification.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="errorMessage"
+                              value="Marcada manualmente como fallida desde el panel de desarrollo."
+                            />
+                            <button
+                              type="submit"
+                              className={actionButtonClassName("failed")}
+                            >
+                              Marcar como fallida
+                            </button>
+                          </form>
+                        ) : null}
 
-                          {notification.status !== NotificationStatus.SENT &&
-                          notification.status !== NotificationStatus.CANCELLED ? (
-                            <form action={markNotificationFailedAction}>
-                              <input
-                                type="hidden"
-                                name="notificationId"
-                                value={notification.id}
-                              />
-                              <input
-                                type="hidden"
-                                name="errorMessage"
-                                value="Marcada manualmente como fallida desde el panel de desarrollo."
-                              />
-                              <button
-                                type="submit"
-                                className={actionButtonClassName("failed")}
-                              >
-                                Marcar como fallida
-                              </button>
-                            </form>
-                          ) : null}
-
-                          {notification.status === NotificationStatus.PENDING ? (
-                            <form action={cancelNotificationAction}>
-                              <input
-                                type="hidden"
-                                name="notificationId"
-                                value={notification.id}
-                              />
-                              <button
-                                type="submit"
-                                className={actionButtonClassName("cancel")}
-                              >
-                                Cancelar pendiente
-                              </button>
-                            </form>
-                          ) : null}
-                        </div>
+                        {notification.status === NotificationStatus.PENDING ? (
+                          <form action={cancelNotificationAction}>
+                            <input
+                              type="hidden"
+                              name="notificationId"
+                              value={notification.id}
+                            />
+                            <button
+                              type="submit"
+                              className={actionButtonClassName("cancel")}
+                            >
+                              Cancelar pendiente
+                            </button>
+                          </form>
+                        ) : null}
                       </div>
                     </div>
                   </article>
@@ -475,11 +424,10 @@ export default async function NotificationsPage({
           ) : (
             <div className="mt-6 rounded-[28px] border border-dashed border-line bg-surface-soft px-6 py-10 text-center">
               <p className="text-lg font-semibold tracking-[-0.03em] text-ink">
-                Aun no hay notificaciones encoladas
+                Aun no hay notificaciones
               </p>
               <p className="mt-3 text-sm leading-7 text-muted">
-                Crea una cita desde el panel, booking publico, WhatsApp simulator o
-                autoservicio por token para empezar a poblar este outbox.
+                Crea una cita o usa el booking publico para poblar esta cola.
               </p>
             </div>
           )}

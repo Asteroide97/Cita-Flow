@@ -139,18 +139,6 @@ export type WaitlistNotificationTemplateContext = {
   } | null;
 };
 
-function formatMoney(cents: number | null, currency: string) {
-  if (cents === null) {
-    return "No configurado";
-  }
-
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(cents / 100);
-}
-
 function getAppointmentStatusLabel(status: AppointmentStatus) {
   switch (status) {
     case AppointmentStatus.PENDING:
@@ -168,17 +156,36 @@ function getAppointmentStatusLabel(status: AppointmentStatus) {
   }
 }
 
-function getAppointmentSourceLabel(source: AppointmentSource) {
-  switch (source) {
-    case AppointmentSource.ADMIN:
-      return "panel administrativo";
-    case AppointmentSource.PUBLIC_BOOKING:
-      return "booking publico";
-    case AppointmentSource.WHATSAPP:
-      return "WhatsApp";
-    case AppointmentSource.IMPORT:
-      return "importacion";
-  }
+function buildWhatsappMessage(lines: string[]) {
+  return lines.filter(Boolean).join("\n");
+}
+
+function buildEmailMessage(params: {
+  headline: string;
+  lines: string[];
+  links?: string[];
+  footer?: string[];
+}) {
+  return [
+    params.headline,
+    "",
+    ...params.lines,
+    ...(params.links?.length ? ["", ...params.links] : []),
+    ...(params.footer?.length ? ["", ...params.footer] : []),
+  ].join("\n");
+}
+
+function buildAppointmentSummaryLine(context: AppointmentNotificationTemplateContext) {
+  return `${context.service.name} con ${context.doctor.name}.`;
+}
+
+function buildAppointmentScheduleLine(context: AppointmentNotificationTemplateContext) {
+  const scheduleLabel = formatDateTimeInTimeZone(
+    context.appointment.startAt,
+    context.clinic.timezone,
+  );
+
+  return `${scheduleLabel}. Estado: ${getAppointmentStatusLabel(context.appointment.status).toLowerCase()}.`;
 }
 
 function buildSelfServiceLines(links: AppointmentSelfServiceLinks | null | undefined) {
@@ -187,144 +194,10 @@ function buildSelfServiceLines(links: AppointmentSelfServiceLinks | null | undef
   }
 
   return [
-    "Enlaces de autoservicio:",
     `Confirmar: ${links.confirmUrl}`,
     `Cancelar: ${links.cancelUrl}`,
     `Reagendar: ${links.rescheduleUrl}`,
   ];
-}
-
-function buildAppointmentDetailLines(context: AppointmentNotificationTemplateContext) {
-  const scheduleLabel = formatDateTimeInTimeZone(
-    context.appointment.startAt,
-    context.clinic.timezone,
-  );
-
-  return [
-    `Consultorio: ${context.clinic.name}`,
-    `Servicio: ${context.service.name} · ${context.service.durationMinutes} min`,
-    `Doctor: ${context.doctor.name}${context.doctor.specialty ? ` · ${context.doctor.specialty}` : ""}`,
-    `Fecha: ${scheduleLabel}`,
-    `Estado: ${getAppointmentStatusLabel(context.appointment.status)}`,
-  ];
-}
-
-function buildPricingLines(context: AppointmentNotificationTemplateContext) {
-  const lines: string[] = [];
-
-  if (context.service.priceCents !== null) {
-    lines.push(
-      `Precio: ${formatMoney(context.service.priceCents, context.clinic.currency)}`,
-    );
-  }
-
-  if (context.service.depositRequired && context.service.depositCents) {
-    lines.push(
-      `Anticipo configurado: ${formatMoney(context.service.depositCents, context.clinic.currency)}`,
-    );
-  }
-
-  return lines;
-}
-
-function buildWaitlistPreferenceLines(context: WaitlistNotificationTemplateContext) {
-  const lines = [`Servicio: ${context.service.name}`];
-
-  if (context.doctor) {
-    lines.push(
-      `Doctor preferido: ${context.doctor.name}${context.doctor.specialty ? ` - ${context.doctor.specialty}` : ""}`,
-    );
-  } else {
-    lines.push("Doctor preferido: Cualquier doctor disponible");
-  }
-
-  if (context.waitlistEntry.preferredDate) {
-    lines.push(
-      `Fecha preferida: ${formatDateTimeInTimeZone(
-        context.waitlistEntry.preferredDate,
-        context.clinic.timezone,
-      ).replace(/, 12:00$/, "")}`,
-    );
-  }
-
-  if (
-    context.waitlistEntry.preferredStartTime ||
-    context.waitlistEntry.preferredEndTime
-  ) {
-    lines.push(
-      `Horario preferido: ${context.waitlistEntry.preferredStartTime ?? "00:00"} - ${context.waitlistEntry.preferredEndTime ?? "23:59"}`,
-    );
-  } else {
-    lines.push("Horario preferido: Cualquier horario");
-  }
-
-  lines.push(
-    `Asignacion automatica: ${context.waitlistEntry.autoAccept ? "Si" : "No"}`,
-  );
-
-  if (context.waitlistEntry.notes) {
-    lines.push(`Notas: ${context.waitlistEntry.notes}`);
-  }
-
-  return lines;
-}
-
-function buildWaitlistOfferLines(context: WaitlistNotificationTemplateContext) {
-  if (!context.offer) {
-    return [];
-  }
-
-  return [
-    `Horario ofrecido: ${formatDateTimeInTimeZone(
-      context.offer.offeredStartAt,
-      context.clinic.timezone,
-    )}`,
-    `Vence: ${formatDateTimeInTimeZone(context.offer.expiresAt, context.clinic.timezone)}`,
-  ];
-}
-
-function buildWaitlistOfferLinks(context: WaitlistNotificationTemplateContext) {
-  if (!context.offer?.acceptUrl || !context.offer.rejectUrl) {
-    return [];
-  }
-
-  return [
-    "Responde a esta oferta desde estos enlaces:",
-    `Aceptar: ${context.offer.acceptUrl}`,
-    `Rechazar: ${context.offer.rejectUrl}`,
-  ];
-}
-
-function buildWaitlistAppointmentLines(context: WaitlistNotificationTemplateContext) {
-  if (!context.appointment || !context.doctor) {
-    return [];
-  }
-
-  return [
-    `Doctor asignado: ${context.doctor.name}${context.doctor.specialty ? ` - ${context.doctor.specialty}` : ""}`,
-    `Horario asignado: ${formatDateTimeInTimeZone(
-      context.appointment.startAt,
-      context.clinic.timezone,
-    )}`,
-    `Estado inicial: ${getAppointmentStatusLabel(context.appointment.status)}`,
-  ];
-}
-
-function buildMessage(params: {
-  intro: string[];
-  details: string[];
-  pricing?: string[];
-  links?: string[];
-  footer?: string[];
-}) {
-  return [
-    ...params.intro,
-    "",
-    ...params.details,
-    ...(params.pricing && params.pricing.length ? ["", ...params.pricing] : []),
-    ...(params.links && params.links.length ? ["", ...params.links] : []),
-    ...(params.footer && params.footer.length ? ["", ...params.footer] : []),
-  ].join("\n");
 }
 
 function buildPayload(
@@ -372,166 +245,116 @@ function buildPayload(
   } satisfies Prisma.InputJsonValue;
 }
 
+function renderAppointmentMessage(params: {
+  templateKey: NotificationTemplateKey;
+  subject: string;
+  headline: string;
+  context: AppointmentNotificationTemplateContext;
+  includeLinks?: boolean;
+  footer?: string[];
+}) {
+  const lines = [
+    buildAppointmentSummaryLine(params.context),
+    buildAppointmentScheduleLine(params.context),
+  ];
+  const links = params.includeLinks
+    ? buildSelfServiceLines(params.context.selfServiceLinks)
+    : [];
+  const whatsappBody = buildWhatsappMessage([params.headline, ...lines, ...links]);
+  const emailBody = buildEmailMessage({
+    headline: params.headline,
+    lines,
+    links,
+    footer: params.footer,
+  });
+
+  return {
+    whatsappBody,
+    email: params.context.patient.email
+      ? {
+          subject: params.subject,
+          body: emailBody,
+        }
+      : null,
+    payload: buildPayload(params.templateKey, params.context),
+  } satisfies RenderedNotificationTemplate;
+}
+
 export function renderNotificationTemplate(
   templateKey: NotificationTemplateKey,
   context: AppointmentNotificationTemplateContext,
 ): RenderedNotificationTemplate {
-  const details = buildAppointmentDetailLines(context);
-  const pricing = buildPricingLines(context);
-  const links = buildSelfServiceLines(context.selfServiceLinks);
-
   switch (templateKey) {
-    case "APPOINTMENT_CREATED_PUBLIC": {
-      const subject = `Solicitud de cita recibida - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, recibimos tu solicitud de cita en ${context.clinic.name}.`,
-          "El consultorio revisara el horario y te confirmara a la brevedad.",
-        ],
-        details,
-        pricing,
-        links,
-        footer: [
-          `Origen: ${getAppointmentSourceLabel(context.appointment.source)}.`,
-        ],
+    case "APPOINTMENT_CREATED_PUBLIC":
+      return renderAppointmentMessage({
+        templateKey,
+        subject: `Solicitud de cita recibida - ${context.clinic.name}`,
+        headline: `Cita solicitada en ${context.clinic.name}.`,
+        context,
+        includeLinks: true,
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildPayload(templateKey, context),
-      };
-    }
-
-    case "APPOINTMENT_CREATED_ADMIN": {
-      const subject = `Cita registrada - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, el consultorio registro una cita para ti en ${context.clinic.name}.`,
-        ],
-        details,
-        pricing,
-        links,
-        footer: ["Si necesitas ajustar el horario, usa los enlaces incluidos en este mensaje."],
+    case "APPOINTMENT_CREATED_ADMIN":
+      return renderAppointmentMessage({
+        templateKey,
+        subject: `Cita registrada - ${context.clinic.name}`,
+        headline: `Cita registrada en ${context.clinic.name}.`,
+        context,
+        includeLinks: true,
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildPayload(templateKey, context),
-      };
-    }
-
-    case "APPOINTMENT_CREATED_WHATSAPP": {
-      const subject = `Cita registrada por WhatsApp - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, tu cita ya quedo registrada desde WhatsApp en ${context.clinic.name}.`,
-        ],
-        details,
-        pricing,
-        links,
+    case "APPOINTMENT_CREATED_WHATSAPP":
+      return renderAppointmentMessage({
+        templateKey,
+        subject: `Cita registrada por WhatsApp - ${context.clinic.name}`,
+        headline: `Cita registrada por WhatsApp en ${context.clinic.name}.`,
+        context,
+        includeLinks: true,
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildPayload(templateKey, context),
-      };
-    }
-
-    case "APPOINTMENT_CONFIRMED": {
-      const subject = `Cita confirmada - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, tu cita fue confirmada por ${context.clinic.name}.`,
-        ],
-        details,
-        pricing,
-        links,
+    case "APPOINTMENT_CONFIRMED":
+      return renderAppointmentMessage({
+        templateKey,
+        subject: `Cita confirmada - ${context.clinic.name}`,
+        headline: `Cita confirmada en ${context.clinic.name}.`,
+        context,
+        includeLinks: true,
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildPayload(templateKey, context),
-      };
-    }
-
-    case "APPOINTMENT_CANCELLED": {
-      const subject = `Cita cancelada - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, tu cita fue cancelada en ${context.clinic.name}.`,
-        ],
-        details,
-        pricing,
-        footer: ["Si necesitas una nueva cita, puedes volver a reservar con el consultorio."],
+    case "APPOINTMENT_CANCELLED":
+      return renderAppointmentMessage({
+        templateKey,
+        subject: `Cita cancelada - ${context.clinic.name}`,
+        headline: `Cita cancelada en ${context.clinic.name}.`,
+        context,
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildPayload(templateKey, context),
-      };
-    }
-
-    case "APPOINTMENT_RESCHEDULED": {
-      const subject = `Cita reagendada - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, tu cita fue reagendada en ${context.clinic.name}.`,
-        ],
-        details,
-        pricing,
-        links,
-        footer: [
-          "Revisa el nuevo horario y conserva este mensaje para futuras acciones.",
-        ],
+    case "APPOINTMENT_RESCHEDULED":
+      return renderAppointmentMessage({
+        templateKey,
+        subject: `Cita reagendada - ${context.clinic.name}`,
+        headline: `Cita reagendada en ${context.clinic.name}.`,
+        context,
+        includeLinks: true,
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildPayload(templateKey, context),
-      };
-    }
-
-    case "APPOINTMENT_REMINDER_24H": {
-      const subject = `Recordatorio de cita para manana - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, este es un recordatorio de tu cita de manana en ${context.clinic.name}.`,
-        ],
-        details,
-        pricing,
-        links,
+    case "APPOINTMENT_REMINDER_24H":
+      return renderAppointmentMessage({
+        templateKey,
+        subject: `Recordatorio de cita para manana - ${context.clinic.name}`,
+        headline: `Recordatorio de cita en ${context.clinic.name}.`,
+        context,
+        includeLinks: true,
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildPayload(templateKey, context),
-      };
-    }
-
-    case "APPOINTMENT_REMINDER_2H": {
-      const subject = `Recordatorio de cita en 2 horas - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, tu cita en ${context.clinic.name} comienza en aproximadamente 2 horas.`,
-        ],
-        details,
-        pricing,
-        links,
+    case "APPOINTMENT_REMINDER_2H":
+      return renderAppointmentMessage({
+        templateKey,
+        subject: `Recordatorio de cita en 2 horas - ${context.clinic.name}`,
+        headline: `Tu cita en ${context.clinic.name} es hoy.`,
+        context,
+        includeLinks: true,
       });
-
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildPayload(templateKey, context),
-      };
-    }
   }
 
   throw new Error(`Template de notificacion no soportado: ${templateKey}`);
@@ -578,6 +401,122 @@ function buildWaitlistPayload(
   } satisfies Prisma.InputJsonValue;
 }
 
+function buildWaitlistDoctorLine(context: WaitlistNotificationTemplateContext) {
+  if (!context.doctor) {
+    return `${context.service.name} con doctor disponible.`;
+  }
+
+  return `${context.service.name} con ${context.doctor.name}.`;
+}
+
+function buildWaitlistPreferenceLine(context: WaitlistNotificationTemplateContext) {
+  const segments: string[] = [];
+
+  if (context.waitlistEntry.preferredDate) {
+    segments.push(
+      formatDateTimeInTimeZone(
+        context.waitlistEntry.preferredDate,
+        context.clinic.timezone,
+      ).replace(/, 12:00$/, ""),
+    );
+  }
+
+  if (
+    context.waitlistEntry.preferredStartTime ||
+    context.waitlistEntry.preferredEndTime
+  ) {
+    segments.push(
+      `${context.waitlistEntry.preferredStartTime ?? "00:00"}-${context.waitlistEntry.preferredEndTime ?? "23:59"}`,
+    );
+  }
+
+  if (!segments.length) {
+    return "Preferencia: cualquier horario.";
+  }
+
+  return `Preferencia: ${segments.join(" ")}.`;
+}
+
+function buildWaitlistOfferLine(context: WaitlistNotificationTemplateContext) {
+  if (!context.offer) {
+    return null;
+  }
+
+  return `Horario: ${formatDateTimeInTimeZone(
+    context.offer.offeredStartAt,
+    context.clinic.timezone,
+  )}.`;
+}
+
+function buildWaitlistAppointmentLine(context: WaitlistNotificationTemplateContext) {
+  if (!context.appointment) {
+    return null;
+  }
+
+  return `Cita: ${formatDateTimeInTimeZone(
+    context.appointment.startAt,
+    context.clinic.timezone,
+  )}.`;
+}
+
+function buildWaitlistOfferLinks(context: WaitlistNotificationTemplateContext) {
+  if (!context.offer?.acceptUrl || !context.offer.rejectUrl) {
+    return [];
+  }
+
+  return [
+    `Aceptar: ${context.offer.acceptUrl}`,
+    `Rechazar: ${context.offer.rejectUrl}`,
+  ];
+}
+
+function renderWaitlistMessage(params: {
+  templateKey: Extract<
+    NotificationTemplateKey,
+    | "WAITLIST_ENTRY_CREATED"
+    | "WAITLIST_SLOT_OFFERED"
+    | "WAITLIST_AUTO_ASSIGNED"
+    | "WAITLIST_OFFER_ACCEPTED"
+    | "WAITLIST_OFFER_EXPIRED"
+  >;
+  subject: string;
+  headline: string;
+  context: WaitlistNotificationTemplateContext;
+  extraLines?: Array<string | null>;
+  links?: string[];
+  footer?: string[];
+}) {
+  const lines = [
+    buildWaitlistDoctorLine(params.context),
+    buildWaitlistPreferenceLine(params.context),
+    ...(params.extraLines ?? []).filter(
+      (line): line is string => typeof line === "string" && line.length > 0,
+    ),
+  ];
+  const whatsappBody = buildWhatsappMessage([
+    params.headline,
+    ...lines,
+    ...(params.links ?? []),
+  ]);
+  const emailBody = buildEmailMessage({
+    headline: params.headline,
+    lines,
+    links: params.links,
+    footer: params.footer,
+  });
+
+  return {
+    whatsappBody,
+    email: params.context.patient.email
+      ? {
+          subject: params.subject,
+          body: emailBody,
+        }
+      : null,
+    payload: buildWaitlistPayload(params.templateKey, params.context),
+  } satisfies RenderedNotificationTemplate;
+}
+
 export function renderWaitlistNotificationTemplate(
   templateKey: Extract<
     NotificationTemplateKey,
@@ -589,103 +528,57 @@ export function renderWaitlistNotificationTemplate(
   >,
   context: WaitlistNotificationTemplateContext,
 ): RenderedNotificationTemplate {
-  const preferences = buildWaitlistPreferenceLines(context);
-  const offerLines = buildWaitlistOfferLines(context);
-  const offerLinks = buildWaitlistOfferLinks(context);
-  const appointmentLines = buildWaitlistAppointmentLines(context);
-
   switch (templateKey) {
-    case "WAITLIST_ENTRY_CREATED": {
-      const subject = `Te agregamos a la lista de espera - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, tu solicitud para lista de espera ya quedo registrada en ${context.clinic.name}.`,
-        ],
-        details: preferences,
-        footer: [
+    case "WAITLIST_ENTRY_CREATED":
+      return renderWaitlistMessage({
+        templateKey,
+        subject: `Lista de espera registrada - ${context.clinic.name}`,
+        headline: `Lista de espera registrada en ${context.clinic.name}.`,
+        context,
+        extraLines: [
           context.waitlistEntry.autoAccept
-            ? "Si se libera un espacio compatible, podremos asignarlo automaticamente en estado pendiente."
-            : "Si se libera un espacio compatible, te enviaremos una oferta para que la aceptes.",
+            ? "Si se libera un espacio, lo asignaremos automaticamente."
+            : "Te avisaremos si se libera un espacio.",
         ],
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildWaitlistPayload(templateKey, context),
-      };
-    }
-
-    case "WAITLIST_SLOT_OFFERED": {
-      const subject = `Se libero un horario para ti - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, encontramos un espacio compatible con tu lista de espera en ${context.clinic.name}.`,
-        ],
-        details: [...preferences, ...offerLines],
-        links: offerLinks,
-        footer: ["La oferta caduca automaticamente cuando venza el tiempo indicado."],
+    case "WAITLIST_SLOT_OFFERED":
+      return renderWaitlistMessage({
+        templateKey,
+        subject: `Se libero un horario para ti - ${context.clinic.name}`,
+        headline: `Se libero un horario en ${context.clinic.name}.`,
+        context,
+        extraLines: [buildWaitlistOfferLine(context)],
+        links: buildWaitlistOfferLinks(context),
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildWaitlistPayload(templateKey, context),
-      };
-    }
-
-    case "WAITLIST_AUTO_ASSIGNED": {
-      const subject = `Te asignamos un horario compatible - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, se libero un espacio compatible y te lo asignamos automaticamente en ${context.clinic.name}.`,
-        ],
-        details: [...preferences, ...appointmentLines],
-        footer: [
-          "La cita se creo en estado pendiente para que el consultorio termine de confirmarla.",
-        ],
+    case "WAITLIST_AUTO_ASSIGNED":
+      return renderWaitlistMessage({
+        templateKey,
+        subject: `Horario asignado desde lista de espera - ${context.clinic.name}`,
+        headline: `Te asignamos un horario en ${context.clinic.name}.`,
+        context,
+        extraLines: [buildWaitlistAppointmentLine(context)],
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildWaitlistPayload(templateKey, context),
-      };
-    }
-
-    case "WAITLIST_OFFER_ACCEPTED": {
-      const subject = `Confirmamos tu lugar desde lista de espera - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, registramos tu aceptacion de la oferta en ${context.clinic.name}.`,
-        ],
-        details: [...preferences, ...appointmentLines],
-        footer: ["Tu cita ya quedo creada y el consultorio dara seguimiento al horario."],
+    case "WAITLIST_OFFER_ACCEPTED":
+      return renderWaitlistMessage({
+        templateKey,
+        subject: `Oferta aceptada - ${context.clinic.name}`,
+        headline: `Registramos tu aceptacion en ${context.clinic.name}.`,
+        context,
+        extraLines: [buildWaitlistAppointmentLine(context)],
       });
 
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildWaitlistPayload(templateKey, context),
-      };
-    }
-
-    case "WAITLIST_OFFER_EXPIRED": {
-      const subject = `La oferta de lista de espera expiro - ${context.clinic.name}`;
-      const body = buildMessage({
-        intro: [
-          `Hola ${context.patient.name}, la oferta que te hicimos desde la lista de espera ya expiro en ${context.clinic.name}.`,
-        ],
-        details: [...preferences, ...offerLines],
-        footer: ["Si sigues interesado, mantendremos tu entrada activa para futuras coincidencias."],
+    case "WAITLIST_OFFER_EXPIRED":
+      return renderWaitlistMessage({
+        templateKey,
+        subject: `Oferta expirada - ${context.clinic.name}`,
+        headline: `La oferta expiro en ${context.clinic.name}.`,
+        context,
+        extraLines: [buildWaitlistOfferLine(context)],
+        footer: ["Tu solicitud sigue activa para futuras coincidencias."],
       });
-
-      return {
-        whatsappBody: body,
-        email: context.patient.email ? { subject, body } : null,
-        payload: buildWaitlistPayload(templateKey, context),
-      };
-    }
   }
 
   throw new Error(`Template de lista de espera no soportado: ${templateKey}`);

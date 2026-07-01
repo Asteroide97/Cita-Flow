@@ -30,8 +30,7 @@ export function BookingSummary({
         {clinic.name}
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        El booking publico crea la cita en estado pendiente de confirmacion y el
-        consultorio valida el horario desde su panel.
+        Tu cita quedara pendiente de confirmacion.
       </p>
 
       <div className="mt-6 grid gap-3">
@@ -85,7 +84,7 @@ export function BookingSummary({
             Pendiente de confirmacion
           </p>
           <p className="mt-1 text-sm text-brand-700">
-            El consultorio revisara y confirmara la cita contigo.
+            El consultorio te confirmara.
           </p>
         </div>
       </div>

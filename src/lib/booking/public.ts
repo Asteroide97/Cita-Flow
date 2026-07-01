@@ -180,8 +180,7 @@ export function resolveBookingFlashMessage(
       case "slot-unavailable":
         return {
           tone: "error",
-          message:
-            "Ese horario ya no esta disponible. Revisa la lista actualizada y elige otro.",
+          message: "Ese horario acaba de ocuparse. Elige otro.",
         };
       case "patient-name-required":
         return {

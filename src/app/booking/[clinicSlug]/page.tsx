@@ -18,7 +18,6 @@ import { readPublicBookingConfirmationCookie } from "@/lib/booking/confirmation"
 import {
   buildBookingPath,
   getBookingDateOptions,
-  getBookingClinicDescription,
   getBookingTodayDateValue,
   normalizeBookingBrandColor,
   resolveBookingFlashMessage,
@@ -199,8 +198,8 @@ export default async function PublicBookingPage({
     <BookingShell
       clinicName={typedClinic.name}
       clinicSlug={typedClinic.slug}
-      title="Reserva tu cita en linea en pocos pasos"
-      description={getBookingClinicDescription(typedClinic)}
+      title="Agenda tu cita"
+      description="Elige servicio, doctor y horario disponible."
       brandColor={brandColor}
       aside={
         confirmation ? undefined : (

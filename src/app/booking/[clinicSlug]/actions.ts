@@ -57,6 +57,19 @@ type PublicClinicContext = {
   isActive: boolean;
 };
 
+type BookingDatabaseClient = Prisma.TransactionClient | typeof prisma;
+
+const PUBLIC_BOOKING_IDEMPOTENCY_WINDOW_MS = 5 * 60 * 1000;
+
+const publicBookingAppointmentSelect = {
+  id: true,
+  startAt: true,
+  endAt: true,
+  status: true,
+  source: true,
+  notes: true,
+} satisfies Prisma.AppointmentSelect;
+
 function normalizeOptionalText(value: FormDataEntryValue | null) {
   const normalized = String(value ?? "").trim();
 
@@ -242,6 +255,89 @@ async function resolveActiveBookingCatalog(params: {
     service,
     doctor,
   };
+}
+
+async function findRecentPublicBookingAppointment(params: {
+  clinicId: string;
+  doctorId: string;
+  serviceId: string;
+  startAt: Date;
+  dedupeWindowStart: Date;
+  patientId?: string;
+  patientPhone?: string;
+  db?: BookingDatabaseClient;
+}) {
+  const db = params.db ?? prisma;
+  const where: Prisma.AppointmentWhereInput = {
+    clinicId: params.clinicId,
+    doctorId: params.doctorId,
+    serviceId: params.serviceId,
+    startAt: params.startAt,
+    source: AppointmentSource.PUBLIC_BOOKING,
+    status: {
+      in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+    },
+    createdAt: {
+      gte: params.dedupeWindowStart,
+    },
+  };
+
+  if (params.patientId) {
+    where.patientId = params.patientId;
+  } else if (params.patientPhone) {
+    where.patient = {
+      is: {
+        phoneE164: params.patientPhone,
+      },
+    };
+  } else {
+    return null;
+  }
+
+  return db.appointment.findFirst({
+    where,
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: publicBookingAppointmentSelect,
+  });
+}
+
+async function redirectToPublicBookingConfirmation(params: {
+  clinic: PublicClinicContext;
+  clinicSlug: string;
+  serviceId: string;
+  doctorId: string;
+  date: string;
+  slotTime: string;
+  serviceName: string;
+  doctorName: string;
+  appointmentStartAt: Date;
+  ipAddress: string;
+  phoneRateLimitKey: string;
+}) {
+  clearPublicBookingRateLimit(params.ipAddress, params.phoneRateLimitKey);
+
+  await setPublicBookingConfirmationCookie({
+    clinicSlug: params.clinic.slug,
+    clinicName: params.clinic.name,
+    serviceName: params.serviceName,
+    doctorName: params.doctorName,
+    startAtIso: params.appointmentStartAt.toISOString(),
+    timezone: params.clinic.timezone,
+    statusLabel: "Pendiente de confirmacion",
+  });
+
+  redirect(
+    buildBookingRedirectPath({
+      clinicSlug: params.clinicSlug,
+      serviceId: params.serviceId,
+      doctorId: params.doctorId,
+      date: params.date,
+      slotTime: params.slotTime,
+      status: "booking-created",
+    }),
+  );
 }
 
 export async function createPublicBookingAction(formData: FormData) {
@@ -561,6 +657,10 @@ export async function createPublicBookingAction(formData: FormData) {
     );
   }
 
+  const slotDateMarker = buildClinicDateMarker(dateParts, clinic.timezone);
+  const dedupeWindowStart = new Date(
+    Date.now() - PUBLIC_BOOKING_IDEMPOTENCY_WINDOW_MS,
+  );
   const { service, doctor } = await resolveActiveBookingCatalog({
     clinicId: clinic.id,
     serviceId,
@@ -620,7 +720,7 @@ export async function createPublicBookingAction(formData: FormData) {
     clinicId: clinic.id,
     doctorId: doctor.id,
     serviceId: service.id,
-    date: buildClinicDateMarker(dateParts, clinic.timezone),
+    date: slotDateMarker,
   });
   const selectedSlot = availableSlotResult.slots.find(
     (slot) => slot.startTime === slotTime,
@@ -656,6 +756,8 @@ export async function createPublicBookingAction(formData: FormData) {
     );
   }
 
+  let appointmentStartAt: Date | null = null;
+
   try {
     const appointment = await prisma.$transaction(async (transaction) => {
       const patient = await resolvePublicPatient({
@@ -666,6 +768,20 @@ export async function createPublicBookingAction(formData: FormData) {
         patientEmail,
         createAuditAction: "PUBLIC_BOOKING_PATIENT_CREATED",
       });
+
+      const existingAppointment = await findRecentPublicBookingAppointment({
+        clinicId: clinic.id,
+        doctorId: doctor.id,
+        serviceId: service.id,
+        startAt: selectedSlot.startAt,
+        dedupeWindowStart,
+        patientId: patient.id,
+        db: transaction,
+      });
+
+      if (existingAppointment) {
+        return existingAppointment;
+      }
 
       const createdAppointment = await createAppointmentSafely({
         clinicId: clinic.id,
@@ -708,40 +824,44 @@ export async function createPublicBookingAction(formData: FormData) {
       return createdAppointment;
     });
 
-    clearPublicBookingRateLimit(ipAddress, phoneRateLimitKey);
-
-    await setPublicBookingConfirmationCookie({
-      clinicSlug: clinic.slug,
-      clinicName: clinic.name,
-      serviceName: service.name,
-      doctorName: doctor.name,
-      startAtIso: appointment.startAt.toISOString(),
-      timezone: clinic.timezone,
-      statusLabel: "Pendiente de confirmacion",
+    appointmentStartAt = appointment.startAt;
+  } catch (error) {
+    const duplicateAppointment = await findRecentPublicBookingAppointment({
+      clinicId: clinic.id,
+      doctorId: doctor.id,
+      serviceId: service.id,
+      startAt: selectedSlot.startAt,
+      dedupeWindowStart,
+      patientPhone: normalizedPhone,
     });
 
-    redirect(
-      buildBookingRedirectPath({
+    if (duplicateAppointment) {
+      await redirectToPublicBookingConfirmation({
+        clinic,
         clinicSlug,
         serviceId: service.id,
         doctorId: doctor.id,
         date,
         slotTime,
-        status: "booking-created",
-      }),
-    );
-  } catch (error) {
-    registerPublicBookingAttempt(ipAddress, phoneRateLimitKey);
+        serviceName: service.name,
+        doctorName: doctor.name,
+        appointmentStartAt: duplicateAppointment.startAt,
+        ipAddress,
+        phoneRateLimitKey,
+      });
+    }
 
     const refreshedSlots = await getAvailableSlots({
       clinicId: clinic.id,
       doctorId: doctor.id,
       serviceId: service.id,
-      date: buildClinicDateMarker(dateParts, clinic.timezone),
+      date: slotDateMarker,
     });
     const isSlotStillAvailable = refreshedSlots.slots.some(
       (slot) => slot.startTime === slotTime,
     );
+
+    registerPublicBookingAttempt(ipAddress, phoneRateLimitKey);
 
     await registerPublicBookingFailure({
       clinicId: clinic.id,
@@ -772,6 +892,34 @@ export async function createPublicBookingAction(formData: FormData) {
       }),
     );
   }
+
+  if (!appointmentStartAt) {
+    redirect(
+      buildBookingRedirectPath({
+        clinicSlug,
+        serviceId: service.id,
+        doctorId: doctor.id,
+        date,
+        slotTime,
+        error: "booking-save",
+        focus: "datos",
+      }),
+    );
+  }
+
+  await redirectToPublicBookingConfirmation({
+    clinic,
+    clinicSlug,
+    serviceId: service.id,
+    doctorId: doctor.id,
+    date,
+    slotTime,
+    serviceName: service.name,
+    doctorName: doctor.name,
+    appointmentStartAt,
+    ipAddress,
+    phoneRateLimitKey,
+  });
 }
 
 export async function createPublicWaitlistEntryAction(formData: FormData) {

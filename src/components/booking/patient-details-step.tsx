@@ -32,10 +32,13 @@ export function PatientDetailsStep({
         Paso 4
       </p>
       <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-        Completa tus datos
+        Completa tus datos para reservar
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Confirmaremos una cita para {selectedService.name} con {selectedDoctor.name}.
+        Tu cita quedara pendiente de confirmacion.
+      </p>
+      <p className="mt-2 text-sm leading-7 text-muted">
+        Solicitaras una cita para {selectedService.name} con {selectedDoctor.name}.
       </p>
 
       <form action={action} className="mt-6 grid gap-4">

@@ -70,6 +70,12 @@ const publicBookingAppointmentSelect = {
   notes: true,
 } satisfies Prisma.AppointmentSelect;
 
+const publicWaitlistEntrySelect = {
+  id: true,
+  preferredDate: true,
+  status: true,
+} satisfies Prisma.WaitlistEntrySelect;
+
 function normalizeOptionalText(value: FormDataEntryValue | null) {
   const normalized = String(value ?? "").trim();
 
@@ -336,6 +342,69 @@ async function redirectToPublicBookingConfirmation(params: {
       date: params.date,
       slotTime: params.slotTime,
       status: "booking-created",
+    }),
+  );
+}
+
+async function findExistingPublicWaitlistEntry(params: {
+  clinicId: string;
+  serviceId: string;
+  doctorId: string;
+  preferredDate: Date | null;
+  patientId?: string;
+  patientPhone?: string;
+  db?: BookingDatabaseClient;
+}) {
+  const db = params.db ?? prisma;
+  const where: Prisma.WaitlistEntryWhereInput = {
+    clinicId: params.clinicId,
+    serviceId: params.serviceId,
+    doctorId: params.doctorId,
+    preferredDate: params.preferredDate,
+    status: {
+      in: [WaitlistStatus.ACTIVE, WaitlistStatus.OFFERED],
+    },
+  };
+
+  if (params.patientId) {
+    where.patientId = params.patientId;
+  } else if (params.patientPhone) {
+    where.patient = {
+      is: {
+        phoneE164: params.patientPhone,
+      },
+    };
+  } else {
+    return null;
+  }
+
+  return db.waitlistEntry.findFirst({
+    where,
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: publicWaitlistEntrySelect,
+  });
+}
+
+async function redirectToPublicWaitlistSuccess(params: {
+  clinicSlug: string;
+  serviceId: string;
+  doctorId: string;
+  date: string;
+  ipAddress: string;
+  phoneRateLimitKey: string;
+}) {
+  clearPublicBookingRateLimit(params.ipAddress, params.phoneRateLimitKey);
+
+  redirect(
+    buildBookingRedirectPath({
+      clinicSlug: params.clinicSlug,
+      serviceId: params.serviceId,
+      doctorId: params.doctorId,
+      date: params.date,
+      status: "waitlist-created",
+      focus: "fecha-hora",
     }),
   );
 }
@@ -1154,6 +1223,7 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
     ? buildClinicDateMarker(preferredDateParts, clinic.timezone)
     : null;
   const preferredWindow = resolvePreferredTimeRange(preferredRange);
+  const waitlistDate = preferredDateRaw ?? selectedDate;
 
   try {
     await prisma.$transaction(async (transaction) => {
@@ -1165,6 +1235,19 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
         patientEmail,
         createAuditAction: "PUBLIC_BOOKING_PATIENT_CREATED",
       });
+
+      const existingWaitlistEntry = await findExistingPublicWaitlistEntry({
+        clinicId: clinic.id,
+        serviceId: service.id,
+        doctorId: doctor.id,
+        preferredDate,
+        patientId: patient.id,
+        db: transaction,
+      });
+
+      if (existingWaitlistEntry) {
+        return existingWaitlistEntry;
+      }
 
       const waitlistEntry = await transaction.waitlistEntry.create({
         data: {
@@ -1195,11 +1278,11 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
             patientId: patient.id,
             serviceId: service.id,
             doctorId: doctor.id,
-            preferredDate: waitlistEntry.preferredDate?.toISOString() ?? null,
-            preferredRange,
-            autoAccept,
-            notes,
-          },
+          preferredDate: waitlistEntry.preferredDate?.toISOString() ?? null,
+          preferredRange,
+          autoAccept,
+          notes,
+        },
         },
         transaction,
       );
@@ -1209,21 +1292,29 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
         waitlistEntryId: waitlistEntry.id,
         db: transaction,
       });
+
+      return waitlistEntry;
+    });
+  } catch (error) {
+    const duplicateWaitlistEntry = await findExistingPublicWaitlistEntry({
+      clinicId: clinic.id,
+      serviceId: service.id,
+      doctorId: doctor.id,
+      preferredDate,
+      patientPhone: normalizedPhone,
     });
 
-    clearPublicBookingRateLimit(ipAddress, phoneRateLimitKey);
-
-    redirect(
-      buildBookingRedirectPath({
+    if (duplicateWaitlistEntry) {
+      await redirectToPublicWaitlistSuccess({
         clinicSlug,
-        serviceId,
-        doctorId,
-        date: preferredDateRaw ?? selectedDate,
-        status: "waitlist-created",
-        focus: "fecha-hora",
-      }),
-    );
-  } catch (error) {
+        serviceId: service.id,
+        doctorId: doctor.id,
+        date: waitlistDate,
+        ipAddress,
+        phoneRateLimitKey,
+      });
+    }
+
     registerPublicBookingAttempt(ipAddress, phoneRateLimitKey);
     console.error("No se pudo registrar la lista de espera publica.", error);
 
@@ -1234,7 +1325,7 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
       ipAddress,
       serviceId,
       doctorId,
-      date: preferredDateRaw ?? selectedDate,
+      date: waitlistDate,
       phone: normalizedPhone,
       metadata: {
         errorMessage: error instanceof Error ? error.message : "UNKNOWN_ERROR",
@@ -1248,11 +1339,20 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
         clinicSlug,
         serviceId,
         doctorId,
-        date: preferredDateRaw ?? selectedDate,
+        date: waitlistDate,
         error: "waitlist-save",
         focus: "lista-espera",
         waitlist: true,
       }),
     );
   }
+
+  await redirectToPublicWaitlistSuccess({
+    clinicSlug,
+    serviceId: service.id,
+    doctorId: doctor.id,
+    date: waitlistDate,
+    ipAddress,
+    phoneRateLimitKey,
+  });
 }

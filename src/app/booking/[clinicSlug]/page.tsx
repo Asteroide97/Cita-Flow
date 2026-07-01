@@ -189,6 +189,11 @@ export default async function PublicBookingPage({
     confirmation && query.status === "booking-created"
       ? null
       : resolveBookingFlashMessage(query.status, query.error);
+  const waitlistFlash =
+    flash && (query.status === "waitlist-created" || query.focus === "lista-espera")
+      ? flash
+      : null;
+  const pageFlash = waitlistFlash ? null : flash;
   const brandColor = normalizeBookingBrandColor(typedClinic.brandColor);
   const minDate = getBookingTodayDateValue(typedClinic.timezone);
   const dateOptions = getBookingDateOptions(typedClinic.timezone);
@@ -215,15 +220,15 @@ export default async function PublicBookingPage({
     >
       <BookingScrollManager focusTarget={query.focus ?? null} />
 
-      {flash ? (
+      {pageFlash ? (
         <div
           className={
-            flash.tone === "success"
+            pageFlash.tone === "success"
               ? "rounded-[26px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800"
               : "rounded-[26px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700"
           }
         >
-          {flash.message}
+          {pageFlash.message}
         </div>
       ) : null}
 
@@ -261,6 +266,7 @@ export default async function PublicBookingPage({
               dateOptions={dateOptions}
               availableSlotResult={availableSlotResult}
               waitlistOpen={waitlistOpen}
+              waitlistFlash={waitlistFlash}
               selectedService={selectedService}
               selectedDoctor={selectedDoctor}
               waitlistAction={createPublicWaitlistEntryAction}

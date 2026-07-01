@@ -236,8 +236,7 @@ export function resolveBookingFlashMessage(
       case "waitlist-save":
         return {
           tone: "error",
-          message:
-            "No pudimos guardar tu solicitud en lista de espera. Revisa los datos e intenta de nuevo.",
+          message: "No pudimos guardarte en lista de espera. Intenta de nuevo.",
         };
       case "booking-save":
       default:
@@ -259,8 +258,7 @@ export function resolveBookingFlashMessage(
   if (status === "waitlist-created") {
     return {
       tone: "success",
-      message:
-        "Te agregamos a la lista de espera. Si se libera un horario compatible, te avisaremos.",
+      message: "Listo. Te agregamos a la lista de espera.",
     };
   }
 

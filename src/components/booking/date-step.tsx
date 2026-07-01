@@ -7,6 +7,7 @@ import {
 import type {
   BookingDateOption,
   BookingDoctorOption,
+  BookingFlashMessage,
   BookingServiceOption,
 } from "@/types/booking";
 
@@ -23,6 +24,7 @@ type DateStepProps = {
   dateOptions: BookingDateOption[];
   availableSlotResult: GetAvailableSlotsResult | null;
   waitlistOpen: boolean;
+  waitlistFlash: BookingFlashMessage | null;
   selectedService: BookingServiceOption;
   selectedDoctor: BookingDoctorOption;
   waitlistAction: (formData: FormData) => void | Promise<void>;
@@ -38,6 +40,7 @@ export function DateStep({
   dateOptions,
   availableSlotResult,
   waitlistOpen,
+  waitlistFlash,
   selectedService,
   selectedDoctor,
   waitlistAction,
@@ -157,6 +160,18 @@ export function DateStep({
           availableSlotResult={availableSlotResult}
           waitlistOpen={waitlistOpen}
         />
+      ) : null}
+
+      {waitlistFlash ? (
+        <div
+          className={
+            waitlistFlash.tone === "success"
+              ? "mt-6 rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800"
+              : "mt-6 rounded-[24px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700"
+          }
+        >
+          {waitlistFlash.message}
+        </div>
       ) : null}
 
       {waitlistOpen && !selectedSlotTime ? (

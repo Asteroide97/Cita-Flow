@@ -3,6 +3,8 @@ import type {
   BookingServiceOption,
 } from "@/types/booking";
 
+import { WaitlistSubmitButton } from "./waitlist-submit-button";
+
 type WaitlistRequestFormProps = {
   clinicSlug: string;
   serviceId: string;
@@ -34,11 +36,13 @@ export function WaitlistRequestForm({
         Lista de espera
       </p>
       <h3 className="mt-3 text-xl font-semibold tracking-[-0.04em] text-ink">
-        No veo un horario que me sirva
+        Unete a la lista de espera
       </h3>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Te agregamos para {selectedService.name} con {selectedDoctor.name}. Si se
-        libera un espacio compatible, te avisamos por WhatsApp o email.
+        Esto no crea una cita. Te avisaremos si se libera un horario compatible.
+      </p>
+      <p className="mt-2 text-sm leading-7 text-muted">
+        Lo registraremos para {selectedService.name} con {selectedDoctor.name}.
       </p>
 
       <form action={action} className="mt-6 grid gap-4">
@@ -149,13 +153,7 @@ export function WaitlistRequestForm({
           />
         </label>
 
-        <button
-          type="submit"
-          className="inline-flex rounded-full px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: "var(--booking-brand)" }}
-        >
-          Unirme a la lista de espera
-        </button>
+        <WaitlistSubmitButton />
       </form>
     </div>
   );

@@ -102,7 +102,7 @@ export function SlotsStep({
           Horarios disponibles
         </p>
         <h3 className="mt-3 text-xl font-semibold tracking-[-0.04em] text-ink">
-          Elige el horario que mejor te funcione
+          Selecciona un horario para continuar con tu cita
         </h3>
         <p className="mt-3 text-sm leading-7 text-muted">
           Si alguien reserva antes que tu, la disponibilidad se actualiza
@@ -140,8 +140,7 @@ export function SlotsStep({
       {!selectedSlotTime ? (
         waitlistOpen ? (
           <div className="rounded-[22px] border border-brand-100 bg-brand-50 px-4 py-4 text-sm leading-7 text-brand-800">
-            Completa el formulario de lista de espera y te avisaremos si se libera
-            un horario compatible.
+            Abriste la lista de espera. Esto no crea una cita.
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
@@ -155,10 +154,10 @@ export function SlotsStep({
               scroll={false}
               className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
             >
-              No veo un horario que me sirva
+              Prefiero otro horario
             </Link>
             <span className="text-sm text-muted">
-              Si no te funciona ninguna opcion, puedes pedir lista de espera.
+              Si no te funciona ninguna opcion, puedes unirte a la lista de espera.
             </span>
           </div>
         )

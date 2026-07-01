@@ -331,7 +331,7 @@ async function redirectToPublicBookingConfirmation(params: {
     doctorName: params.doctorName,
     startAtIso: params.appointmentStartAt.toISOString(),
     timezone: params.clinic.timezone,
-    statusLabel: "Pendiente de confirmacion",
+    statusLabel: "Pendiente de confirmación",
   });
 
   redirect(

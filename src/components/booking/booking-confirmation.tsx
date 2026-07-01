@@ -19,10 +19,10 @@ export function BookingConfirmation({
       </span>
 
       <h2 className="mt-5 text-3xl font-semibold tracking-[-0.06em] text-ink sm:text-4xl">
-        Tu cita quedo pendiente de confirmacion
+        Tu cita quedó pendiente de confirmación
       </h2>
       <p className="mt-4 max-w-2xl text-base leading-8 text-muted">
-        El consultorio recibio tu solicitud y confirmara el horario contigo. Aqui
+        El consultorio recibió tu solicitud y confirmará el horario contigo. Aquí
         tienes el resumen de la reserva.
       </p>
 

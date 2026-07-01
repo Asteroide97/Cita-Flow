@@ -28,8 +28,8 @@ type ConfirmAppointmentPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Confirmar cita | CitaFlow",
-  description: "Confirma tu cita medica desde un enlace publico seguro.",
+  title: "Confirmar reserva | CitaFlow",
+  description: "Confirma tu reserva desde un enlace público seguro.",
 };
 
 export default async function ConfirmAppointmentPage({
@@ -48,7 +48,7 @@ export default async function ConfirmAppointmentPage({
         clinicName={successResult.clinicName}
         clinicSlug={successResult.clinicSlug}
         brandColor={normalizeBookingBrandColor(successResult.brandColor)}
-        title="Tu cita ya quedo confirmada"
+        title="Tu reserva ya quedó confirmada"
         description={successResult.message}
       >
         <article className="surface-card p-6 sm:p-8">
@@ -58,7 +58,7 @@ export default async function ConfirmAppointmentPage({
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             <div className="rounded-[24px] border border-line/80 bg-surface-soft px-5 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Paciente
+                Cliente
               </p>
               <p className="mt-3 text-base font-semibold text-ink">
                 {successResult.patientName}
@@ -82,7 +82,7 @@ export default async function ConfirmAppointmentPage({
             </div>
             <div className="rounded-[24px] border border-line/80 bg-white px-5 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Doctor
+                Profesional
               </p>
               <p className="mt-3 text-base font-semibold text-ink">
                 {successResult.doctorName}
@@ -108,7 +108,7 @@ export default async function ConfirmAppointmentPage({
         clinicSlug="autoservicio"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir este enlace"
-        description="Valida el enlace recibido o solicita uno nuevo al consultorio."
+        description="Valida el enlace recibido o solicita uno nuevo al negocio."
       >
         <TokenErrorState title={copy.title} description={copy.description} />
       </PublicAppointmentShell>
@@ -123,12 +123,12 @@ export default async function ConfirmAppointmentPage({
         brandColor={normalizeBookingBrandColor(
           validation.context.appointment.clinic.brandColor,
         )}
-        title="Esta cita ya no puede confirmarse"
-        description="El estado actual de la cita ya no permite una confirmacion publica."
+        title="Esta reserva ya no puede confirmarse"
+        description="El estado actual de la reserva ya no permite una confirmación pública."
       >
         <TokenErrorState
-          title="La cita ya no admite confirmacion"
-          description="El horario fue cancelado, completado o marcado como no-show por el consultorio."
+          title="La reserva ya no admite confirmación"
+          description="El horario fue cancelado, completado o marcado como no-show por el negocio."
         />
       </PublicAppointmentShell>
     );
@@ -143,7 +143,7 @@ export default async function ConfirmAppointmentPage({
       brandColor={normalizeBookingBrandColor(
         validation.context.appointment.clinic.brandColor,
       )}
-      title="Confirma tu cita"
+      title="Confirma tu reserva"
       description="Revisa el resumen y confirma tu asistencia en un solo paso."
     >
       <AppointmentTokenSummary

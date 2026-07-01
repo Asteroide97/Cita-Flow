@@ -28,7 +28,7 @@ export function resolveWaitlistOfferFlashMessage(error?: string) {
       return {
         tone: "error" as const,
         message:
-          "La oferta ya no tiene un horario valido asociado. Solicita una nueva confirmacion al consultorio.",
+          "La oferta ya no tiene un horario válido asociado. Solicita una nueva confirmación al negocio.",
       };
     case "slot-unavailable":
       return {
@@ -71,13 +71,13 @@ export function resolveWaitlistTokenErrorCopy(
       return {
         title: "La oferta ya no esta disponible",
         description:
-          "El consultorio ya cerro esta oferta o cambio su estado.",
+          "El negocio ya cerró esta oferta o cambió su estado.",
       };
     case "CLINIC_INACTIVE":
       return {
-        title: "El consultorio no esta disponible",
+        title: "El negocio no está disponible",
         description:
-          "La clinica ya no esta aceptando acciones publicas sobre esta lista de espera.",
+          "El negocio ya no está aceptando acciones públicas sobre esta lista de espera.",
       };
     case "WAITLIST_ENTRY_NOT_ACTIVE":
       return {

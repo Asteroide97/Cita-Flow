@@ -184,7 +184,7 @@ export async function confirmAppointmentByTokenAction(formData: FormData) {
       action: "confirm",
       appointment: updatedAppointment,
       statusLabel: "Confirmada",
-      message: "Tu cita quedo confirmada correctamente.",
+      message: "Tu reserva quedó confirmada correctamente.",
     }),
   );
 
@@ -299,7 +299,7 @@ export async function cancelAppointmentByTokenAction(formData: FormData) {
       action: "cancel",
       appointment: updatedAppointment,
       statusLabel: "Cancelada",
-      message: "Tu cita fue cancelada correctamente.",
+      message: "Tu reserva fue cancelada correctamente.",
     }),
   );
 
@@ -496,7 +496,7 @@ export async function rescheduleAppointmentByTokenAction(formData: FormData) {
       appointment: updatedAppointment,
       statusLabel: "Pendiente de confirmacion",
       message:
-        "Tu cita fue reagendada. El consultorio revisara y confirmara el nuevo horario.",
+        "Tu reserva fue reagendada. El negocio revisará y confirmará el nuevo horario.",
     }),
   );
 

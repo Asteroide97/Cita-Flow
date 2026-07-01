@@ -136,8 +136,8 @@ export function Hero() {
                   </div>
 
                   <div className="mt-4 grid grid-cols-7 gap-2 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    {["L", "M", "M", "J", "V", "S", "D"].map((day) => (
-                      <span key={day}>{day}</span>
+                    {["L", "M", "M", "J", "V", "S", "D"].map((day, index) => (
+                      <span key={`${day}-${index}`}>{day}</span>
                     ))}
                   </div>
 

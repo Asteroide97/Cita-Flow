@@ -1,0 +1,51 @@
+
+> cita-flow@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.100.13:3000
+- Environments: .env
+✓ Ready in 1426ms
+
+(node:17776) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ GET /booking/clinica-demo 200 in 4.2s (next.js: 1767ms, application-code: 2.5s)
+ GET /booking/clinica-demo?serviceId=service_demo_3&focus=doctor 200 in 1062ms (next.js: 79ms, application-code: 982ms)
+ GET /booking/clinica-demo?serviceId=service_demo_3&doctorId=doctor_demo_1&focus=fecha-hora 200 in 802ms (next.js: 188ms, application-code: 614ms)
+ GET /booking/clinica-demo?serviceId=service_demo_3&doctorId=doctor_demo_1&date=2026-07-02&focus=fecha-hora 200 in 1431ms (next.js: 38ms, application-code: 1393ms)
+ GET /booking/clinica-demo?serviceId=service_demo_3&doctorId=doctor_demo_1&date=2026-07-02&slotTime=16%3A00&focus=datos 200 in 745ms (next.js: 28ms, application-code: 717ms)
+(node:17776) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+ GET /booking/clinica-demo?serviceId=service_demo_3&doctorId=doctor_demo_1&date=2026-07-02&slotTime=16%3A00&status=booking-created 200 in 317ms (next.js: 49ms, application-code: 268ms)
+ POST /booking/clinica-demo?serviceId=service_demo_3&doctorId=doctor_demo_1&date=2026-07-02&slotTime=16%3A00&focus=datos 303 in 2.2s (next.js: 115ms, application-code: 2.1s)
+  └─ ƒ createPublicBookingAction({}) in 1636ms src/app/booking/[clinicSlug]/actions.ts
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior (file://C:/Users/joseh/OneDrive/Desktop/Cita Flow/.next/dev/static/chunks/node_modules_next_dist_1ybzpk2._.js:2477:13)
+ GET /login 200 in 465ms (next.js: 131ms, application-code: 334ms)
+ GET /login 200 in 168ms (next.js: 6ms, application-code: 161ms)
+ GET /login 200 in 185ms (next.js: 11ms, application-code: 174ms)
+ GET / 200 in 391ms (next.js: 74ms, application-code: 317ms)
+ GET /login 200 in 184ms (next.js: 10ms, application-code: 174ms)
+ GET / 200 in 182ms (next.js: 6ms, application-code: 176ms)
+ GET /login 200 in 176ms (next.js: 7ms, application-code: 168ms)
+ GET /app/dashboard 200 in 434ms (next.js: 130ms, application-code: 305ms)
+ POST /login 303 in 883ms (next.js: 10ms, application-code: 874ms)
+  └─ ƒ loginAction({"values":{"email":""}}, {}) in 407ms src/lib/auth/actions.ts
+ GET /login 307 in 413ms (next.js: 7ms, application-code: 406ms)
+ GET /app/dashboard 200 in 540ms (next.js: 12ms, application-code: 528ms)
+ GET /booking/clinica-demo?serviceId=service_demo_3&doctorId=doctor_demo_1&date=2026-07-03&focus=lista-espera&waitlist=1 200 in 1814ms (next.js: 56ms, application-code: 1757ms)
+ GET /booking/clinica-demo?serviceId=service_demo_3&doctorId=doctor_demo_1&date=2026-07-03&status=waitlist-created&focus=fecha-hora 200 in 767ms (next.js: 49ms, application-code: 718ms)
+ POST /booking/clinica-demo?serviceId=service_demo_3&doctorId=doctor_demo_1&date=2026-07-03&focus=lista-espera&waitlist=1 303 in 1888ms (next.js: 228ms, application-code: 1660ms)
+  └─ ƒ createPublicWaitlistEntryAction({}) in 835ms src/app/booking/[clinicSlug]/actions.ts
+ GET /app/appointments 200 in 1960ms (next.js: 210ms, application-code: 1750ms)
+ GET /app/calendar 200 in 1284ms (next.js: 191ms, application-code: 1093ms)
+ GET /app/waitlist 200 in 3.0s (next.js: 2.1s, application-code: 855ms)
+ GET /app/notifications 200 in 2.5s (next.js: 1279ms, application-code: 1172ms)
+ GET /app/calendar?view=day&date=2026-07-02 200 in 1028ms (next.js: 12ms, application-code: 1016ms)
+[?25h

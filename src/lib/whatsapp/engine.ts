@@ -326,7 +326,7 @@ async function getAgendaSummary(
   });
 
   if (!appointments.length) {
-    return `No hay citas registradas para ${formatDate(dayStart, timezone)}.`;
+    return `No hay reservas registradas para ${formatDate(dayStart, timezone)}.`;
   }
 
   const lines = appointments.slice(0, 5).map((appointment) => {
@@ -404,7 +404,7 @@ async function handleClinicMessage(
     case WhatsAppIntent.CREAR_CITA:
       return {
         reply:
-          "Comando reconocido. En la siguiente fase podras crear citas operativas desde el lado del consultorio. Por ahora usa el flujo del paciente en este simulador.",
+          "Comando reconocido. En la siguiente fase podrás crear reservas operativas desde el lado del negocio. Por ahora usa el flujo del cliente en este simulador.",
         parsedIntent,
         success: true,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -413,7 +413,7 @@ async function handleClinicMessage(
     case WhatsAppIntent.CANCELAR_CITA:
       return {
         reply:
-          "Comando reconocido. La cancelacion operativa por WhatsApp interno quedo pendiente para una siguiente fase del motor.",
+          "Comando reconocido. La cancelación operativa por WhatsApp interno quedó pendiente para una siguiente fase del motor.",
         parsedIntent,
         success: true,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -422,7 +422,7 @@ async function handleClinicMessage(
     case WhatsAppIntent.BLOQUEAR_HORARIO:
       return {
         reply:
-          "Comando reconocido. El bloqueo de horarios se conectara despues contra la agenda real del clinic.",
+          "Comando reconocido. El bloqueo de horarios se conectará después contra la agenda real del negocio.",
         parsedIntent,
         success: true,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -431,7 +431,7 @@ async function handleClinicMessage(
     default:
       return {
         reply:
-          "No identifique el comando del consultorio. Prueba con: agenda hoy, agenda manana o resumen dia.",
+          "No identifiqué el comando del negocio. Prueba con: agenda hoy, agenda mañana o resumen día.",
         parsedIntent: null,
         success: false,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -474,7 +474,7 @@ async function startPatientBookingDraft(
   return {
     draft,
     reply: `${buildListPrompt(
-      "Claro. Te ayudo a agendar tu cita. Primero elige un servicio:",
+      "Claro. Te ayudo a agendar tu reserva. Primero elige un servicio:",
       services.map((service) => `${service.name} · ${service.durationMinutes} min`),
     )}\nEscribe el numero o el nombre del servicio.`,
   };
@@ -503,7 +503,7 @@ async function handlePatientAppointmentLookup(
   if (!patient) {
     return {
       reply:
-        "Todavia no encuentro citas asociadas a este numero. Si quieres, escribe 'quiero agendar una cita' y empezamos.",
+        "Todavía no encuentro reservas asociadas a este número. Si quieres, escribe 'quiero agendar una reserva' y empezamos.",
       parsedIntent: intent,
       success: false,
       conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -543,7 +543,7 @@ async function handlePatientAppointmentLookup(
   if (!appointment) {
     return {
       reply:
-        "No encontre una cita activa para este numero. Si quieres agendar una nueva, escribe 'quiero agendar una cita'.",
+        "No encontré una reserva activa para este número. Si quieres agendar una nueva, escribe 'quiero agendar una reserva'.",
       parsedIntent: intent,
       success: false,
       conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -554,7 +554,7 @@ async function handlePatientAppointmentLookup(
 
   if (intent === WhatsAppIntent.VER_CITA) {
     return {
-      reply: `Tu proxima cita es ${formatDateTime(appointment.startAt, timezone)} con ${appointment.doctor.name} para ${appointment.service.name}. Estado actual: ${appointment.status}.`,
+      reply: `Tu próxima reserva es ${formatDateTime(appointment.startAt, timezone)} con ${appointment.doctor.name} para ${appointment.service.name}. Estado actual: ${appointment.status}.`,
       parsedIntent: intent,
       success: true,
       conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -600,7 +600,7 @@ async function handlePatientAppointmentLookup(
     }
 
     return {
-      reply: `Listo. Tu cita quedo confirmada para ${formatDateTime(confirmedAppointment.startAt, timezone)} con ${confirmedAppointment.doctor.name}.`,
+      reply: `Listo. Tu reserva quedó confirmada para ${formatDateTime(confirmedAppointment.startAt, timezone)} con ${confirmedAppointment.doctor.name}.`,
       parsedIntent: intent,
       success: true,
       conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -645,7 +645,7 @@ async function handlePatientAppointmentLookup(
   });
 
   return {
-    reply: `Tu cita de ${formatDateTime(cancelledAppointment.startAt, timezone)} para ${cancelledAppointment.service.name} fue cancelada. Si deseas una nueva, escribe 'quiero agendar una cita'.`,
+    reply: `Tu reserva de ${formatDateTime(cancelledAppointment.startAt, timezone)} para ${cancelledAppointment.service.name} fue cancelada. Si deseas una nueva, escribe 'quiero agendar una reserva'.`,
     parsedIntent: intent,
     success: true,
     conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -811,7 +811,7 @@ async function continuePatientBookingDraft(
 
     if (!draft.doctorId || !draft.serviceId) {
       return {
-        reply: "El borrador ya no tiene doctor o servicio valido. Reinicia con 'quiero agendar una cita'.",
+        reply: "El borrador ya no tiene profesional o servicio válido. Reinicia con 'quiero agendar una reserva'.",
         parsedIntent: WhatsAppIntent.AGENDAR_CITA,
         success: false,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -870,7 +870,7 @@ async function continuePatientBookingDraft(
   if (draft.status === WhatsAppBookingDraftStatus.COLLECTING_TIME && draft.preferredDate && !draft.preferredTime) {
     if (!draft.doctorId || !draft.serviceId) {
       return {
-        reply: "El borrador ya no tiene doctor o servicio valido. Reinicia con 'quiero agendar una cita'.",
+        reply: "El borrador ya no tiene profesional o servicio válido. Reinicia con 'quiero agendar una reserva'.",
         parsedIntent: WhatsAppIntent.AGENDAR_CITA,
         success: false,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -982,7 +982,7 @@ async function continuePatientBookingDraft(
     });
 
     return {
-      reply: "Listo. Ahora comparteme el nombre del paciente para terminar la cita.",
+      reply: "Listo. Ahora compárteme el nombre del cliente para terminar la reserva.",
       parsedIntent: WhatsAppIntent.AGENDAR_CITA,
       success: true,
       conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -995,7 +995,7 @@ async function continuePatientBookingDraft(
 
     if (patientName.length < 3) {
       return {
-        reply: "Necesito un nombre valido para completar la cita. Escribe el nombre y apellido del paciente.",
+        reply: "Necesito un nombre válido para completar la reserva. Escribe el nombre y apellido del cliente.",
         parsedIntent: WhatsAppIntent.AGENDAR_CITA,
         success: false,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -1036,7 +1036,7 @@ async function continuePatientBookingDraft(
       !resolvedDraft.preferredTime
     ) {
       return {
-        reply: "El borrador no quedo completo. Reinicia con 'quiero agendar una cita'.",
+        reply: "El borrador no quedó completo. Reinicia con 'quiero agendar una reserva'.",
         parsedIntent: WhatsAppIntent.AGENDAR_CITA,
         success: false,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -1187,7 +1187,7 @@ async function continuePatientBookingDraft(
 
     if (!appointmentSummary) {
       return {
-        reply: "La cita se creo, pero no pude cargar el resumen final. Revisa la agenda del panel.",
+        reply: "La reserva se creó, pero no pude cargar el resumen final. Revisa la agenda del panel.",
         parsedIntent: WhatsAppIntent.AGENDAR_CITA,
         success: true,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -1207,7 +1207,7 @@ async function continuePatientBookingDraft(
     });
 
     return {
-      reply: `Tu cita quedo registrada para ${formatDateTime(appointmentSummary.startAt, timezone)} con ${appointmentSummary.doctor.name} para ${appointmentSummary.service.name}. Estado inicial: ${appointmentSummary.status}. Te escribiremos si hace falta algun ajuste.`,
+      reply: `Tu reserva quedó registrada para ${formatDateTime(appointmentSummary.startAt, timezone)} con ${appointmentSummary.doctor.name} para ${appointmentSummary.service.name}. Estado inicial: ${appointmentSummary.status}. Te escribiremos si hace falta algún ajuste.`,
       parsedIntent: WhatsAppIntent.AGENDAR_CITA,
       success: true,
       conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -1221,7 +1221,7 @@ async function continuePatientBookingDraft(
   }
 
   return {
-    reply: "El flujo quedo en un estado no soportado. Reinicia con 'quiero agendar una cita'.",
+    reply: "El flujo quedó en un estado no soportado. Reinicia con 'quiero agendar una reserva'.",
     parsedIntent: WhatsAppIntent.AGENDAR_CITA,
     success: false,
     conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -1297,7 +1297,7 @@ async function handlePatientMessage(
     });
 
     return {
-      reply: "Cancele el borrador actual. Si quieres iniciar de nuevo, escribe 'quiero agendar una cita'.",
+      reply: "Cancelé el borrador actual. Si quieres iniciar de nuevo, escribe 'quiero agendar una reserva'.",
       parsedIntent: detectedIntent,
       success: true,
       conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -1346,7 +1346,7 @@ async function handlePatientMessage(
     case WhatsAppIntent.REAGENDAR_CITA:
       return {
         reply:
-          "La reagendacion automatica quedo preparada como siguiente fase. Por ahora puedo ayudarte a iniciar una nueva reserva con 'quiero agendar una cita'.",
+          "La reagendación automática quedó preparada como siguiente fase. Por ahora puedo ayudarte a iniciar una nueva reserva con 'quiero agendar una reserva'.",
         parsedIntent: detectedIntent,
         success: true,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,
@@ -1355,7 +1355,7 @@ async function handlePatientMessage(
     default:
       return {
         reply:
-          "Puedo ayudarte a agendar, confirmar, cancelar o consultar una cita. Escribe por ejemplo: 'quiero agendar una cita'.",
+          "Puedo ayudarte a agendar, confirmar, cancelar o consultar una reserva. Escribe por ejemplo: 'quiero agendar una reserva'.",
         parsedIntent: null,
         success: false,
         conversationStatus: WhatsAppConversationStatus.ACTIVE,

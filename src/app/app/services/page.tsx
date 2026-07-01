@@ -28,7 +28,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "service-not-found":
         return {
           tone: "error" as const,
-          message: "No encontre ese servicio dentro de la clinica actual.",
+          message: "No encontré ese servicio dentro del negocio actual.",
         };
       case "service-name-required":
         return {
@@ -63,7 +63,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "service-name-duplicate":
         return {
           tone: "error" as const,
-          message: "Ya existe un servicio con ese nombre en esta clinica.",
+          message: "Ya existe un servicio con ese nombre en este negocio.",
         };
       case "service-save":
         return {
@@ -401,7 +401,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
                   <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                      Citas asociadas
+                      Reservas asociadas
                     </p>
                     <p className="mt-3 text-lg font-semibold text-ink">
                       {service._count.appointments}

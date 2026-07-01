@@ -16,8 +16,8 @@ export function AcceptWaitlistOfferForm({
         Confirma este horario liberado
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Si el espacio sigue disponible, crearemos tu cita en estado pendiente para
-        que el consultorio termine de confirmarla.
+        Si el espacio sigue disponible, crearemos tu reserva en estado pendiente
+        para que el negocio termine de confirmarla.
       </p>
 
       <form action={action} className="mt-6">

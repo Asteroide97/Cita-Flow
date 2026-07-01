@@ -40,8 +40,8 @@ type RescheduleAppointmentPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Reagendar cita | CitaFlow",
-  description: "Reagenda tu cita medica desde un enlace publico seguro.",
+  title: "Reagendar reserva | CitaFlow",
+  description: "Reagenda tu reserva desde un enlace público seguro.",
 };
 
 export default async function RescheduleAppointmentPage({
@@ -60,7 +60,7 @@ export default async function RescheduleAppointmentPage({
         clinicName={successResult.clinicName}
         clinicSlug={successResult.clinicSlug}
         brandColor={normalizeBookingBrandColor(successResult.brandColor)}
-        title="Tu cita fue reagendada"
+        title="Tu reserva fue reagendada"
         description={successResult.message}
       >
         <article className="surface-card p-6 sm:p-8">
@@ -70,7 +70,7 @@ export default async function RescheduleAppointmentPage({
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             <div className="rounded-[24px] border border-line/80 bg-surface-soft px-5 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Paciente
+                Cliente
               </p>
               <p className="mt-3 text-base font-semibold text-ink">
                 {successResult.patientName}
@@ -94,7 +94,7 @@ export default async function RescheduleAppointmentPage({
             </div>
             <div className="rounded-[24px] border border-line/80 bg-white px-5 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Doctor
+                Profesional
               </p>
               <p className="mt-3 text-base font-semibold text-ink">
                 {successResult.doctorName}
@@ -120,7 +120,7 @@ export default async function RescheduleAppointmentPage({
         clinicSlug="autoservicio"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir este enlace"
-        description="Valida el enlace recibido o solicita uno nuevo al consultorio."
+        description="Valida el enlace recibido o solicita uno nuevo al negocio."
       >
         <TokenErrorState title={copy.title} description={copy.description} />
       </PublicAppointmentShell>
@@ -135,12 +135,12 @@ export default async function RescheduleAppointmentPage({
         brandColor={normalizeBookingBrandColor(
           validation.context.appointment.clinic.brandColor,
         )}
-        title="Esta cita ya no puede reagendarse"
-        description="El estado actual de la cita ya no permite una reagendacion publica."
+        title="Esta reserva ya no puede reagendarse"
+        description="El estado actual de la reserva ya no permite una reagendación pública."
       >
         <TokenErrorState
-          title="La cita ya no admite reagendacion"
-          description="El consultorio ya la cerro, la cancelo o la marco como no-show."
+          title="La reserva ya no admite reagendación"
+          description="El negocio ya la cerró, la canceló o la marcó como no-show."
         />
       </PublicAppointmentShell>
     );
@@ -174,8 +174,8 @@ export default async function RescheduleAppointmentPage({
       brandColor={normalizeBookingBrandColor(
         validation.context.appointment.clinic.brandColor,
       )}
-      title="Reagenda tu cita"
-      description="Elige una nueva fecha y revisa horarios reales del mismo doctor y servicio."
+      title="Reagenda tu reserva"
+      description="Elige una nueva fecha y revisa horarios reales del mismo profesional y servicio."
     >
       <AppointmentTokenSummary
         clinicName={validation.context.appointment.clinic.name}

@@ -626,7 +626,7 @@ export async function generateAppointmentSelfServiceLinksAction(
 
   if (!appointment) {
     return {
-      error: "No encontre la cita dentro de la clinica actual.",
+      error: "No encontré la reserva dentro del negocio actual.",
       links: null,
     };
   }

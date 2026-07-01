@@ -33,7 +33,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "notification-not-found":
         return {
           tone: "error" as const,
-          message: "No encontre esa notificacion dentro de la clinica actual.",
+          message: "No encontré esa notificación dentro del negocio actual.",
         };
       case "notification-action-invalid":
         return {

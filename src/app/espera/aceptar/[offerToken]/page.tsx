@@ -54,7 +54,7 @@ export default async function AcceptWaitlistOfferPage({
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             <div className="rounded-[24px] border border-line/80 bg-surface-soft px-5 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Paciente
+                Cliente
               </p>
               <p className="mt-3 text-base font-semibold text-ink">
                 {successResult.patientName}
@@ -78,7 +78,7 @@ export default async function AcceptWaitlistOfferPage({
             </div>
             <div className="rounded-[24px] border border-line/80 bg-white px-5 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Doctor
+                Profesional
               </p>
               <p className="mt-3 text-base font-semibold text-ink">
                 {successResult.doctorName}
@@ -103,7 +103,7 @@ export default async function AcceptWaitlistOfferPage({
         clinicSlug="lista-espera"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir esta oferta"
-        description="Valida el enlace recibido o solicita una nueva oferta al consultorio."
+        description="Valida el enlace recibido o solicita una nueva oferta al negocio."
       >
         <TokenErrorState title={copy.title} description={copy.description} />
       </PublicAppointmentShell>
@@ -124,7 +124,7 @@ export default async function AcceptWaitlistOfferPage({
       >
         <TokenErrorState
           title="Oferta no disponible"
-          description="Solicita una nueva confirmacion al consultorio para continuar."
+          description="Solicita una nueva confirmación al negocio para continuar."
         />
       </PublicAppointmentShell>
     );
@@ -138,7 +138,7 @@ export default async function AcceptWaitlistOfferPage({
       clinicSlug={validation.context.clinic.slug}
       brandColor={normalizeBookingBrandColor(validation.context.clinic.brandColor)}
       title="Acepta este horario liberado"
-      description="Si el espacio sigue libre, registraremos tu cita sin que tengas que iniciar sesion."
+      description="Si el espacio sigue libre, registraremos tu reserva sin que tengas que iniciar sesión."
     >
       <WaitlistOfferSummary
         clinicName={validation.context.clinic.name}

@@ -30,7 +30,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "waitlist-entry-not-found":
         return {
           tone: "error" as const,
-          message: "No encontre esa entrada de lista de espera dentro de la clinica actual.",
+          message: "No encontré esa entrada de lista de espera dentro del negocio actual.",
         };
       case "waitlist-entry-action-invalid":
         return {

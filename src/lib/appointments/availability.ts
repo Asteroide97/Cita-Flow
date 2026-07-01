@@ -410,7 +410,7 @@ function checkCandidateAgainstContext(
     return {
       ok: false,
       reason: "CLINIC_BLOCKED_TIME",
-      message: "Ese horario esta bloqueado a nivel consultorio.",
+      message: "Ese horario está bloqueado a nivel negocio.",
     };
   }
 
@@ -652,7 +652,7 @@ async function validateAppointmentSlotInternal({
     return {
       ok: false,
       reason: "CLINIC_NOT_FOUND",
-      message: "No se encontro la clinica activa para validar el horario.",
+      message: "No se encontró el negocio activo para validar el horario.",
       timezone,
       startAt,
       endAt: null,
@@ -665,7 +665,7 @@ async function validateAppointmentSlotInternal({
     return {
       ok: false,
       reason: "DOCTOR_NOT_FOUND",
-      message: "No se encontro el doctor dentro de esta clinica.",
+      message: "No se encontró el profesional dentro de este negocio.",
       timezone,
       startAt,
       endAt: null,
@@ -691,7 +691,7 @@ async function validateAppointmentSlotInternal({
     return {
       ok: false,
       reason: "SERVICE_NOT_FOUND",
-      message: "No se encontro el servicio dentro de esta clinica.",
+      message: "No se encontró el servicio dentro de este negocio.",
       timezone,
       startAt,
       endAt: null,
@@ -728,7 +728,7 @@ async function validateAppointmentSlotInternal({
       return {
         ok: false,
         reason: "PATIENT_NOT_FOUND",
-        message: "El paciente no pertenece a esta clinica.",
+        message: "El cliente no pertenece a este negocio.",
         timezone,
         startAt,
         endAt: null,

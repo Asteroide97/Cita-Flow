@@ -176,7 +176,7 @@ export async function loginAction(
     });
 
     return {
-      message: "Tu usuario no tiene una clinica activa asignada.",
+      message: "Tu usuario no tiene un negocio activo asignado.",
       values: {
         email,
       },

@@ -26,8 +26,8 @@ type CancelAppointmentPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Cancelar cita | CitaFlow",
-  description: "Cancela tu cita medica desde un enlace publico seguro.",
+  title: "Cancelar reserva | CitaFlow",
+  description: "Cancela tu reserva desde un enlace público seguro.",
 };
 
 export default async function CancelAppointmentPage({
@@ -46,7 +46,7 @@ export default async function CancelAppointmentPage({
         clinicName={successResult.clinicName}
         clinicSlug={successResult.clinicSlug}
         brandColor={normalizeBookingBrandColor(successResult.brandColor)}
-        title="Tu cita fue cancelada"
+        title="Tu reserva fue cancelada"
         description={successResult.message}
       >
         <article className="surface-card p-6 sm:p-8">
@@ -56,7 +56,7 @@ export default async function CancelAppointmentPage({
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             <div className="rounded-[24px] border border-line/80 bg-surface-soft px-5 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Paciente
+                Cliente
               </p>
               <p className="mt-3 text-base font-semibold text-ink">
                 {successResult.patientName}
@@ -80,7 +80,7 @@ export default async function CancelAppointmentPage({
             </div>
             <div className="rounded-[24px] border border-line/80 bg-white px-5 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Doctor
+                Profesional
               </p>
               <p className="mt-3 text-base font-semibold text-ink">
                 {successResult.doctorName}
@@ -106,7 +106,7 @@ export default async function CancelAppointmentPage({
         clinicSlug="autoservicio"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir este enlace"
-        description="Valida el enlace recibido o solicita uno nuevo al consultorio."
+        description="Valida el enlace recibido o solicita uno nuevo al negocio."
       >
         <TokenErrorState title={copy.title} description={copy.description} />
       </PublicAppointmentShell>
@@ -121,12 +121,12 @@ export default async function CancelAppointmentPage({
         brandColor={normalizeBookingBrandColor(
           validation.context.appointment.clinic.brandColor,
         )}
-        title="Esta cita ya no puede cancelarse"
-        description="El estado actual de la cita ya no permite una cancelacion publica."
+        title="Esta reserva ya no puede cancelarse"
+        description="El estado actual de la reserva ya no permite una cancelación pública."
       >
         <TokenErrorState
-          title="La cita ya no admite cancelacion"
-          description="El consultorio ya la marco como cancelada, completada o no-show."
+          title="La reserva ya no admite cancelación"
+          description="El negocio ya la marcó como cancelada, completada o no-show."
         />
       </PublicAppointmentShell>
     );
@@ -141,8 +141,8 @@ export default async function CancelAppointmentPage({
       brandColor={normalizeBookingBrandColor(
         validation.context.appointment.clinic.brandColor,
       )}
-      title="Cancela tu cita"
-      description="Si ya no podras asistir, libera el horario para que el consultorio pueda reorganizar su agenda."
+      title="Cancela tu reserva"
+      description="Si ya no podrás asistir, libera el horario para que el negocio pueda reorganizar su agenda."
     >
       <AppointmentTokenSummary
         clinicName={validation.context.appointment.clinic.name}

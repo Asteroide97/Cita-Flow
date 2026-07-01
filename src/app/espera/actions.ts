@@ -194,7 +194,7 @@ export async function acceptWaitlistOfferAction(formData: FormData) {
         doctor:
           validation.context.waitlistEntry.doctor ??
           validation.context.appointment?.doctor ?? {
-            name: "Doctor asignado",
+            name: "Profesional asignado",
             specialty: null,
           },
         serviceName: validation.context.waitlistEntry.service.name,
@@ -202,7 +202,7 @@ export async function acceptWaitlistOfferAction(formData: FormData) {
         offeredEndAt: appointment.endAt,
         statusLabel: "Pendiente de confirmacion",
         message:
-          "Tu horario fue aceptado y la cita quedo registrada. El consultorio revisara y confirmara el espacio.",
+          "Tu horario fue aceptado y la reserva quedó registrada. El negocio revisará y confirmará el espacio.",
       }),
     );
 
@@ -266,7 +266,7 @@ export async function rejectWaitlistOfferAction(formData: FormData) {
       doctor:
         validation.context.waitlistEntry.doctor ??
         validation.context.appointment?.doctor ?? {
-          name: "Doctor asignado",
+          name: "Profesional asignado",
           specialty: null,
         },
       serviceName: validation.context.waitlistEntry.service.name,

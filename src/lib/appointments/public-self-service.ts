@@ -64,7 +64,7 @@ export function resolvePublicAppointmentFlashMessage(error?: string) {
       return {
         tone: "error" as const,
         message:
-          "La accion ya no esta permitida para el estado actual de la cita.",
+          "La acción ya no está permitida para el estado actual de la reserva.",
       };
     case "date-required":
       return {
@@ -105,25 +105,25 @@ export function resolveTokenErrorCopy(
       return {
         title: "Este enlace ya expiro",
         description:
-          "El token de autoservicio ya vencio. Solicita un enlace nuevo al consultorio.",
+          "El enlace de autoservicio ya venció. Solicita uno nuevo al negocio.",
       };
     case "TOKEN_CONSUMED":
       return {
         title: "Este enlace ya fue usado",
         description:
-          "El token ya se utilizo previamente. Si necesitas otra accion, pide un enlace nuevo al consultorio.",
+          "Este enlace ya se usó antes. Si necesitas otra acción, pide uno nuevo al negocio.",
       };
     case "CLINIC_INACTIVE":
       return {
-        title: "La clinica no esta disponible",
+        title: "El negocio no está disponible",
         description:
-          "El consultorio ya no esta aceptando acciones publicas sobre esta cita.",
+          "El negocio ya no está aceptando acciones públicas sobre esta reserva.",
       };
     case "TOKEN_TYPE_MISMATCH":
       return {
         title: "El enlace no coincide con esta accion",
         description:
-          "Abre el enlace correcto para confirmar, cancelar o reagendar la cita.",
+          "Abre el enlace correcto para confirmar, cancelar o reagendar la reserva.",
       };
     case "APPOINTMENT_CLINIC_MISMATCH":
     case "APPOINTMENT_NOT_FOUND":
@@ -132,7 +132,7 @@ export function resolveTokenErrorCopy(
       return {
         title: "No pudimos validar este enlace",
         description:
-          "El token no existe, la cita ya no esta disponible o el enlace fue modificado.",
+          "El enlace no existe, la reserva ya no está disponible o fue modificado.",
       };
   }
 }

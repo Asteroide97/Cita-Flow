@@ -56,7 +56,7 @@ export function WaitlistOfferSummary({
       <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Doctor
+            Profesional
           </p>
           <p className="mt-3 text-base font-semibold text-ink">{doctorName}</p>
           <p className="mt-1 text-sm text-muted">

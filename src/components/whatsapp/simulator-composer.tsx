@@ -39,13 +39,13 @@ export function SimulatorComposer({
             defaultValue={defaultSender}
             className="w-full rounded-[22px] border border-line/80 bg-white/95 px-4 py-3.5 text-sm text-ink outline-none transition focus:border-brand-200 focus:ring-4 focus:ring-brand-100/80"
           >
-            <option value="patient">Paciente</option>
-            <option value="clinic">Consultorio</option>
+            <option value="patient">Cliente</option>
+            <option value="clinic">Negocio</option>
           </select>
         </label>
 
         <label className="block">
-          <span className="mb-2.5 block text-sm font-semibold text-ink">Numero de WhatsApp</span>
+          <span className="mb-2.5 block text-sm font-semibold text-ink">Número de WhatsApp</span>
           <TextInput
             name="phoneE164"
             defaultValue={defaultPhone}
@@ -61,7 +61,7 @@ export function SimulatorComposer({
         <textarea
           name="message"
           rows={5}
-          placeholder="Ejemplo: quiero agendar una cita"
+          placeholder="Ejemplo: quiero agendar una reserva"
           className="w-full rounded-[24px] border border-line/80 bg-white/95 px-4 py-3.5 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-brand-200 focus:ring-4 focus:ring-brand-100/80"
           required
         />
@@ -69,13 +69,13 @@ export function SimulatorComposer({
 
       <div className="mt-5 flex flex-wrap gap-3 text-xs font-medium text-muted">
         <span className="rounded-full border border-line/80 bg-surface-soft px-3 py-2">
-          Paciente: &quot;quiero agendar una cita&quot;
+          Cliente: &quot;quiero agendar una reserva&quot;
         </span>
         <span className="rounded-full border border-line/80 bg-surface-soft px-3 py-2">
-          Consultorio: &quot;agenda hoy&quot;
+          Negocio: &quot;agenda hoy&quot;
         </span>
         <span className="rounded-full border border-line/80 bg-surface-soft px-3 py-2">
-          Paciente: &quot;confirmar cita&quot;
+          Cliente: &quot;confirmar reserva&quot;
         </span>
       </div>
 

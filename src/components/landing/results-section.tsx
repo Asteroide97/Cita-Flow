@@ -8,8 +8,8 @@ export function ResultsSection() {
     <SectionShell id="beneficios">
       <SectionHeading
         eyebrow="Resultados"
-        title="Lo que cambia en los consultorios"
-        description="La combinacion de reservas online, recordatorios y anticipos transforma una agenda reactiva en una operacion mucho mas predecible."
+        title="Lo que cambia en los negocios con agenda"
+        description="La combinación de reservas online, recordatorios y anticipos transforma una agenda reactiva en una operación mucho más predecible."
         align="center"
       />
 

@@ -4,8 +4,8 @@ type CalendarEmptyStateProps = {
 };
 
 export function CalendarEmptyState({
-  title = "No hay citas programadas",
-  description = "Cambia la fecha o el filtro de doctor para revisar otro tramo de agenda.",
+  title = "No hay reservas programadas",
+  description = "Cambia la fecha o el filtro de profesional para revisar otro tramo de agenda.",
 }: CalendarEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center rounded-[26px] border border-dashed border-line/90 bg-surface-soft px-6 py-14 text-center">

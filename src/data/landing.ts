@@ -87,43 +87,43 @@ export type Faq = {
 
 export const navigationLinks: NavLink[] = [
   { label: "Beneficios", href: "#beneficios" },
-  { label: "Como funciona", href: "#como-funciona" },
+  { label: "Cómo funciona", href: "#como-funciona" },
   { label: "Precios", href: "#precios" },
   { label: "FAQ", href: "#faq" },
 ];
 
 export const heroMetrics: Metric[] = [
   {
-    value: "Hasta 67%",
-    label: "menos ausencias",
-    note: "con recordatorios y anticipo",
-  },
-  {
     value: "24/7",
     label: "reservas abiertas",
-    note: "aunque recepcion no este conectada",
+    note: "aunque no respondas mensajes",
   },
   {
-    value: "+ ocupacion",
-    label: "mas horarios utiles",
-    note: "menos huecos por cancelacion",
+    value: "Menos ausencias",
+    label: "más asistencia",
+    note: "con recordatorios y anticipos",
+  },
+  {
+    value: "+ ocupación",
+    label: "más horarios útiles",
+    note: "menos huecos por cancelación",
   },
 ];
 
 export const heroAlerts: HeroAlert[] = [
   {
     label: "Anticipo pagado",
-    detail: "Implantologia · 11:30",
+    detail: "Color premium · 11:30",
     tone: "emerald",
   },
   {
     label: "Recordatorio enviado",
-    detail: "Consulta general · manana",
+    detail: "Sesión funcional · mañana",
     tone: "sky",
   },
   {
-    label: "Cita confirmada",
-    detail: "Psicologia · 4:00 PM",
+    label: "Reserva confirmada",
+    detail: "Corte y barba · 4:00 PM",
     tone: "brand",
   },
 ];
@@ -131,20 +131,20 @@ export const heroAlerts: HeroAlert[] = [
 export const heroAppointments: HeroAppointment[] = [
   {
     hour: "09:00",
-    title: "Valoracion dental",
-    detail: "Dra. Cortes · 45 min",
+    title: "Corte premium",
+    detail: "Sofía Herrera · 45 min",
     state: "Confirmada",
   },
   {
     hour: "11:30",
-    title: "Primera consulta",
-    detail: "Dr. Nunez · Anticipo recibido",
+    title: "Valoración inicial",
+    detail: "Diego Campos · Anticipo recibido",
     state: "Pagada",
   },
   {
     hour: "16:00",
-    title: "Sesion de seguimiento",
-    detail: "Lic. Luna · Recordatorio enviado",
+    title: "Sesión funcional",
+    detail: "Luna Vera · Recordatorio enviado",
     state: "Lista",
   },
 ];
@@ -153,246 +153,351 @@ export const problemCards: Problem[] = [
   {
     title: "Agenda llena de mensajes manuales",
     description:
-      "Recepcion termina respondiendo horarios, cambios y recordatorios durante todo el dia.",
+      "Tu equipo termina respondiendo horarios, cambios y recordatorios durante todo el día.",
   },
   {
-    title: "Pacientes que no confirman",
+    title: "Clientes que no confirman",
     description:
-      "Las citas quedan en el aire y la agenda se vuelve incierta hasta el ultimo momento.",
+      "Las reservas quedan en el aire y tu agenda se vuelve incierta hasta el último momento.",
   },
   {
-    title: "Horarios vacios por cancelaciones",
+    title: "Horarios vacíos por cancelaciones",
     description:
       "Cuando alguien cancela tarde, cuesta mucho volver a llenar ese espacio disponible.",
   },
   {
     title: "Reagendar consume demasiado tiempo",
     description:
-      "Mover una cita implica mensajes, llamadas y cruces de disponibilidad entre doctores.",
+      "Mover una reserva implica mensajes, llamadas y cruces entre servicios y profesionales.",
   },
   {
-    title: "Pagos de anticipo dificiles de controlar",
+    title: "Anticipos difíciles de controlar",
     description:
-      "Cobrar apartados y rastrear quien ya pago suele hacerse de forma manual y dispersa.",
+      "Cobrar apartados y saber quién ya pagó suele hacerse de forma manual y dispersa.",
   },
   {
-    title: "Falta de visibilidad del consultorio",
+    title: "Poca visibilidad del negocio",
     description:
-      "Sin metricas claras es dificil saber que horarios se pierden y que servicios se llenan.",
+      "Sin métricas claras es difícil saber qué horarios se pierden y qué servicios se llenan mejor.",
   },
 ];
 
 export const howItWorksSteps: HowStep[] = [
   {
     number: "01",
-    title: "Configura tu consultorio",
+    title: "Configura tu negocio",
     description:
-      "Carga servicios, horarios, duracion de citas, doctores y politicas de anticipos.",
+      "Carga servicios, duración, profesionales, horarios y reglas básicas de anticipo.",
   },
   {
     number: "02",
-    title: "Comparte tu enlace de reserva",
+    title: "Comparte tu enlace de reservas",
     description:
-      "Envia una sola liga por WhatsApp, Instagram, Google Business o tu pagina web.",
+      "Envíalo por WhatsApp, Instagram, Google Business o tu página web.",
   },
   {
     number: "03",
-    title: "El paciente agenda y confirma",
+    title: "El cliente reserva",
     description:
-      "Elige servicio, doctor y horario en pocos pasos, sin llamadas ni mensajes de ida y vuelta.",
+      "Elige servicio, profesional y horario en pocos pasos, sin llamadas ni ida y vuelta.",
   },
   {
     number: "04",
-    title: "CitaFlow recuerda, cobra y reorganiza",
+    title: "CitaFlow automatiza el seguimiento",
     description:
-      "Automatiza recordatorios, anticipos y lista de espera para mantener la agenda activa.",
+      "Envía recordatorios, registra anticipos y recupera horarios liberados con lista de espera.",
   },
 ];
 
 export const clinicTypes: ClinicType[] = [
   {
-    id: "dental",
-    label: "Dental",
-    tagline: "Tratamientos, limpiezas y urgencias con menos huecos entre pacientes.",
+    id: "clinicas-consultorios",
+    label: "Clínicas y consultorios",
+    tagline: "Reservas ordenadas para equipos que viven de una agenda activa y bien coordinada.",
     description:
-      "Organiza tratamientos por duracion, anticipos y seguimiento sin saturar a recepcion.",
+      "Centraliza servicios, profesionales y confirmaciones sin depender del chat para cada espacio.",
     benefits: [
-      "Reservas online por tratamiento y duracion",
-      "Anticipos para ortodoncia, implantes y estetica dental",
-      "Recordatorios antes de limpiezas y revisiones",
-      "Lista de espera para llenar cancelaciones rapidas",
-      "Bloques por sillon o especialista cuando haga falta",
+      "Reservas online 24/7",
+      "Recordatorios por WhatsApp",
+      "Anticipos para reducir ausencias",
+      "Agenda por profesional",
+      "Clientes organizados",
     ],
-    highlight:
-      "Ideal para tratamientos con tiempos distintos y alta demanda de seguimiento.",
-    support:
-      "Reduce llamadas repetitivas para confirmar limpiezas, valoraciones y controles.",
+    highlight: "Ideal para negocios con varios servicios, horarios y atención continua.",
+    support: "Reduce coordinación manual y mejora la ocupación de la agenda.",
     useCaseTitle: "Caso de uso sugerido",
     useCaseSummary:
-      "Una clinica dental puede publicar valoracion, limpieza y seguimiento con reglas distintas de duracion y anticipo.",
+      "Un negocio de salud o atención presencial puede publicar reservas por servicio y atender mejor sin saturar recepción.",
     useCaseSteps: [
-      "Valoracion inicial con anticipo opcional",
-      "Limpiezas y revisiones con recordatorio automatico",
-      "Tratamientos largos protegidos con apartados",
+      "Configura servicios y duraciones",
+      "Comparte un solo enlace de reservas",
+      "Confirma y recupera horarios liberados",
+    ],
+    useCaseMetrics: [
+      { value: "24/7", label: "reservas abiertas" },
+      { value: "Multi", label: "servicio y profesional" },
+      { value: "1 enlace", label: "captación directa" },
+    ],
+  },
+  {
+    id: "dental",
+    label: "Dental",
+    tagline: "Limpiezas, valoraciones y tratamientos protegidos con menos huecos entre pacientes.",
+    description:
+      "Organiza servicios por duración y anticipo sin perder seguimiento ni tiempo en recepción.",
+    benefits: [
+      "Reservas online 24/7",
+      "Anticipos para procedimientos de alto valor",
+      "Recordatorios automáticos",
+      "Lista de espera inteligente",
+      "Agenda por profesional",
+    ],
+    highlight: "Muy útil para tratamientos con tiempos distintos y alta demanda.",
+    support: "Ayuda a proteger espacios que cuesta mucho recuperar.",
+    useCaseTitle: "Caso de uso sugerido",
+    useCaseSummary:
+      "Una clínica dental puede separar valoración, limpieza y seguimiento con reglas simples de confirmación.",
+    useCaseSteps: [
+      "Publica servicios por duración",
+      "Pide anticipo cuando convenga",
+      "Rellena huecos con lista de espera",
     ],
     useCaseMetrics: [
       { value: "3", label: "servicios base" },
       { value: "2", label: "tipos de anticipo" },
-      { value: "1 enlace", label: "reserva publica" },
-    ],
-  },
-  {
-    id: "medico-general",
-    label: "Medico general",
-    tagline: "Consulta diaria mas ordenada, con confirmaciones y menos huecos inesperados.",
-    description:
-      "Facilita reservas continuas, consultas de seguimiento y disponibilidad mas clara para pacientes.",
-    benefits: [
-      "Reservas online para consulta general y seguimiento",
-      "Confirmaciones automaticas antes de la cita",
-      "Anticipos opcionales para primeras visitas o espacios criticos",
-      "Reagenda en minutos cuando cambia la disponibilidad",
-      "Historial simple de pacientes listo para crecer en fases futuras",
-    ],
-    highlight:
-      "Manten el ritmo de consulta sin depender del chat para coordinar cada horario.",
-    support:
-      "Perfecto para consultorios que hoy atienden casi todo por telefono o WhatsApp.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Un consultorio general puede diferenciar primera consulta, seguimiento y urgencia sin volver compleja la operacion.",
-    useCaseSteps: [
-      "Primera visita con datos del paciente y motivo de consulta",
-      "Seguimientos cortos con recordatorio el mismo dia",
-      "Espacios reservados para urgencias o huecos rapidos",
-    ],
-    useCaseMetrics: [
-      { value: "24/7", label: "agenda abierta" },
-      { value: "2", label: "tipos de consulta" },
-      { value: "1 equipo", label: "menos seguimiento manual" },
+      { value: "Más orden", label: "menos seguimiento manual" },
     ],
   },
   {
     id: "psicologia",
-    label: "Psicologia",
-    tagline: "Sesiones recurrentes, mayor privacidad y menos seguimiento manual.",
+    label: "Psicología",
+    tagline: "Sesiones recurrentes con una agenda más estable y menos fricción para reservar.",
     description:
-      "Asegura continuidad semanal con recordatorios discretos y cobros de apartado cuando aplique.",
+      "Asegura continuidad semanal con recordatorios discretos y horarios claros para tus clientes.",
     benefits: [
-      "Reservas recurrentes con horarios consistentes",
-      "Anticipos para apartar sesiones de alta demanda",
-      "Recordatorios respetuosos y automaticos",
-      "Reagenda rapida ante cambios de ultimo momento",
-      "Control sencillo para varios terapeutas",
+      "Reservas online 24/7",
+      "Recordatorios por WhatsApp",
+      "Agenda por profesional",
+      "Clientes organizados",
+      "Notificaciones automáticas",
     ],
-    highlight:
-      "Muy util cuando el valor esta en la constancia de la agenda y la continuidad clinica.",
+    highlight: "Favorece la constancia en negocios donde la continuidad es clave.",
     support: "Reduce cancelaciones silenciosas y mejora la estabilidad de la semana.",
     useCaseTitle: "Caso de uso sugerido",
     useCaseSummary:
-      "Una practica psicologica puede proteger sesiones recurrentes y mantener la privacidad con un flujo simple para el paciente.",
+      "Un centro terapéutico puede proteger sesiones recurrentes sin volver compleja la experiencia de reserva.",
     useCaseSteps: [
-      "Sesion inicial con disponibilidad clara",
-      "Seguimientos semanales con confirmacion automatica",
-      "Reagenda agil cuando un bloque cambia",
+      "Abre horarios recurrentes",
+      "Confirma automáticamente",
+      "Reagenda más rápido cuando cambia un bloque",
     ],
     useCaseMetrics: [
-      { value: "Semanal", label: "ritmo de seguimiento" },
-      { value: "1 clic", label: "confirmacion de cita" },
+      { value: "Semanal", label: "ritmo de reserva" },
+      { value: "1 clic", label: "confirmación simple" },
       { value: "Multi", label: "terapeuta opcional" },
     ],
   },
   {
     id: "fisioterapia",
     label: "Fisioterapia",
-    tagline: "Mas control de sesiones seriadas y mejor uso del tiempo clinico.",
+    tagline: "Sesiones seriadas, bloques largos y mejor control del tiempo productivo.",
     description:
-      "Coordina valoraciones, terapias de seguimiento y bloques largos sin perder disponibilidad.",
+      "Coordina valoraciones y seguimientos sin perder disponibilidad ni saturar al equipo.",
     benefits: [
-      "Servicios por sesion individual o paquetes de seguimiento",
-      "Anticipos para primeras valoraciones o bonos",
-      "Recordatorios previos a terapias seriadas",
-      "Lista de espera para rellenar espacios cancelados",
-      "Agenda por especialista o cabina",
+      "Agenda por profesional",
+      "Reservas online 24/7",
+      "Recordatorios automáticos",
+      "Lista de espera inteligente",
+      "Clientes organizados",
     ],
-    highlight:
-      "Ayuda a proteger horarios largos que son dificiles de recuperar si se pierden.",
-    support:
-      "Evita que el staff invierta horas persiguiendo confirmaciones o reacomodos.",
+    highlight: "Protege mejor horarios largos que se desperdician si alguien falta.",
+    support: "Ayuda a sostener continuidad y uso eficiente del espacio.",
     useCaseTitle: "Caso de uso sugerido",
     useCaseSummary:
-      "La fisioterapia necesita cuidar sesiones largas, cabinas y continuidad semanal sin dejar espacios improductivos.",
+      "Un centro de fisioterapia puede ordenar valoraciones y seguimientos en una sola agenda visible.",
     useCaseSteps: [
-      "Valoracion inicial con tiempo extendido",
-      "Terapias seriadas con recordatorio previo",
-      "Lista de espera para recuperar huecos",
+      "Separa valoraciones y seguimientos",
+      "Carga bloques largos por sesión",
+      "Recupera cancelaciones con espera",
     ],
     useCaseMetrics: [
       { value: "45-60 min", label: "bloques frecuentes" },
-      { value: "Serie", label: "seguimiento continuo" },
-      { value: "1 cabina", label: "control por recurso" },
+      { value: "Serie", label: "continuidad" },
+      { value: "Más ocupación", label: "menos huecos" },
     ],
   },
   {
-    id: "estetica",
-    label: "Estetica",
-    tagline: "Experiencia premium desde la reserva hasta el anticipo del tratamiento.",
+    id: "spa-estetica",
+    label: "Spa y estética",
+    tagline: "Experiencia premium desde la reserva hasta el anticipo del servicio.",
     description:
-      "Convierte interes en cita confirmada con flujos claros para procedimientos, valoracion y seguimiento.",
+      "Convierte interés en reservas confirmadas con una experiencia clara y más comercial.",
     benefits: [
-      "Reservas online con servicios y promociones activas",
-      "Anticipos para tratamientos premium o de alta demanda",
-      "Recordatorios con preparacion previa de la cita",
-      "Agenda optimizada para bloques largos o combinados",
-      "Lista de espera para llenar cancelaciones rentables",
+      "Anticipos para reducir ausencias",
+      "Reservas online 24/7",
+      "Recordatorios por WhatsApp",
+      "Agenda por profesional",
+      "Notificaciones automáticas",
     ],
-    highlight:
-      "Potencia servicios donde el anticipo protege ingresos y mejora la asistencia.",
-    support:
-      "Muy util para equipos que venden por Instagram, WhatsApp y campanas locales.",
+    highlight: "Ideal para servicios de alto valor o alta demanda.",
+    support: "Funciona muy bien para captar desde Instagram y WhatsApp.",
     useCaseTitle: "Caso de uso sugerido",
     useCaseSummary:
-      "Una clinica estetica puede publicar valoraciones, tratamientos premium y promociones sin perder sensacion de control comercial.",
+      "Un spa puede publicar faciales, masajes o valoraciones con una experiencia más ordenada desde el primer clic.",
     useCaseSteps: [
-      "Valoracion inicial con enlace compartible",
-      "Anticipo para tratamientos de alta demanda",
-      "Seguimiento claro antes y despues de la cita",
+      "Publica servicios con duración clara",
+      "Protege espacios con anticipos",
+      "Envía recordatorios antes del servicio",
     ],
     useCaseMetrics: [
       { value: "Premium", label: "servicios protegidos" },
-      { value: "1 enlace", label: "captacion directa" },
-      { value: "Pago", label: "apartado integrado" },
+      { value: "1 enlace", label: "captación directa" },
+      { value: "Más asistencia", label: "menos ausencias" },
     ],
   },
   {
-    id: "clinicas",
-    label: "Clinicas",
-    tagline: "Varios doctores, servicios y recepcionistas operando bajo un mismo flujo.",
+    id: "barberias",
+    label: "Barberías",
+    tagline: "Cortes más organizados, menos interrupciones y mejor ritmo diario.",
     description:
-      "Centraliza agenda multi-doctor y disponibilidad compartida sin depender de hojas o mensajes cruzados.",
+      "Abre reservas por profesional y evita perder tiempo respondiendo horarios uno por uno.",
     benefits: [
-      "Agenda multi-doctor con servicios diferenciados",
-      "Anticipos por sede, especialidad o tipo de cita",
-      "Recordatorios automaticos a gran escala",
-      "Lista de espera para distintos especialistas",
-      "Mas visibilidad operativa para administracion",
+      "Agenda por profesional",
+      "Reservas online 24/7",
+      "Recordatorios por WhatsApp",
+      "Clientes organizados",
+      "Lista de espera inteligente",
     ],
-    highlight:
-      "Pensado para operaciones con mas complejidad y necesidad de coordinacion central.",
-    support:
-      "Evita dobles reservas, cuellos de botella y perdida de tiempo entre recepcion y medicos.",
+    highlight: "Muy útil cuando el negocio depende de velocidad, rotación y puntualidad.",
+    support: "Reduce chat repetitivo y ayuda a mantener la silla ocupada.",
     useCaseTitle: "Caso de uso sugerido",
     useCaseSummary:
-      "Una clinica con varias especialidades puede centralizar disponibilidad, recepcion y confirmaciones sin depender de procesos manuales.",
+      "Una barbería puede distribuir reservas entre varios profesionales y ordenar mejor sus bloques del día.",
     useCaseSteps: [
-      "Reserva por servicio, sede o especialista",
-      "Confirmaciones automaticas para cada agenda",
-      "Vista operativa mas clara para administracion",
+      "Muestra profesionales disponibles",
+      "Deja que el cliente reserve solo",
+      "Rellena cancelaciones con lista de espera",
     ],
     useCaseMetrics: [
-      { value: "Multi", label: "doctor y servicio" },
-      { value: "Central", label: "operacion visible" },
-      { value: "24/7", label: "captacion de citas" },
+      { value: "Rápido", label: "flujo de reserva" },
+      { value: "Multi", label: "barbero activo" },
+      { value: "Menos chat", label: "más foco en atención" },
+    ],
+  },
+  {
+    id: "salones",
+    label: "Salones de belleza",
+    tagline: "Más control sobre color, corte y agenda por profesional sin caos operativo.",
+    description:
+      "Coordina reservas por duración, profesional y tipo de servicio en una sola experiencia.",
+    benefits: [
+      "Agenda por profesional",
+      "Reservas online 24/7",
+      "Recordatorios por WhatsApp",
+      "Anticipos para citas largas",
+      "Clientes organizados",
+    ],
+    highlight: "Perfecto para servicios que mezclan duración, preparación y alta ocupación.",
+    support: "Ayuda a ordenar días intensos y a reducir cambios de último minuto.",
+    useCaseTitle: "Caso de uso sugerido",
+    useCaseSummary:
+      "Un salón puede separar corte, color, peinado o maquillaje con tiempos distintos y más control comercial.",
+    useCaseSteps: [
+      "Define servicios por duración",
+      "Asigna agenda por profesional",
+      "Protege citas largas con anticipos",
+    ],
+    useCaseMetrics: [
+      { value: "Flexible", label: "duración por servicio" },
+      { value: "Más orden", label: "menos cruces manuales" },
+      { value: "Alta demanda", label: "agenda mejor cuidada" },
+    ],
+  },
+  {
+    id: "veterinarias",
+    label: "Veterinarias",
+    tagline: "Consultas, controles y valoraciones con una agenda más clara para el equipo.",
+    description:
+      "Ordena servicios, horarios y recordatorios para atender mejor sin depender del teléfono.",
+    benefits: [
+      "Reservas online 24/7",
+      "Agenda por profesional",
+      "Recordatorios por WhatsApp",
+      "Clientes organizados",
+      "Notificaciones automáticas",
+    ],
+    highlight: "Mejora la coordinación diaria cuando llegan consultas, controles y urgencias leves.",
+    support: "Reduce llamadas repetitivas y mejora la experiencia del cliente.",
+    useCaseTitle: "Caso de uso sugerido",
+    useCaseSummary:
+      "Una veterinaria puede ordenar revisiones, vacunas o seguimientos con una agenda más predecible.",
+    useCaseSteps: [
+      "Configura servicios frecuentes",
+      "Activa recordatorios automáticos",
+      "Consulta disponibilidad real por profesional",
+    ],
+    useCaseMetrics: [
+      { value: "24/7", label: "captación" },
+      { value: "Más claridad", label: "menos llamadas" },
+      { value: "Mejor servicio", label: "cliente informado" },
+    ],
+  },
+  {
+    id: "entrenadores-clases",
+    label: "Entrenadores y clases",
+    tagline: "Sesiones más ordenadas, grupos mejor coordinados y menos tiempo cerrando por chat.",
+    description:
+      "Permite reservar por profesional, sesión o clase con una agenda más visible y fácil de mantener.",
+    benefits: [
+      "Reservas online 24/7",
+      "Agenda por profesional",
+      "Recordatorios automáticos",
+      "Lista de espera inteligente",
+      "Clientes organizados",
+    ],
+    highlight: "Ideal para sesiones individuales o grupos donde la puntualidad importa mucho.",
+    support: "Ayuda a sostener ocupación y continuidad sin perseguir confirmaciones.",
+    useCaseTitle: "Caso de uso sugerido",
+    useCaseSummary:
+      "Un entrenador puede abrir bloques por sesión y reacomodar mejor los horarios que se liberan.",
+    useCaseSteps: [
+      "Define horarios por sesión",
+      "Abre agenda por profesional",
+      "Envía recordatorios automáticos",
+    ],
+    useCaseMetrics: [
+      { value: "Individual o grupo", label: "múltiples formatos" },
+      { value: "Más asistencia", label: "mejor seguimiento" },
+      { value: "Menos chat", label: "menos coordinación manual" },
+    ],
+  },
+  {
+    id: "centros-deportivos",
+    label: "Centros deportivos",
+    tagline: "Agenda más clara para servicios, clases y atención por profesional o área.",
+    description:
+      "Centraliza reservas de entrenamiento, evaluación o atención especializada en un mismo flujo.",
+    benefits: [
+      "Reservas online 24/7",
+      "Agenda por profesional",
+      "Lista de espera inteligente",
+      "Recordatorios por WhatsApp",
+      "Notificaciones automáticas",
+    ],
+    highlight: "Funciona bien cuando hay varios espacios, entrenadores o servicios simultáneos.",
+    support: "Hace más simple distribuir horarios y mantener mejor ocupación.",
+    useCaseTitle: "Caso de uso sugerido",
+    useCaseSummary:
+      "Un centro deportivo puede combinar clases, sesiones y valoraciones con una agenda más operable.",
+    useCaseSteps: [
+      "Publica servicios y clases",
+      "Filtra por profesional o área",
+      "Recupera huecos con espera",
+    ],
+    useCaseMetrics: [
+      { value: "Multi", label: "servicio y espacio" },
+      { value: "24/7", label: "reservas abiertas" },
+      { value: "Más ocupación", label: "menos huecos" },
     ],
   },
 ];
@@ -401,33 +506,33 @@ export const patientFlowSteps: PatientFlowStep[] = [
   {
     step: "01",
     title: "Elige servicio",
-    description: "El paciente entiende que cita necesita desde la primera pantalla.",
+    description: "Tu cliente entiende qué necesita desde la primera pantalla.",
   },
   {
     step: "02",
-    title: "Selecciona doctor",
-    description: "Si hay varios especialistas, ve quien atiende y en que horario.",
+    title: "Selecciona profesional",
+    description: "Ve quién atiende y en qué horario, sin mensajes de ida y vuelta.",
   },
   {
     step: "03",
     title: "Escoge horario",
-    description: "Solo aparecen espacios reales y disponibles, sin doble coordinacion.",
+    description: "Solo aparecen espacios reales y disponibles.",
   },
   {
     step: "04",
     title: "Confirma datos",
-    description: "Comparte nombre, contacto y motivo de visita en un flujo simple.",
+    description: "Comparte nombre y contacto en un flujo simple y rápido.",
   },
   {
     step: "05",
     title: "Paga anticipo si aplica",
-    description: "Confirma su lugar con un pago rapido antes de cerrar la reserva.",
+    description: "Confirma su lugar con un pago rápido antes de cerrar la reserva.",
   },
 ];
 
 export const patientBookingSummary: PatientBookingSummary = {
-  service: "Primera consulta de valoracion",
-  doctor: "Dra. Sofia Herrera",
+  service: "Color y peinado",
+  doctor: "Sofía Herrera",
   date: "Jueves 18 de julio · 4:30 PM",
   advance: "$200 MXN",
   buttonLabel: "Confirmar reserva",
@@ -438,88 +543,88 @@ export const resultMetrics: ResultMetric[] = [
     value: "Hasta 67%",
     label: "menos ausencias",
     description:
-      "Recordatorios y politicas de anticipo ayudan a que mas pacientes si lleguen.",
-    note: "segun el tipo de cita y el flujo de confirmacion",
+      "Recordatorios y anticipos ayudan a que más clientes sí lleguen a su reserva.",
+    note: "según el tipo de servicio y el flujo de confirmación",
   },
   {
     value: "24/7",
     label: "reservas disponibles",
     description:
-      "Tus pacientes pueden agendar fuera del horario de recepcion y sin esperar respuesta.",
-    note: "ideal para captar citas fuera de oficina",
+      "Tus clientes pueden reservar fuera del horario de atención y sin esperar respuesta.",
+    note: "ideal para captar demanda fuera de horario",
   },
   {
-    value: "Mas ocupacion",
+    value: "Más ocupación",
     label: "menos huecos perdidos",
     description:
-      "Lista de espera y reagendado rapido reducen espacios desperdiciados por cambios de ultimo momento.",
-    note: "especialmente en tratamientos con alta demanda",
+      "Lista de espera y reagendado rápido reducen espacios desperdiciados por cambios de último momento.",
+    note: "muy útil en agendas de alta demanda",
   },
   {
     value: "Menos seguimiento",
     label: "menos tiempo en chat",
     description:
-      "El equipo se enfoca en atender mejor, no en perseguir confirmaciones todo el dia.",
-    note: "menos coordinacion manual por WhatsApp",
+      "Tu equipo se enfoca en atender mejor, no en perseguir confirmaciones todo el día.",
+    note: "menos coordinación manual por WhatsApp",
   },
 ];
 
 export const testimonials: Testimonial[] = [
   {
     quote:
-      "Antes confirmabamos casi todo por mensajes. Con un enlace de reserva y recordatorios, recepcion recupero tiempo y la agenda se volvio mucho mas estable.",
-    name: "Dra. Marcela Pineda",
-    role: "Medico general · Monterrey",
-    impact: "Menos confirmaciones manuales en recepcion",
+      "Antes cerrábamos casi todo por mensajes. Con un enlace de reservas y recordatorios, el equipo recuperó tiempo y la agenda se volvió mucho más estable.",
+    name: "Carla Mendoza",
+    role: "Directora de spa · Monterrey",
+    impact: "Menos seguimiento manual y mejor ocupación",
   },
   {
     quote:
-      "Nos ayudo mucho en tratamientos donde perder un espacio cuesta caro. El anticipo y la lista de espera le dieron mas orden a la operacion.",
-    name: "Lic. Andrea Tellez",
-    role: "Administradora de clinica dental · Guadalajara",
-    impact: "Mejor control de huecos y tratamientos",
+      "Nos ayudó mucho en servicios donde perder un espacio cuesta caro. El anticipo y la lista de espera le dieron más orden a la operación.",
+    name: "Javier Rosales",
+    role: "Dueño de barbería · Guadalajara",
+    impact: "Más control sobre horarios liberados",
   },
   {
     quote:
-      "Lo que mas valoramos fue la sensacion de proceso claro para el paciente. La reserva se siente mas profesional desde el primer contacto.",
-    name: "Dr. Rafael Cornejo",
-    role: "Director de clinica de fisioterapia · CDMX",
-    impact: "Experiencia mas consistente para el paciente",
+      "Lo que más valoramos fue lo claro que se siente para el cliente. La reserva se ve mucho más profesional desde el primer contacto.",
+    name: "Mariana Solís",
+    role: "Coordinadora de fisioterapia · CDMX",
+    impact: "Experiencia más consistente para el cliente",
   },
 ];
 
 export const pricingFeatures: PricingFeature[] = [
   {
-    title: "Pagina publica de reservas",
-    description: "Tu consultorio recibe citas sin depender de mensajes manuales.",
+    title: "Página pública de reservas",
+    description: "Tu negocio recibe reservas sin depender de mensajes manuales.",
   },
   {
-    title: "Agenda medica centralizada",
+    title: "Agenda centralizada",
     description: "Horarios, servicios y disponibilidad en un solo flujo.",
   },
   {
-    title: "Recordatorios automaticos",
+    title: "Recordatorios automáticos",
     description: "Confirmaciones y avisos previos sin seguimiento manual.",
   },
   {
-    title: "Gestion de pacientes",
-    description: "Datos basicos del paciente listos para futuras fases del producto.",
+    title: "Gestión de clientes",
+    description: "Base de contactos organizada para seguir creciendo el producto.",
   },
   {
-    title: "Servicios y doctores",
-    description: "Diferencia especialidades, duraciones y disponibilidad.",
+    title: "Servicios y profesionales",
+    description: "Diferencia roles, duraciones y disponibilidad.",
   },
   {
     title: "Anticipos con Stripe",
     description: "Protege horarios de alto valor con cobros de apartado.",
   },
   {
-    title: "Lista de espera",
-    description: "Recupera huecos por cancelacion de forma mas ordenada.",
+    title: "Lista de espera inteligente",
+    description: "Recupera huecos por cancelación de forma más ordenada.",
   },
   {
-    title: "Soporte basico",
-    description: "Acompanamiento inicial para operar la landing comercial.",
+    title: "Soporte básico",
+    description: "Acompañamiento inicial para ordenar tu operación.",
   },
 ];
 
@@ -527,37 +632,37 @@ export const faqs: Faq[] = [
   {
     question: "¿Necesito tarjeta para empezar?",
     answer:
-      "No necesariamente. Puedes comenzar evaluando el flujo comercial y activar cobros o suscripcion cuando decidas operar formalmente con CitaFlow.",
+      "No necesariamente. Puedes evaluar el flujo comercial primero y activar cobros o suscripción cuando decidas operar formalmente con CitaFlow.",
   },
   {
     question: "¿Puedo cobrar anticipos?",
     answer:
-      "Si. CitaFlow esta pensado para permitir anticipos por servicio o tipo de cita cuando quieras proteger espacios de alto valor.",
+      "Sí. CitaFlow está pensado para permitir anticipos por servicio o tipo de reserva cuando quieras proteger espacios de alto valor.",
   },
   {
     question: "¿Funciona con WhatsApp?",
     answer:
-      "Si. La idea es que compartas tu enlace de reserva por WhatsApp y que el paciente complete la cita sin coordinacion manual.",
+      "Sí. La idea es que compartas tu enlace de reservas por WhatsApp y que tu cliente reserve sin coordinación manual.",
   },
   {
-    question: "¿Puedo usarlo con varios doctores?",
+    question: "¿Puedo usarlo con varios profesionales?",
     answer:
-      "Si. El flujo esta planteado para operar con uno o varios especialistas dentro del mismo consultorio o clinica.",
+      "Sí. El flujo está planteado para operar con uno o varios profesionales dentro del mismo negocio.",
   },
   {
-    question: "¿Mis pacientes necesitan crear cuenta?",
+    question: "¿Mis clientes necesitan crear cuenta?",
     answer:
-      "No. La experiencia esta diseñada para reservar en pocos pasos y sin friccion innecesaria para el paciente.",
+      "No. La experiencia está diseñada para reservar en pocos pasos y sin fricción innecesaria.",
   },
   {
     question: "¿Puedo cancelar cuando quiera?",
     answer:
-      "Si. El plan esta planteado como una suscripcion simple, sin permanencias forzosas y con control total desde tu lado.",
+      "Sí. El plan está pensado como una suscripción simple, sin permanencias forzosas y con control total desde tu lado.",
   },
   {
     question: "¿Se integra con Google Calendar?",
     answer:
-      "Si, esta considerado como parte del roadmap de producto para sincronizar disponibilidad y eventos sin duplicar trabajo.",
+      "Sí, está considerado en el roadmap de producto para sincronizar disponibilidad y eventos sin duplicar trabajo.",
   },
 ];
 
@@ -566,5 +671,5 @@ export const footerLinks = [
   { label: "Precios", href: "#precios" },
   { label: "Soporte", href: "mailto:hola@citaflow.app" },
   { label: "Privacidad", href: "#footer" },
-  { label: "Terminos", href: "#footer" },
+  { label: "Términos", href: "#footer" },
 ];

@@ -7,9 +7,9 @@ export function HowItWorks() {
   return (
     <SectionShell id="como-funciona">
       <SectionHeading
-        eyebrow="Como funciona"
+        eyebrow="Cómo funciona"
         title="Funciona en 4 pasos"
-        description="CitaFlow simplifica la operacion desde la configuracion inicial hasta el seguimiento automatico de cada cita."
+        description="CitaFlow simplifica la operación desde la configuración inicial hasta el seguimiento automático de cada reserva."
         align="center"
       />
 

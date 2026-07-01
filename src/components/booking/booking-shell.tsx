@@ -65,13 +65,13 @@ export function BookingShell({
               <p className="text-lg font-extrabold tracking-[-0.05em] text-ink">
                 CitaFlow
               </p>
-              <p className="text-sm text-muted">Reserva publica del consultorio</p>
+              <p className="text-sm text-muted">Reserva pública del negocio</p>
             </div>
           </Link>
 
           <div className="rounded-[22px] border border-line/80 bg-white/90 px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-              Consultorio
+              Negocio
             </p>
             <p className="mt-1 text-sm font-semibold text-ink">{clinicName}</p>
             <p className="text-xs text-muted">/{clinicSlug}</p>
@@ -94,7 +94,7 @@ export function BookingShell({
                   color: brandColor,
                 }}
               >
-                Agenda sin llamadas ni mensajes manuales
+                Reserva sin llamadas ni mensajes manuales
               </span>
 
               <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.07em] text-ink sm:text-5xl">

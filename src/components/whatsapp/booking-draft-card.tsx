@@ -87,7 +87,7 @@ export function BookingDraftCard({
               </p>
             </div>
             <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-              <p className="font-semibold text-ink">Doctor</p>
+              <p className="font-semibold text-ink">Profesional</p>
               <p className="mt-2 text-muted">
                 {draft.doctor
                   ? draft.doctor.specialty
@@ -109,7 +109,7 @@ export function BookingDraftCard({
               </p>
             </div>
             <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-              <p className="font-semibold text-ink">Paciente</p>
+              <p className="font-semibold text-ink">Cliente</p>
               <p className="mt-2 text-muted">{draft.patientName ?? draft.phoneE164}</p>
             </div>
 

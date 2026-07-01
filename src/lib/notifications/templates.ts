@@ -22,12 +22,12 @@ export const notificationTemplateKeys = [
 export type NotificationTemplateKey = (typeof notificationTemplateKeys)[number];
 
 export const notificationTemplateLabels: Record<NotificationTemplateKey, string> = {
-  APPOINTMENT_CREATED_PUBLIC: "Cita creada desde booking publico",
-  APPOINTMENT_CREATED_ADMIN: "Cita creada desde panel",
-  APPOINTMENT_CREATED_WHATSAPP: "Cita creada desde WhatsApp",
-  APPOINTMENT_CONFIRMED: "Cita confirmada",
-  APPOINTMENT_CANCELLED: "Cita cancelada",
-  APPOINTMENT_RESCHEDULED: "Cita reagendada",
+  APPOINTMENT_CREATED_PUBLIC: "Reserva creada desde booking público",
+  APPOINTMENT_CREATED_ADMIN: "Reserva creada desde panel",
+  APPOINTMENT_CREATED_WHATSAPP: "Reserva creada desde WhatsApp",
+  APPOINTMENT_CONFIRMED: "Reserva confirmada",
+  APPOINTMENT_CANCELLED: "Reserva cancelada",
+  APPOINTMENT_RESCHEDULED: "Reserva reagendada",
   APPOINTMENT_REMINDER_24H: "Recordatorio 24 horas",
   APPOINTMENT_REMINDER_2H: "Recordatorio 2 horas",
   WAITLIST_ENTRY_CREATED: "Entrada creada en lista de espera",
@@ -142,7 +142,7 @@ export type WaitlistNotificationTemplateContext = {
 function getAppointmentStatusLabel(status: AppointmentStatus) {
   switch (status) {
     case AppointmentStatus.PENDING:
-      return "Pendiente de confirmacion";
+      return "Pendiente de confirmación";
     case AppointmentStatus.CONFIRMED:
       return "Confirmada";
     case AppointmentStatus.CANCELLED:
@@ -288,8 +288,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CREATED_PUBLIC":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Solicitud de cita recibida - ${context.clinic.name}`,
-        headline: `Cita solicitada en ${context.clinic.name}.`,
+        subject: `Solicitud de reserva recibida - ${context.clinic.name}`,
+        headline: `Reserva solicitada en ${context.clinic.name}.`,
         context,
         includeLinks: true,
       });
@@ -297,8 +297,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CREATED_ADMIN":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Cita registrada - ${context.clinic.name}`,
-        headline: `Cita registrada en ${context.clinic.name}.`,
+        subject: `Reserva registrada - ${context.clinic.name}`,
+        headline: `Reserva registrada en ${context.clinic.name}.`,
         context,
         includeLinks: true,
       });
@@ -306,8 +306,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CREATED_WHATSAPP":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Cita registrada por WhatsApp - ${context.clinic.name}`,
-        headline: `Cita registrada por WhatsApp en ${context.clinic.name}.`,
+        subject: `Reserva registrada por WhatsApp - ${context.clinic.name}`,
+        headline: `Reserva registrada por WhatsApp en ${context.clinic.name}.`,
         context,
         includeLinks: true,
       });
@@ -315,8 +315,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CONFIRMED":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Cita confirmada - ${context.clinic.name}`,
-        headline: `Cita confirmada en ${context.clinic.name}.`,
+        subject: `Reserva confirmada - ${context.clinic.name}`,
+        headline: `Reserva confirmada en ${context.clinic.name}.`,
         context,
         includeLinks: true,
       });
@@ -324,16 +324,16 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CANCELLED":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Cita cancelada - ${context.clinic.name}`,
-        headline: `Cita cancelada en ${context.clinic.name}.`,
+        subject: `Reserva cancelada - ${context.clinic.name}`,
+        headline: `Reserva cancelada en ${context.clinic.name}.`,
         context,
       });
 
     case "APPOINTMENT_RESCHEDULED":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Cita reagendada - ${context.clinic.name}`,
-        headline: `Cita reagendada en ${context.clinic.name}.`,
+        subject: `Reserva reagendada - ${context.clinic.name}`,
+        headline: `Reserva reagendada en ${context.clinic.name}.`,
         context,
         includeLinks: true,
       });
@@ -341,8 +341,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_REMINDER_24H":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Recordatorio de cita para manana - ${context.clinic.name}`,
-        headline: `Recordatorio de cita en ${context.clinic.name}.`,
+        subject: `Recordatorio de reserva para mañana - ${context.clinic.name}`,
+        headline: `Recordatorio de reserva en ${context.clinic.name}.`,
         context,
         includeLinks: true,
       });
@@ -350,8 +350,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_REMINDER_2H":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Recordatorio de cita en 2 horas - ${context.clinic.name}`,
-        headline: `Tu cita en ${context.clinic.name} es hoy.`,
+        subject: `Recordatorio de reserva en 2 horas - ${context.clinic.name}`,
+        headline: `Tu reserva en ${context.clinic.name} es hoy.`,
         context,
         includeLinks: true,
       });

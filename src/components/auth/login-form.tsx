@@ -19,7 +19,7 @@ export function LoginForm() {
     <>
       {sessionExpired ? (
         <div className="rounded-[24px] border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-medium text-amber-800">
-          Tu sesion expiro. Ingresa de nuevo para continuar.
+          Tu sesión expiró. Ingresa de nuevo para continuar.
         </div>
       ) : null}
 
@@ -35,32 +35,32 @@ export function LoginForm() {
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="tu@clinica.com"
+          placeholder="tu@negocio.com"
           defaultValue={state.values?.email ?? ""}
           error={state.fieldErrors?.email}
           required
         />
 
         <AuthField
-          label="Contrasena"
+          label="Contraseña"
           name="password"
           type="password"
           autoComplete="current-password"
-          placeholder="Ingresa tu contrasena"
+          placeholder="Ingresa tu contraseña"
           error={state.fieldErrors?.password}
           required
         />
 
         <SubmitButton pendingLabel="Validando acceso..." className="mt-2 w-full">
-          Iniciar sesion
+          Iniciar sesión
         </SubmitButton>
       </form>
 
       <div className="mt-6 flex flex-col gap-3 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <p>
-          ¿Aun no tienes cuenta?{" "}
+          ¿Aún no tienes cuenta?{" "}
           <Link href="/registro" className="font-semibold text-brand-700 hover:text-brand-600">
-            Crear consultorio
+            Crear negocio
           </Link>
         </p>
 

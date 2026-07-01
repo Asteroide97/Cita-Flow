@@ -161,8 +161,8 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
   return (
     <PanelPage
       eyebrow="Servicios"
-      title="Catalogo operativo de servicios"
-      description="Administra los servicios que el consultorio puede vender y reservar. Todo queda aislado por clinica y alimenta el panel, la disponibilidad y el simulador local de WhatsApp."
+      title="Catálogo operativo de servicios"
+      description="Administra los servicios que el negocio puede vender y reservar. Todo queda aislado por tenant y alimenta el panel, la disponibilidad y el simulador local de WhatsApp."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.95fr)_minmax(0,1.35fr)]">
         <div className="grid gap-6">
@@ -196,7 +196,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 La duracion minima es de 15 minutos y siempre debe ser multiplo de 15.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                Los servicios no se eliminan fisicamente si ya tienen citas; solo se
+                Los servicios no se eliminan físicamente si ya tienen reservas; solo se
                 activan o desactivan.
               </div>
             </div>
@@ -222,8 +222,8 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
                   {editingService
-                    ? "Actualiza nombre, duracion, precio, anticipo y estado del servicio."
-                    : "Carga un servicio nuevo para que el clinic pueda ofrecerlo en panel y canales futuros."}
+                    ? "Actualiza nombre, duración, precio, anticipo y estado del servicio."
+                    : "Carga un servicio nuevo para que el negocio pueda ofrecerlo en panel y canales futuros."}
                 </p>
               </div>
 
@@ -441,7 +441,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
           ) : (
             <article className="surface-card p-7">
               <p className="text-lg font-semibold text-ink">
-                Todavia no hay servicios cargados para esta clinica.
+                Todavía no hay servicios cargados para este negocio.
               </p>
               <p className="mt-3 text-sm leading-7 text-muted">
                 Crea el primer servicio desde el formulario para habilitar reservas y

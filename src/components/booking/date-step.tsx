@@ -1,9 +1,7 @@
 import Link from "next/link";
 
 import type { GetAvailableSlotsResult } from "@/lib/appointments/availability";
-import {
-  buildBookingAnchorHref,
-} from "@/lib/booking/public";
+import { buildBookingAnchorHref } from "@/lib/booking/public";
 import type {
   BookingDateOption,
   BookingDoctorOption,
@@ -58,7 +56,7 @@ export function DateStep({
         Elige fecha y hora
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Te mostramos los proximos dias disponibles y cargamos horarios reales en
+        Te mostramos los próximos días disponibles y cargamos horarios reales en
         cuanto eliges una fecha.
       </p>
 
@@ -118,7 +116,7 @@ export function DateStep({
 
       <details className="mt-4 rounded-[22px] border border-line/80 bg-slate-50/80 px-4 py-4">
         <summary className="cursor-pointer text-sm font-semibold text-ink">
-          Ver mas fechas
+          Ver más fechas
         </summary>
         <form
           action={`/booking/${clinicSlug}#fecha-hora`}

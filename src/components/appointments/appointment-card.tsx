@@ -1,5 +1,6 @@
-import type { AppointmentListItem } from "@/types/appointments";
+import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
 import { getDevelopmentAppointmentLinks } from "@/lib/appointments/tokens";
+import type { AppointmentListItem } from "@/types/appointments";
 
 import {
   appointmentSourceLabels,
@@ -9,7 +10,6 @@ import {
 import { AppointmentActions } from "./appointment-actions";
 import { AppointmentSelfServiceLinks } from "./appointment-self-service-links";
 import { AppointmentStatusBadge } from "./appointment-status-badge";
-import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
 
 type AppointmentCardProps = {
   appointment: AppointmentListItem;
@@ -48,13 +48,13 @@ export function AppointmentCard({
       <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Doctor
+            Profesional
           </p>
           <p className="mt-3 text-base font-semibold text-ink">
             {appointment.doctor.name}
           </p>
           <p className="mt-1 text-sm text-muted">
-            {appointment.doctor.specialty ?? "Sin especialidad"}
+            {appointment.doctor.specialty ?? "Sin rol o especialidad"}
           </p>
         </div>
 

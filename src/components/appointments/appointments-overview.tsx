@@ -10,7 +10,7 @@ export function AppointmentsOverview({
   return (
     <article className="surface-card p-6 sm:p-7">
       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-        Resumen rapido
+        Resumen rápido
       </p>
       <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
         <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">

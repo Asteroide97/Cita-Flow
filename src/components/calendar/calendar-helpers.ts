@@ -474,12 +474,12 @@ export function getCalendarStatusLegend() {
     {
       status: AppointmentStatus.PENDING,
       label: "Pendiente",
-      note: "Aun requiere confirmacion o accion del consultorio.",
+      note: "Aún requiere confirmación o acción del negocio.",
     },
     {
       status: AppointmentStatus.CONFIRMED,
       label: "Confirmada",
-      note: "Bloque activo dentro de la agenda del doctor.",
+      note: "Bloque activo dentro de la agenda del profesional.",
     },
     {
       status: AppointmentStatus.CANCELLED,
@@ -489,12 +489,12 @@ export function getCalendarStatusLegend() {
     {
       status: AppointmentStatus.COMPLETED,
       label: "Completada",
-      note: "Cita atendida y cerrada operativamente.",
+      note: "Reserva atendida y cerrada operativamente.",
     },
     {
       status: AppointmentStatus.NO_SHOW,
       label: "No-show",
-      note: "El paciente no asistio al horario reservado.",
+      note: "El cliente no asistió al horario reservado.",
     },
   ].map((item) => ({
     ...item,

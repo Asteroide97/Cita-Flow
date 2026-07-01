@@ -6,7 +6,7 @@ import { LoginForm } from "@/components/auth/login-form";
 import { getCurrentAuthContext } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
-  title: "Iniciar sesion | CitaFlow",
+  title: "Iniciar sesión | CitaFlow",
   description: "Acceso al panel SaaS de CitaFlow.",
 };
 
@@ -19,24 +19,24 @@ const loginHighlights = [
   {
     label: "Tenant",
     value: "Aislado",
-    note: "Cada usuario entra solo a las clinicas activas de su membresia.",
+    note: "Cada usuario entra solo a los negocios activos de su membresía.",
   },
   {
     label: "Auditoria",
     value: "Activa",
-    note: "Registramos login exitoso, fallido y cierre de sesion.",
+    note: "Registramos login exitoso, fallido y cierre de sesión.",
   },
   {
     label: "Acceso",
     value: "/app/*",
-    note: "Todo el panel requiere una sesion valida antes de mostrar contenido.",
+    note: "Todo el panel requiere una sesión válida antes de mostrar contenido.",
   },
 ];
 
 const loginChecklist = [
-  "El panel resuelve la clinica actual desde la sesion del usuario.",
-  "Si la sesion expira, el acceso protegido redirige de vuelta a login.",
-  "El rate limiting basico bloquea intentos repetidos por IP.",
+  "El panel resuelve el negocio actual desde la sesión del usuario.",
+  "Si la sesión expira, el acceso protegido redirige de vuelta a login.",
+  "El rate limiting básico bloquea intentos repetidos por IP.",
 ];
 
 export default async function LoginPage() {
@@ -49,10 +49,10 @@ export default async function LoginPage() {
   return (
     <AuthShell
       eyebrow="Acceso seguro"
-      title="Entra al panel y opera tu consultorio desde una sola sesion."
-      description="Inicia sesion con tu email y contrasena para administrar citas, pacientes, doctores y servicios sin tocar la landing publica."
-      asideTitle="Sesion real sobre la base multi-tenant"
-      asideDescription="La autenticacion ya vive sobre Prisma y PostgreSQL, con sesiones persistidas, cookies seguras y tenant resuelto desde membresias activas."
+      title="Entra al panel y opera tu negocio desde una sola sesión."
+      description="Inicia sesión con tu email y contraseña para administrar reservas, clientes, profesionales y servicios sin tocar la landing pública."
+      asideTitle="Sesión real sobre la base multi-tenant"
+      asideDescription="La autenticación ya vive sobre Prisma y PostgreSQL, con sesiones persistidas, cookies seguras y tenant resuelto desde membresías activas."
       highlights={loginHighlights}
       checklist={loginChecklist}
     >

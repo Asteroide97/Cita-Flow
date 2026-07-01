@@ -45,7 +45,7 @@ export function CalendarDayView({
           </div>
 
           <p className="text-sm text-muted">
-            {appointments.length} cita{appointments.length === 1 ? "" : "s"} en agenda
+            {appointments.length} reserva{appointments.length === 1 ? "" : "s"} en agenda
           </p>
         </div>
       </div>

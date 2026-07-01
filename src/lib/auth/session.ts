@@ -12,7 +12,7 @@ const roleLabels: Record<Role, string> = {
   OWNER: "Owner",
   ADMIN: "Admin",
   STAFF: "Staff",
-  DOCTOR: "Doctor",
+  DOCTOR: "Profesional",
 };
 
 export type AuthContext = {

@@ -13,9 +13,9 @@ export function PatientPicker({ patients }: PatientPickerProps) {
   return (
     <>
       <label className="text-sm font-semibold text-ink">
-        Paciente existente opcional
+        Cliente existente opcional
         <select name="existingPatientId" className={appointmentFieldClassName}>
-          <option value="">Crear o detectar paciente por telefono</option>
+          <option value="">Crear o detectar cliente por teléfono</option>
           {patients.map((patient) => (
             <option key={patient.id} value={patient.id}>
               {patient.name} - {formatAppointmentPhone(patient.phoneE164)}
@@ -25,22 +25,22 @@ export function PatientPicker({ patients }: PatientPickerProps) {
       </label>
 
       <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4 text-sm text-muted">
-        Si no eliges un paciente existente, CitaFlow intentara reutilizar uno del
-        mismo clinic si encuentra el mismo telefono.
+        Si no eliges un cliente existente, CitaFlow intentará reutilizar uno del
+        mismo negocio si encuentra el mismo teléfono.
       </div>
 
       <label className="text-sm font-semibold text-ink">
-        Nombre del paciente
+        Nombre del cliente
         <input
           name="patientName"
           className={appointmentFieldClassName}
-          placeholder="Ana Lopez"
+          placeholder="Ana López"
         />
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="text-sm font-semibold text-ink">
-          Telefono
+          Teléfono
           <input
             name="patientPhone"
             className={appointmentFieldClassName}

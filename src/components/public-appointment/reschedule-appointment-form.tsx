@@ -1,5 +1,7 @@
-import { formatDateInTimeZone } from "@/lib/appointments/availability";
-import type { GetAvailableSlotsResult } from "@/lib/appointments/availability";
+import {
+  formatDateInTimeZone,
+  type GetAvailableSlotsResult,
+} from "@/lib/appointments/availability";
 
 type RescheduleAppointmentFormProps = {
   token: string;
@@ -23,14 +25,14 @@ export function RescheduleAppointmentForm({
   return (
     <article className="surface-card p-6 sm:p-7">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-        Reagendar cita
+        Reagendar reserva
       </p>
       <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
         Elige una nueva fecha y horario
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Mostramos la disponibilidad real del mismo doctor y servicio. El horario se
-        vuelve a validar justo antes de guardar el cambio.
+        Mostramos la disponibilidad real del mismo profesional y servicio. El
+        horario se vuelve a validar justo antes de guardar el cambio.
       </p>
 
       <form action={actionPath} method="get" className="mt-6">
@@ -107,7 +109,7 @@ export function RescheduleAppointmentForm({
           </form>
         ) : (
           <div className="mt-6 rounded-[22px] border border-dashed border-line/90 bg-white px-4 py-5 text-sm leading-7 text-muted">
-            No hay horarios disponibles para esa fecha. Prueba con otro dia.
+            No hay horarios disponibles para esa fecha. Prueba con otro día.
           </div>
         )
       ) : null}

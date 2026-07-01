@@ -10,9 +10,9 @@ export function PatientFlow() {
       <div className="grid gap-14 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
         <div>
           <SectionHeading
-            eyebrow="Experiencia del paciente"
-            title="Asi lo vive tu paciente"
-            description="La reserva se siente clara, rapida y confiable. Menos friccion para el paciente significa mas citas confirmadas para el consultorio."
+            eyebrow="Experiencia del cliente"
+            title="Así lo vive tu cliente"
+            description="La reserva se siente clara, rápida y confiable. Menos fricción para el cliente significa más reservas confirmadas para tu negocio."
           />
 
           <div className="mt-10 space-y-4">
@@ -42,15 +42,15 @@ export function PatientFlow() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                    Reserva en linea
+                    Reserva en línea
                   </p>
                   <h3 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-ink">
-                    Clinica San Pedro
+                    Studio Central
                   </h3>
                 </div>
                 <div className="rounded-2xl bg-brand-50 px-3 py-2 text-right">
                   <p className="text-xs font-semibold text-brand-700">Paso 5 de 5</p>
-                  <p className="text-sm font-semibold text-ink">Confirmacion</p>
+                  <p className="text-sm font-semibold text-ink">Confirmación</p>
                 </div>
               </div>
 
@@ -64,16 +64,16 @@ export function PatientFlow() {
                   </div>
 
                   <div className="surface-panel p-4">
-                    <p className="text-sm font-semibold text-ink">Doctor</p>
+                    <p className="text-sm font-semibold text-ink">Profesional</p>
                     <div className="mt-3 flex items-center gap-3 rounded-2xl bg-white p-3 shadow-soft">
                       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-700">
-                        DS
+                        SH
                       </span>
                       <div>
                         <p className="text-sm font-semibold text-ink">
                           {patientBookingSummary.doctor}
                         </p>
-                        <p className="text-xs text-muted">Medicina general</p>
+                        <p className="text-xs text-muted">Atención especializada</p>
                       </div>
                     </div>
                   </div>
@@ -102,7 +102,7 @@ export function PatientFlow() {
 
                 <div className="rounded-[28px] border border-line/80 bg-surface-soft p-4">
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                    Resumen de cita
+                    Resumen de reserva
                   </p>
 
                   <div className="mt-4 space-y-3 rounded-[24px] border border-white bg-white p-5 shadow-soft">
@@ -114,7 +114,7 @@ export function PatientFlow() {
                     </div>
 
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm text-muted">Doctor</span>
+                      <span className="text-sm text-muted">Profesional</span>
                       <span className="text-sm font-semibold text-ink">
                         {patientBookingSummary.doctor}
                       </span>
@@ -137,8 +137,8 @@ export function PatientFlow() {
 
                   <div className="mt-4 rounded-[24px] border border-brand-100 bg-brand-50 p-4">
                     <p className="text-sm leading-6 text-ink">
-                      Tu lugar queda apartado y el consultorio envia recordatorio
-                      automatico antes de la cita.
+                      Tu lugar queda apartado y el negocio envía un recordatorio
+                      automático antes de la reserva.
                     </p>
                   </div>
 

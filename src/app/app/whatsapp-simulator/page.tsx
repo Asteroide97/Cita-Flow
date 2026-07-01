@@ -64,7 +64,7 @@ export default async function WhatsAppSimulatorPage({
     <PanelPage
       eyebrow="WhatsApp"
       title="Simulador local del motor conversacional"
-      description="Prueba flujos de WhatsApp-first dentro del panel sin Twilio, sin Meta Cloud API real y sin enviar mensajes reales. Todo el estado queda aislado por clinic."
+      description="Prueba flujos de WhatsApp-first dentro del panel sin Twilio, sin Meta Cloud API real y sin enviar mensajes reales. Todo el estado queda aislado por negocio."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.86fr)]">
         <div className="grid gap-6">
@@ -125,7 +125,7 @@ export default async function WhatsAppSimulatorPage({
               </div>
 
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                <p className="font-semibold text-ink">Doctores</p>
+                <p className="font-semibold text-ink">Profesionales</p>
                 <div className="mt-3 grid gap-2 text-sm text-muted">
                   {catalog.doctors.length ? (
                     catalog.doctors.map((doctor) => (
@@ -135,7 +135,7 @@ export default async function WhatsAppSimulatorPage({
                       </p>
                     ))
                   ) : (
-                    <p>No hay doctores activos cargados.</p>
+                    <p>No hay profesionales activos cargados.</p>
                   )}
                 </div>
               </div>

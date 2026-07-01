@@ -7,9 +7,9 @@ const section = panelSections.patients;
 export default function PatientsPage() {
   return (
     <PanelPage
-      eyebrow="Pacientes"
+      eyebrow="Clientes"
       title={section.title}
-      description={section.description}
+      description="Base de clientes registrados por reservas, WhatsApp o panel."
     >
       <PanelPlaceholder highlights={section.highlights} />
     </PanelPage>

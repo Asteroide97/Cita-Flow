@@ -19,10 +19,10 @@ export function AppointmentList({
     return (
       <article className="surface-card p-7">
         <p className="text-lg font-semibold text-ink">
-          No hay citas para los filtros seleccionados.
+          No hay reservas para los filtros seleccionados.
         </p>
         <p className="mt-3 text-sm leading-7 text-muted">
-          Ajusta los filtros o crea una cita nueva desde el panel izquierdo.
+          Ajusta los filtros o crea una reserva nueva desde el panel izquierdo.
         </p>
       </article>
     );

@@ -1,10 +1,10 @@
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
 import type {
   CalendarAppointment,
   CalendarDayDefinition,
 } from "@/types/calendar";
-import { cn } from "@/lib/utils";
 
 import { CalendarAppointmentBlock } from "./calendar-appointment-block";
 import { CalendarEmptyState } from "./calendar-empty-state";
@@ -49,7 +49,7 @@ export function CalendarWeekView({
           </div>
 
           <p className="text-sm text-muted">
-            {appointments.length} cita{appointments.length === 1 ? "" : "s"} distribuidas
+            {appointments.length} reserva{appointments.length === 1 ? "" : "s"} distribuidas
             en la semana
           </p>
         </div>
@@ -91,7 +91,7 @@ export function CalendarWeekView({
                     {day.shortLabel}
                   </p>
                   <p className="mt-2 text-sm text-muted">
-                    {(appointmentsByDay[day.dateValue] ?? []).length} cita
+                    {(appointmentsByDay[day.dateValue] ?? []).length} reserva
                     {(appointmentsByDay[day.dateValue] ?? []).length === 1 ? "" : "s"}
                   </p>
                 </Link>
@@ -155,7 +155,11 @@ export function CalendarWeekView({
                           timezone={timezone}
                           href={buildCalendarPath({
                             view: "week",
-                            date: day.isSelected ? day.dateValue : days.find((item) => item.isSelected)?.dateValue ?? day.dateValue,
+                            date:
+                              day.isSelected
+                                ? day.dateValue
+                                : days.find((item) => item.isSelected)?.dateValue ??
+                                  day.dateValue,
                             doctorId: doctorId || undefined,
                             appointmentId: layout.appointment.id,
                           })}
@@ -201,7 +205,7 @@ export function CalendarWeekView({
                     </Link>
 
                     <span className="text-sm font-medium text-muted">
-                      {dayAppointments.length} cita
+                      {dayAppointments.length} reserva
                       {dayAppointments.length === 1 ? "" : "s"}
                     </span>
                   </div>
@@ -228,7 +232,7 @@ export function CalendarWeekView({
                     </div>
                   ) : (
                     <p className="mt-4 text-sm leading-7 text-muted">
-                      No hay citas programadas.
+                      No hay reservas programadas.
                     </p>
                   )}
                 </section>

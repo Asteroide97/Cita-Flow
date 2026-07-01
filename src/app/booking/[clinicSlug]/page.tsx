@@ -61,13 +61,13 @@ export async function generateMetadata({
   if (!clinic || !clinic.isActive) {
     return {
       title: "Booking no disponible | CitaFlow",
-      description: "El enlace de reserva solicitado no esta disponible.",
+      description: "El enlace de reserva solicitado no está disponible.",
     };
   }
 
   return {
-    title: `Reservar cita en ${clinic.name} | CitaFlow`,
-    description: `Reserva una cita en ${clinic.name} usando la disponibilidad real del consultorio.`,
+    title: `Reservar en ${clinic.name} | CitaFlow`,
+    description: `Reserva en ${clinic.name} usando la disponibilidad real del negocio.`,
   };
 }
 
@@ -96,14 +96,14 @@ export default async function PublicBookingPage({
       <BookingShell
         clinicName="Booking no disponible"
         clinicSlug={clinicSlug}
-        title="Este enlace de reserva no esta disponible"
-        description="La clinica no existe, se encuentra inactiva o el enlace ya no esta aceptando nuevas reservas."
+        title="Este enlace de reserva no está disponible"
+        description="El negocio no existe, se encuentra inactivo o el enlace ya no está aceptando nuevas reservas."
         brandColor={normalizeBookingBrandColor(null)}
       >
         <section className="surface-card p-6 sm:p-8">
           <p className="text-sm leading-8 text-muted">
-            Si llegaste aqui desde un enlace antiguo, solicita al consultorio su
-            link actualizado. Tambien puedes volver a la pagina principal de
+            Si llegaste aquí desde un enlace antiguo, solicita al negocio su
+            link actualizado. También puedes volver a la página principal de
             CitaFlow.
           </p>
           <div className="mt-6">
@@ -203,8 +203,8 @@ export default async function PublicBookingPage({
     <BookingShell
       clinicName={typedClinic.name}
       clinicSlug={typedClinic.slug}
-      title="Agenda tu cita"
-      description="Elige servicio, doctor y horario disponible."
+      title="Reserva tu horario"
+      description="Elige servicio, profesional y horario disponible."
       brandColor={brandColor}
       aside={
         confirmation ? undefined : (

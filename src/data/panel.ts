@@ -23,7 +23,7 @@ export const panelNavigation: PanelNavItem[] = [
     label: "Dashboard",
     href: "/app/dashboard",
     shortLabel: "DB",
-    description: "Resumen operativo del consultorio.",
+    description: "Resumen operativo del negocio.",
   },
   {
     label: "Agenda",
@@ -32,28 +32,28 @@ export const panelNavigation: PanelNavItem[] = [
     description: "Vista general de horarios y disponibilidad.",
   },
   {
-    label: "Citas",
+    label: "Reservas",
     href: "/app/appointments",
-    shortLabel: "CT",
+    shortLabel: "RS",
     description: "Seguimiento de confirmaciones y estados.",
   },
   {
-    label: "Pacientes",
+    label: "Clientes",
     href: "/app/patients",
-    shortLabel: "PA",
-    description: "Base inicial de pacientes por clinic.",
+    shortLabel: "CL",
+    description: "Base inicial de clientes por negocio.",
   },
   {
-    label: "Doctores",
+    label: "Profesionales",
     href: "/app/doctors",
-    shortLabel: "DR",
-    description: "Equipo medico y especialidades.",
+    shortLabel: "PR",
+    description: "Equipo de atención y perfiles.",
   },
   {
     label: "Servicios",
     href: "/app/services",
     shortLabel: "SV",
-    description: "Catalogo base de servicios y duraciones.",
+    description: "Catálogo base de servicios y duraciones.",
   },
   {
     label: "WhatsApp",
@@ -74,16 +74,16 @@ export const panelNavigation: PanelNavItem[] = [
     description: "Solicitudes y ofertas por horarios liberados.",
   },
   {
-    label: "Configuracion",
+    label: "Configuración",
     href: "/app/settings",
     shortLabel: "CF",
-    description: "Tenant, branding y parametros del clinic.",
+    description: "Cuenta, branding y parámetros del negocio.",
   },
 ];
 
 export const dashboardMetrics: DashboardMetric[] = [
   {
-    label: "Citas de hoy",
+    label: "Reservas de hoy",
     value: "12",
     note: "2 pendientes por confirmar",
     tone: "brand",
@@ -97,11 +97,11 @@ export const dashboardMetrics: DashboardMetric[] = [
   {
     label: "No-shows",
     value: "3",
-    note: "ultimos 30 dias",
+    note: "últimos 30 días",
     tone: "amber",
   },
   {
-    label: "Pacientes nuevos",
+    label: "Clientes nuevos",
     value: "18",
     note: "captados este mes",
     tone: "slate",
@@ -112,81 +112,81 @@ export const panelSections: Record<string, PanelSectionContent> = {
   calendar: {
     title: "Agenda",
     description:
-      "Aqui vivira la vista operativa de calendario con disponibilidad, doctores y reacomodos.",
+      "Aquí vivirá la vista operativa de calendario con disponibilidad, profesionales y reacomodos.",
     highlights: [
-      "Calendario diario, semanal y por doctor.",
-      "Bloqueos de horario y disponibilidad por clinic.",
-      "Reagendado y estados de cita en tiempo real.",
+      "Calendario diario, semanal y por profesional.",
+      "Bloqueos de horario y disponibilidad por negocio.",
+      "Reagendado y estados de reserva en tiempo real.",
     ],
   },
   appointments: {
-    title: "Citas",
+    title: "Reservas",
     description:
-      "Esta seccion concentrara confirmaciones, cancelaciones, origen de cita y seguimiento operativo.",
+      "Esta sección concentrará confirmaciones, cancelaciones, origen de reserva y seguimiento operativo.",
     highlights: [
       "Listado por estado y rango de fechas.",
-      "Filtros por doctor, servicio y source.",
+      "Filtros por profesional, servicio y origen.",
       "Acciones futuras de confirmar, reagendar y cancelar.",
     ],
   },
   patients: {
-    title: "Pacientes",
+    title: "Clientes",
     description:
-      "Base inicial de pacientes por clinic, con datos de contacto y notas internas.",
+      "Base inicial de clientes por negocio, con datos de contacto y notas internas.",
     highlights: [
-      "Buscador de pacientes por nombre, telefono y email.",
-      "Historial de citas por paciente.",
-      "Notas privadas para recepcion y staff.",
+      "Buscador de clientes por nombre, teléfono y email.",
+      "Historial de reservas por cliente.",
+      "Notas privadas para recepción y staff.",
     ],
   },
   doctors: {
-    title: "Doctores",
+    title: "Profesionales",
     description:
-      "Catalogo del equipo medico, con especialidades y futura asignacion de agenda.",
+      "Catálogo del equipo de atención, con roles o especialidades y futura asignación de agenda.",
     highlights: [
-      "Relacion opcional entre doctor y user del sistema.",
-      "Especialidad, bio y estado activo.",
-      "Preparado para agenda multi-doctor.",
+      "Relación opcional entre profesional y user del sistema.",
+      "Rol o especialidad, descripción y estado activo.",
+      "Preparado para agenda multi-profesional.",
     ],
   },
   services: {
     title: "Servicios",
     description:
-      "Catalogo base del clinic con duracion, precios y reglas futuras de anticipos.",
+      "Catálogo base del negocio con duración, precios y reglas futuras de anticipos.",
     highlights: [
-      "Duracion estandar por servicio.",
-      "Precio y anticipo opcional por cita.",
-      "Preparado para reservas y pagina publica futura.",
+      "Duración estándar por servicio.",
+      "Precio y anticipo opcional por reserva.",
+      "Preparado para reservas y página pública.",
     ],
   },
   notifications: {
     title: "Notificaciones",
     description:
-      "Outbox transaccional por clinica para preparar mensajes de WhatsApp y email antes de conectar proveedores reales.",
+      "Outbox transaccional por negocio para preparar mensajes de WhatsApp y email antes de conectar proveedores reales.",
     highlights: [
       "Mensajes pendientes, enviados, fallidos o cancelados.",
-      "Templates internos con contexto de cita y enlaces publicos.",
-      "Base lista para conectar Meta Cloud API y email mas adelante.",
+      "Templates internos con contexto de reserva y enlaces públicos.",
+      "Base lista para conectar Meta Cloud API y email más adelante.",
     ],
   },
   waitlist: {
     title: "Lista de espera",
     description:
-      "Solicitudes publicas para ocupar espacios liberados con matching por servicio, doctor y preferencia horaria.",
+      "Solicitudes públicas para ocupar espacios liberados con matching por servicio, profesional y preferencia horaria.",
     highlights: [
       "Entradas activas, ofertadas, convertidas o expiradas.",
-      "Ofertas publicas con expiracion y aceptacion por token.",
-      "Base lista para conectar recordatorios y canales reales despues.",
+      "Ofertas públicas con expiración y aceptación por token.",
+      "Base lista para conectar recordatorios y canales reales después.",
     ],
   },
   settings: {
-    title: "Configuracion",
+    title: "Configuración",
     description:
-      "Zona base del tenant para branding, datos legales y parametros generales del clinic.",
+      "Zona base de la cuenta para branding, datos legales y parámetros generales del negocio.",
     highlights: [
-      "Slug unico, timezone y currency.",
-      "Color de marca y estado del clinic.",
-      "Base lista para permisos finos y selector de clinic mas adelante.",
+      "Slug único, timezone y currency.",
+      "Color de marca y estado del negocio.",
+      "Base lista para permisos finos y selector de cuenta más adelante.",
     ],
   },
 };

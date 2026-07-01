@@ -237,11 +237,11 @@ export async function registerAction(
   }
 
   if (!clinicName) {
-    fieldErrors.clinicName = "El nombre del consultorio es obligatorio.";
+    fieldErrors.clinicName = "El nombre del negocio es obligatorio.";
   }
 
   if (!clinicSlug) {
-    fieldErrors.clinicSlug = "El slug del consultorio es obligatorio.";
+    fieldErrors.clinicSlug = "El slug del negocio es obligatorio.";
   } else if (!isValidClinicSlug(clinicSlug)) {
     fieldErrors.clinicSlug =
       "Usa solo minusculas, numeros y guiones para el slug.";

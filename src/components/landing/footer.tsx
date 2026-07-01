@@ -24,8 +24,8 @@ export function Footer() {
               </div>
 
               <p className="mt-4 text-sm leading-7 text-slate-300">
-                Plataforma SaaS de reservas medicas para consultorios y clinicas
-                que buscan operar con mas orden, confirmaciones y menos ausencias.
+                Plataforma SaaS de reservas para negocios de servicios que buscan
+                operar con más orden, confirmaciones y menos ausencias.
               </p>
             </div>
 

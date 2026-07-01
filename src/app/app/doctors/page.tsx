@@ -28,12 +28,12 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "doctor-not-found":
         return {
           tone: "error" as const,
-          message: "No encontre ese doctor dentro de la clinica actual.",
+          message: "No encontré ese profesional dentro del negocio actual.",
         };
       case "doctor-name-required":
         return {
           tone: "error" as const,
-          message: "El nombre del doctor es obligatorio.",
+          message: "El nombre del profesional es obligatorio.",
         };
       default:
         return {
@@ -47,22 +47,22 @@ function resolveFlashMessage(status?: string, error?: string) {
     case "doctor-created":
       return {
         tone: "success" as const,
-        message: "Doctor creado correctamente.",
+        message: "Profesional creado correctamente.",
       };
     case "doctor-updated":
       return {
         tone: "success" as const,
-        message: "Doctor actualizado correctamente.",
+        message: "Profesional actualizado correctamente.",
       };
     case "doctor-activated":
       return {
         tone: "success" as const,
-        message: "Doctor activado nuevamente.",
+        message: "Profesional activado nuevamente.",
       };
     case "doctor-deactivated":
       return {
         tone: "success" as const,
-        message: "Doctor desactivado sin borrar historial de citas.",
+        message: "Profesional desactivado sin borrar historial de reservas.",
       };
     default:
       return null;
@@ -120,9 +120,9 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
 
   return (
     <PanelPage
-      eyebrow="Doctores"
-      title="Equipo medico y disponibilidad"
-      description="Administra el equipo medico del consultorio desde el tenant actual. Desde aqui puedes crear, editar, activar, desactivar y entrar a la disponibilidad real de cada doctor."
+      eyebrow="Profesionales"
+      title="Profesionales"
+      description="Gestiona a las personas que atienden reservas en tu negocio. Desde aquí puedes crear, editar, activar, desactivar y entrar a la disponibilidad real de cada profesional."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.95fr)_minmax(0,1.35fr)]">
         <div className="grid gap-6">
@@ -153,11 +153,12 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
 
             <div className="mt-5 grid gap-3 text-sm text-muted">
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                Los doctores con citas no se eliminan fisicamente. Si hace falta retirarlos,
-                se desactivan.
+                Los profesionales con reservas no se eliminan físicamente. Si hace
+                falta retirarlos, se desactivan.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                La disponibilidad operativa se sigue gestionando por doctor desde su ficha.
+                La disponibilidad operativa se sigue gestionando por profesional desde
+                su ficha.
               </div>
             </div>
           </article>
@@ -178,12 +179,12 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                  {editingDoctor ? "Editar doctor" : "Crear doctor"}
+                  {editingDoctor ? "Editar profesional" : "Crear profesional"}
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
                   {editingDoctor
-                    ? "Actualiza nombre, especialidad, bio y estado sin salir del panel."
-                    : "Agrega un nuevo doctor para empezar a manejar agenda y disponibilidad real."}
+                    ? "Actualiza nombre, rol o especialidad, descripción y estado sin salir del panel."
+                    : "Agrega un nuevo profesional para empezar a manejar agenda y disponibilidad real."}
                 </p>
               </div>
 
@@ -212,28 +213,28 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   required
                   defaultValue={editingDoctor?.name ?? ""}
                   className={formFieldClassName()}
-                  placeholder="Dra. Sofia Herrera"
+                  placeholder="Sofía Herrera"
                 />
               </label>
 
               <label className="text-sm font-semibold text-ink">
-                Especialidad opcional
+                Rol o especialidad opcional
                 <input
                   name="specialty"
                   defaultValue={editingDoctor?.specialty ?? ""}
                   className={formFieldClassName()}
-                  placeholder="Medicina general"
+                  placeholder="Estilista senior"
                 />
               </label>
 
               <label className="text-sm font-semibold text-ink">
-                Bio opcional
+                Descripción opcional
                 <textarea
                   name="bio"
                   rows={4}
                   defaultValue={editingDoctor?.bio ?? ""}
                   className={formFieldClassName()}
-                  placeholder="Describe enfoque, experiencia o tipo de consulta."
+                  placeholder="Describe enfoque, experiencia o tipo de atención."
                 />
               </label>
 
@@ -253,7 +254,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                 type="submit"
                 className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
               >
-                {editingDoctor ? "Guardar cambios" : "Crear doctor"}
+                {editingDoctor ? "Guardar cambios" : "Crear profesional"}
               </button>
             </form>
           </article>
@@ -269,7 +270,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                       {doctor.name}
                     </p>
                     <p className="mt-2 text-sm text-muted">
-                      {doctor.specialty ?? "Sin especialidad registrada"}
+                      {doctor.specialty ?? "Sin rol o especialidad registrada"}
                     </p>
                   </div>
 
@@ -288,7 +289,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   <p className="mt-4 text-sm leading-7 text-muted">{doctor.bio}</p>
                 ) : (
                   <p className="mt-4 text-sm leading-7 text-muted">
-                    Sin bio registrada para este doctor.
+                    Sin descripción registrada para este profesional.
                   </p>
                 )}
 
@@ -314,6 +315,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
                       Citas asociadas
+                      
                     </p>
                     <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
                       {doctor._count.appointments}
@@ -360,11 +362,11 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
           ) : (
             <article className="surface-card p-7">
               <p className="text-lg font-semibold text-ink">
-                Todavia no hay doctores cargados para esta clinica.
+                Todavía no hay profesionales cargados para este negocio.
               </p>
               <p className="mt-3 text-sm leading-7 text-muted">
-                Crea el primer doctor desde el formulario para empezar a operar agenda y
-                disponibilidad.
+                Crea el primer profesional desde el formulario para empezar a operar
+                agenda y disponibilidad.
               </p>
             </article>
           )}

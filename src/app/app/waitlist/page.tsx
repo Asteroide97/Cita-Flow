@@ -209,7 +209,7 @@ export default async function WaitlistPage({
     <PanelPage
       eyebrow="Lista de espera"
       title="Solicitudes y ofertas de horarios liberados"
-      description="Aqui puedes revisar pacientes en espera, ofertas pendientes y conversiones a citas reales cuando alguien libera un espacio."
+      description="Aquí puedes revisar clientes en espera, ofertas pendientes y conversiones a reservas reales cuando alguien libera un espacio."
     >
       <div className="grid gap-6">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -233,7 +233,7 @@ export default async function WaitlistPage({
               {offeredCount}
             </p>
             <p className="mt-2 text-sm text-muted">
-              Pacientes con un horario liberado pendiente de respuesta.
+              Clientes con un horario liberado pendiente de respuesta.
             </p>
           </article>
 
@@ -245,7 +245,7 @@ export default async function WaitlistPage({
               {convertedCount}
             </p>
             <p className="mt-2 text-sm text-muted">
-              Entradas que ya terminaron en una cita creada.
+              Entradas que ya terminaron en una reserva creada.
             </p>
           </article>
 
@@ -257,7 +257,7 @@ export default async function WaitlistPage({
               {closedCount}
             </p>
             <p className="mt-2 text-sm text-muted">
-              Canceladas o vencidas por el consultorio.
+              Canceladas o vencidas por el negocio.
             </p>
           </article>
         </div>
@@ -278,10 +278,10 @@ export default async function WaitlistPage({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Entradas del clinic actual
+                Entradas del negocio actual
               </p>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-muted">
-                Cada entrada guarda la preferencia de servicio, doctor, fecha y
+                Cada entrada guarda la preferencia de servicio, profesional, fecha y
                 rango horario. Las ofertas asociadas quedan visibles para depurar
                 el motor antes de conectar WhatsApp real.
               </p>
@@ -345,13 +345,13 @@ export default async function WaitlistPage({
 
                           <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                              Doctor preferido
+                              Profesional preferido
                             </p>
                             <p className="mt-3 text-base font-semibold text-ink">
-                              {entry.doctor?.name ?? "Cualquier doctor"}
+                              {entry.doctor?.name ?? "Cualquier profesional"}
                             </p>
                             <p className="mt-1 text-sm text-muted">
-                              {entry.doctor?.specialty ?? "Sin restriccion"}
+                              {entry.doctor?.specialty ?? "Sin restricción"}
                             </p>
                           </div>
 
@@ -472,8 +472,8 @@ export default async function WaitlistPage({
                                   </p>
                                   <p className="mt-2 text-sm text-muted">
                                     {offer.appointment
-                                      ? `Cita asociada: ${offer.appointment.id} - ${offer.appointment.status}`
-                                      : "Sin cita final asociada todavia."}
+                                      ? `Reserva asociada: ${offer.appointment.id} - ${offer.appointment.status}`
+                                      : "Sin reserva final asociada todavía."}
                                   </p>
                                 </div>
                               ))
@@ -496,8 +496,8 @@ export default async function WaitlistPage({
                 Aun no hay solicitudes en lista de espera
               </p>
               <p className="mt-3 text-sm leading-7 text-muted">
-                Usa el booking publico y selecciona &quot;No veo un horario que me
-                sirva&quot; para empezar a poblar esta bandeja.
+                Usa el booking público y selecciona &quot;Prefiero otro horario&quot;
+                para empezar a poblar esta bandeja.
               </p>
             </div>
           )}

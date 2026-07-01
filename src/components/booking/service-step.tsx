@@ -26,13 +26,13 @@ export function ServiceStep({
         Elige el servicio
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Selecciona el motivo de tu cita. Solo se muestran servicios activos del
-        consultorio.
+        Selecciona el servicio que quieres reservar. Solo se muestran servicios
+        activos del negocio.
       </p>
 
       {!services.length ? (
         <div className="mt-6 rounded-[24px] border border-dashed border-line/90 bg-surface-soft px-5 py-6 text-sm leading-7 text-muted">
-          Este consultorio aun no tiene servicios publicos disponibles.
+          Este negocio aún no tiene servicios públicos disponibles.
         </div>
       ) : (
         <div className="mt-6 grid gap-3">
@@ -88,7 +88,7 @@ export function ServiceStep({
                       </span>
                     </div>
                     <p className="mt-2 text-sm leading-7 text-muted">
-                      {service.description ?? "Servicio disponible para reserva publica."}
+                      {service.description ?? "Servicio disponible para reserva pública."}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted">
                       <span>{formatAppointmentMoney(service.priceCents, currency)}</span>

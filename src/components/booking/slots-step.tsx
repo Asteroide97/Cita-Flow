@@ -39,7 +39,7 @@ function renderSlotGroup(params: {
           {params.title}
         </p>
         <p className="mt-2 text-sm text-muted">
-          Horarios validados contra la agenda real del doctor.
+          Horarios validados contra la agenda real del profesional.
         </p>
       </div>
 
@@ -102,22 +102,22 @@ export function SlotsStep({
           Horarios disponibles
         </p>
         <h3 className="mt-3 text-xl font-semibold tracking-[-0.04em] text-ink">
-          Selecciona un horario para continuar con tu cita
+          Selecciona un horario para continuar con tu reserva
         </h3>
         <p className="mt-3 text-sm leading-7 text-muted">
-          Si alguien reserva antes que tu, la disponibilidad se actualiza
-          automaticamente.
+          Si alguien reserva antes que tú, la disponibilidad se actualiza
+          automáticamente.
         </p>
       </div>
 
       {!slots.length ? (
         <div className="rounded-[24px] border border-dashed border-line/90 bg-surface-soft px-5 py-6 text-sm leading-7 text-muted">
-          No hay horarios disponibles para este dia.
+          No hay horarios disponibles para este día.
         </div>
       ) : (
         <>
           {renderSlotGroup({
-            title: "Manana",
+            title: "Mañana",
             slots: morningSlots,
             clinicSlug,
             selectedServiceId,
@@ -140,7 +140,7 @@ export function SlotsStep({
       {!selectedSlotTime ? (
         waitlistOpen ? (
           <div className="rounded-[22px] border border-brand-100 bg-brand-50 px-4 py-4 text-sm leading-7 text-brand-800">
-            Abriste la lista de espera. Esto no crea una cita.
+            Abriste la lista de espera. Esto no crea una reserva.
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
@@ -157,7 +157,7 @@ export function SlotsStep({
               Prefiero otro horario
             </Link>
             <span className="text-sm text-muted">
-              Si no te funciona ninguna opcion, puedes unirte a la lista de espera.
+              Si no te funciona ninguna opción, puedes unirte a la lista de espera.
             </span>
           </div>
         )

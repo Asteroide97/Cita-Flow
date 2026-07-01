@@ -10,9 +10,9 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "CitaFlow | Reservas médicas para consultorios y clínicas",
+  title: "CitaFlow | Reservas para negocios de servicios",
   description:
-    "Landing pública de CitaFlow, una plataforma SaaS para reservas, recordatorios y anticipos en consultorios y clínicas.",
+    "Landing pública de CitaFlow, una plataforma SaaS para reservas, recordatorios y anticipos en negocios de servicios.",
 };
 
 export default function RootLayout({

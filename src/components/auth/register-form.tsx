@@ -42,7 +42,7 @@ export function RegisterForm() {
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="owner@clinica.com"
+            placeholder="owner@negocio.com"
             defaultValue={state.values?.email ?? ""}
             error={state.fieldErrors?.email}
             required
@@ -51,11 +51,11 @@ export function RegisterForm() {
 
         <div className="sm:col-span-2">
           <AuthField
-            label="Contrasena"
+            label="Contraseña"
             name="password"
             type="password"
             autoComplete="new-password"
-            placeholder="Minimo 8 caracteres"
+            placeholder="Mínimo 8 caracteres"
             error={state.fieldErrors?.password}
             required
           />
@@ -63,10 +63,10 @@ export function RegisterForm() {
 
         <div className="sm:col-span-2">
           <AuthField
-            label="Nombre del consultorio"
+            label="Nombre del negocio"
             name="clinicName"
             autoComplete="organization"
-            placeholder="Clinica Integral Norte"
+            placeholder="Studio Central"
             defaultValue={state.values?.clinicName ?? ""}
             error={state.fieldErrors?.clinicName}
             required
@@ -74,24 +74,24 @@ export function RegisterForm() {
         </div>
 
         <AuthField
-          label="Slug del consultorio"
+          label="Slug del negocio"
           name="clinicSlug"
-          placeholder="clinica-integral-norte"
+          placeholder="studio-central"
           defaultValue={state.values?.clinicSlug ?? ""}
           error={state.fieldErrors?.clinicSlug}
-          hint="Usa minusculas, numeros y guiones."
+          hint="Usa minúsculas, números y guiones."
           required
         />
 
         <AuthField
-          label="Telefono (opcional)"
+          label="Teléfono (opcional)"
           name="phoneE164"
           type="tel"
           autoComplete="tel"
           placeholder="+525511223344"
           defaultValue={state.values?.phoneE164 ?? ""}
           error={state.fieldErrors?.phoneE164}
-          hint="Guardalo en formato internacional."
+          hint="Guárdalo en formato internacional."
         />
 
         <SubmitButton pendingLabel="Creando cuenta..." className="mt-2 w-full sm:col-span-2">
@@ -103,7 +103,7 @@ export function RegisterForm() {
         <p>
           ¿Ya tienes cuenta?{" "}
           <Link href="/login" className="font-semibold text-brand-700 hover:text-brand-600">
-            Iniciar sesion
+            Iniciar sesión
           </Link>
         </p>
 

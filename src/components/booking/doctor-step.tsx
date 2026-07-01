@@ -22,16 +22,16 @@ export function DoctorStep({
         Paso 2
       </p>
       <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-        Elige el doctor
+        Elige el profesional
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Selecciona el profesional con quien deseas reservar. Solo se muestran
-        doctores activos.
+        Selecciona a la persona con quien deseas reservar. Solo se muestran
+        profesionales activos.
       </p>
 
       {!doctors.length ? (
         <div className="mt-6 rounded-[24px] border border-dashed border-line/90 bg-surface-soft px-5 py-6 text-sm leading-7 text-muted">
-          Este consultorio aun no tiene doctores disponibles para booking publico.
+          Este negocio aún no tiene profesionales disponibles para booking público.
         </div>
       ) : (
         <div className="mt-6 grid gap-3">
@@ -84,11 +84,11 @@ export function DoctorStep({
                     <div className="flex flex-wrap items-center gap-3">
                       <p className="text-base font-semibold text-ink">{doctor.name}</p>
                       <span className="rounded-full border border-line/80 bg-surface-soft px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-                        {doctor.specialty ?? "Consulta"}
+                        {doctor.specialty ?? "Atención"}
                       </span>
                     </div>
                     <p className="mt-2 text-sm leading-7 text-muted">
-                      {doctor.bio ?? "Agenda disponible para reservas en linea."}
+                      {doctor.bio ?? "Agenda disponible para reservas en línea."}
                     </p>
                   </div>
                 </div>

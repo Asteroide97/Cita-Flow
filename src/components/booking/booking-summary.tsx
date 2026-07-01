@@ -30,7 +30,7 @@ export function BookingSummary({
         {clinic.name}
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Tu cita quedara pendiente de confirmacion.
+        Tu reserva quedará pendiente de confirmación.
       </p>
 
       <div className="mt-6 grid gap-3">
@@ -50,13 +50,13 @@ export function BookingSummary({
 
         <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-            Doctor
+            Profesional
           </p>
           <p className="mt-2 text-sm font-semibold text-ink">
             {selectedDoctor?.name ?? "Pendiente"}
           </p>
           <p className="mt-1 text-sm text-muted">
-            {selectedDoctor?.specialty ?? "Selecciona un doctor para ver la agenda."}
+            {selectedDoctor?.specialty ?? "Selecciona un profesional para ver la agenda."}
           </p>
         </div>
 
@@ -72,7 +72,7 @@ export function BookingSummary({
           <p className="mt-1 text-sm text-muted">
             {selectedSlotDateTime
               ? "Horario validado contra la disponibilidad real."
-              : "La hora se definira despues de elegir un slot disponible."}
+              : "La hora se definirá después de elegir un slot disponible."}
           </p>
         </div>
 
@@ -81,11 +81,9 @@ export function BookingSummary({
             Estado inicial
           </p>
           <p className="mt-2 text-sm font-semibold text-brand-950">
-            Pendiente de confirmacion
+            Pendiente de confirmación
           </p>
-          <p className="mt-1 text-sm text-brand-700">
-            El consultorio te confirmara.
-          </p>
+          <p className="mt-1 text-sm text-brand-700">El negocio te confirmará.</p>
         </div>
       </div>
     </aside>

@@ -11,17 +11,17 @@ export function FinalCTA() {
               CTA final
             </p>
             <h2 className="text-balance mt-5 text-3xl font-semibold tracking-[-0.06em] text-white sm:text-4xl lg:text-5xl">
-              Deja de coordinar citas por WhatsApp
+              Deja de coordinar reservas por WhatsApp
             </h2>
             <p className="mt-5 text-base leading-8 text-blue-50/88 sm:text-lg">
-              Convierte tu agenda en un sistema automatico de reservas, pagos y
-              recordatorios con una experiencia que tambien vende mejor tu consultorio.
+              Convierte tu agenda en un sistema automático de reservas, pagos y
+              recordatorios con una experiencia que también vende mejor tu negocio.
             </p>
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row lg:justify-end">
             <ButtonLink href="#top" variant="inverted" className="min-w-[180px]">
-              Agendar demo
+              Probar gratis
             </ButtonLink>
             <ButtonLink href="#precios" variant="ghostLight" className="min-w-[180px]">
               Ver precios

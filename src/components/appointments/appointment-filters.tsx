@@ -29,8 +29,8 @@ export function AppointmentFilters({
             Filtros
           </p>
           <p className="mt-2 text-sm leading-7 text-muted">
-            Refina la lista por fecha, doctor, estado o servicio dentro del tenant
-            actual.
+            Refina la lista por fecha, profesional, estado o servicio dentro del
+            negocio actual.
           </p>
         </div>
       </div>
@@ -47,7 +47,7 @@ export function AppointmentFilters({
         </label>
 
         <label className="text-sm font-semibold text-ink">
-          Doctor
+          Profesional
           <select
             name="filterDoctorId"
             defaultValue={values.filterDoctorId}

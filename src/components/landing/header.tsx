@@ -36,11 +36,11 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <ButtonLink href="#top" variant="ghost" className="px-4">
-            Iniciar sesion
+          <ButtonLink href="/login" variant="ghost" className="px-4">
+            Iniciar sesión
           </ButtonLink>
           <ButtonLink href="#cta" className="px-5">
-            Agenda demo
+            Probar gratis
           </ButtonLink>
         </div>
 
@@ -65,10 +65,10 @@ export function Header() {
             </nav>
 
             <div className="mt-4 grid gap-3">
-              <ButtonLink href="#top" variant="secondary">
-                Iniciar sesion
+              <ButtonLink href="/login" variant="secondary">
+                Iniciar sesión
               </ButtonLink>
-              <ButtonLink href="#cta">Agenda demo</ButtonLink>
+              <ButtonLink href="#cta">Probar gratis</ButtonLink>
             </div>
           </div>
         </details>

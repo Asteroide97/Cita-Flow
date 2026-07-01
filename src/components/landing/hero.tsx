@@ -10,31 +10,31 @@ export function Hero() {
         <div className="max-w-2xl">
           <div className="eyebrow-chip">
             <span className="h-2 w-2 rounded-full bg-brand-600" />
-            SaaS medico para consultorios y clinicas
+            Plataforma de reservas para negocios de servicios
           </div>
 
           <h1 className="text-balance mt-8 text-[3.2rem] font-semibold leading-[0.96] tracking-[-0.09em] text-ink sm:text-6xl lg:text-[4.85rem] lg:leading-[0.96]">
-            Llena tu agenda
-            <span className="block text-brand-700 sm:inline"> con citas</span>
-            <span className="block text-brand-700 sm:inline"> confirmadas.</span>
+            Llena tu agenda.
+            <span className="block text-brand-700 sm:inline"> Automatiza tus</span>
+            <span className="block text-brand-700 sm:inline"> reservas.</span>
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-8 text-muted sm:text-[1.18rem]">
-            CitaFlow automatiza reservas, recordatorios, pagos de anticipo y
-            gestion de pacientes para consultorios y clinicas que quieren vender
-            una experiencia mas ordenada y profesional.
+            CitaFlow ayuda a clínicas, salones, spas, barberías y negocios de
+            servicios a recibir reservas, enviar recordatorios, cobrar anticipos y
+            recuperar horarios liberados.
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
             <ButtonLink href="#cta" className="min-w-[176px]">
-              Agendar demo
+              Probar gratis
             </ButtonLink>
             <ButtonLink
               href="#como-funciona"
               variant="secondary"
               className="min-w-[176px]"
             >
-              Ver como funciona
+              Ver cómo funciona
             </ButtonLink>
           </div>
 
@@ -60,10 +60,10 @@ export function Hero() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-600">
-                    Panel de agenda
+                    Agenda de reservas
                   </p>
                   <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-[1.85rem]">
-                    Consultorio Lomas
+                    Studio Central
                   </h2>
                   <p className="mt-2 text-sm text-muted">
                     Reservas, anticipos y confirmaciones en un solo lugar
@@ -72,7 +72,7 @@ export function Hero() {
 
                 <div className="surface-panel px-4 py-3 text-right">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
-                    Ocupacion
+                    Ocupación
                   </p>
                   <p className="mt-1 text-xl font-semibold tracking-[-0.05em] text-ink">
                     91%
@@ -82,7 +82,7 @@ export function Hero() {
 
               <div className="mt-6 flex items-center gap-2 rounded-full border border-line/80 bg-surface-soft px-3 py-2 text-xs text-muted">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                12 citas hoy
+                12 reservas hoy
                 <span className="text-slate-300">•</span>
                 3 anticipos recibidos
                 <span className="text-slate-300">•</span>
@@ -168,10 +168,10 @@ export function Hero() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
-                          Proxima accion
+                          Próxima acción
                         </p>
                         <p className="mt-2 text-base font-semibold text-ink">
-                          Recordatorio para terapia a las 15:00
+                          Recordatorio para sesión a las 15:00
                         </p>
                       </div>
                       <span className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-brand-700 shadow-soft">

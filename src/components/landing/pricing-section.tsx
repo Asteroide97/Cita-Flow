@@ -10,7 +10,7 @@ export function PricingSection() {
       <SectionHeading
         eyebrow="Precios"
         title="Un solo plan. Sin sorpresas."
-        description="Empieza con la base que necesita un consultorio moderno para reservar, confirmar, cobrar anticipos y mantener la agenda funcionando."
+        description="Empieza con la base que necesita un negocio de servicios para reservar, confirmar, cobrar anticipos y mantener la agenda funcionando."
         align="center"
       />
 
@@ -23,7 +23,7 @@ export function PricingSection() {
               </div>
 
               <div className="mt-4 inline-flex rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                Para consultorios en crecimiento
+                Para negocios en crecimiento
               </div>
 
               <div className="mt-7 flex items-end gap-3">
@@ -34,13 +34,13 @@ export function PricingSection() {
               </div>
 
               <p className="mt-5 text-base leading-8 text-muted">
-                Ideal para consultorios y clinicas que quieren ordenar reservas sin
+                Ideal para negocios de servicios que quieren ordenar reservas sin
                 agregar complejidad ni costos ocultos.
               </p>
 
               <div className="mt-8 space-y-3">
                 {[
-                  "Landing publica de reservas lista para vender mejor.",
+                  "Página pública de reservas lista para vender mejor.",
                   "Anticipos, recordatorios y agenda en una sola experiencia.",
                   "Base limpia para crecer al SaaS en siguientes fases.",
                 ].map((point) => (

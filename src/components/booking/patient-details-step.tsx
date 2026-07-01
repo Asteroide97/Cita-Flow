@@ -35,10 +35,10 @@ export function PatientDetailsStep({
         Completa tus datos para reservar
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Tu cita quedara pendiente de confirmacion.
+        Tu reserva quedará pendiente de confirmación.
       </p>
       <p className="mt-2 text-sm leading-7 text-muted">
-        Solicitaras una cita para {selectedService.name} con {selectedDoctor.name}.
+        Solicitarás una reserva para {selectedService.name} con {selectedDoctor.name}.
       </p>
 
       <form action={action} className="mt-6 grid gap-4">
@@ -59,7 +59,7 @@ export function PatientDetailsStep({
         </label>
 
         <label className="text-sm font-medium text-ink">
-          WhatsApp o telefono
+          WhatsApp o teléfono
           <input
             type="tel"
             name="patientPhone"
@@ -84,7 +84,7 @@ export function PatientDetailsStep({
             name="notes"
             rows={4}
             className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
-            placeholder="Sintomas, indicaciones o contexto para el consultorio"
+            placeholder="Preferencias, indicaciones o contexto para el negocio"
           />
         </label>
 

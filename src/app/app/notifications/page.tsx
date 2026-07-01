@@ -236,7 +236,7 @@ export default async function NotificationsPage({
             </div>
 
             <div className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-muted">
-              Clinic ID: {authContext.clinic.id}
+              Negocio ID: {authContext.clinic.id}
             </div>
           </div>
 
@@ -245,7 +245,7 @@ export default async function NotificationsPage({
               {notifications.map((notification) => {
                 const appointmentSummary = notification.appointment
                   ? `${formatDateTimeInTimeZone(notification.appointment.startAt, authContext.clinic.timezone)} - ${notification.appointment.patient.name} - ${notification.appointment.service.name}`
-                  : "Sin cita relacionada";
+                  : "Sin reserva relacionada";
 
                 return (
                   <article
@@ -289,7 +289,7 @@ export default async function NotificationsPage({
                         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                           <div className="rounded-[20px] border border-line/80 bg-surface-soft px-4 py-3">
                             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                              Cita
+                              Reserva
                             </p>
                             <p className="mt-2 text-sm font-medium text-ink">
                               {appointmentSummary}
@@ -298,12 +298,12 @@ export default async function NotificationsPage({
 
                           <div className="rounded-[20px] border border-line/80 bg-white px-4 py-3">
                             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                              Estado cita
+                              Estado reserva
                             </p>
                             <p className="mt-2 text-sm font-medium text-ink">
                               {notification.appointment
                                 ? getAppointmentStatusLabel(notification.appointment.status)
-                                : "Sin cita"}
+                                : "Sin reserva"}
                             </p>
                             <p className="mt-1 text-xs text-muted">
                               {notification.appointment
@@ -329,7 +329,7 @@ export default async function NotificationsPage({
 
                         {notification.patient ? (
                           <div className="rounded-[20px] border border-line/80 bg-white px-4 py-3 text-sm text-muted">
-                            Paciente:{" "}
+                            Cliente:{" "}
                             <span className="font-medium text-ink">
                               {notification.patient.name}
                             </span>
@@ -427,7 +427,7 @@ export default async function NotificationsPage({
                 Aun no hay notificaciones
               </p>
               <p className="mt-3 text-sm leading-7 text-muted">
-                Crea una cita o usa el booking publico para poblar esta cola.
+                Crea una reserva o usa el booking público para poblar esta cola.
               </p>
             </div>
           )}

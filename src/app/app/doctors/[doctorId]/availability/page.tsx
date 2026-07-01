@@ -33,7 +33,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "doctor-not-found":
         return {
           tone: "error" as const,
-          message: "No encontre ese doctor dentro de la clinica actual.",
+          message: "No encontré ese profesional dentro del negocio actual.",
         };
       case "availability-invalid":
         return {
@@ -87,12 +87,12 @@ function resolveFlashMessage(status?: string, error?: string) {
     case "timeoff-created":
       return {
         tone: "success" as const,
-        message: "Ausencia del doctor registrada.",
+        message: "Ausencia del profesional registrada.",
       };
     case "blocked-created":
       return {
         tone: "success" as const,
-        message: "Bloqueo general del consultorio guardado.",
+        message: "Bloqueo general del negocio guardado.",
       };
     default:
       return null;
@@ -131,9 +131,9 @@ export default async function DoctorAvailabilityPage({
 
   return (
     <PanelPage
-      eyebrow="Doctores"
+      eyebrow="Profesionales"
       title={`Disponibilidad de ${availability.doctor.name}`}
-      description="Gestiona bloques semanales, ausencias del doctor y bloqueos generales del consultorio. Esta configuracion alimenta la validacion real de citas del panel y del simulador de WhatsApp."
+      description="Gestiona bloques semanales, ausencias del profesional y bloqueos generales del negocio. Esta configuración alimenta la validación real de reservas del panel y del simulador de WhatsApp."
     >
       <div className="grid gap-6">
         <div className="flex flex-wrap items-center gap-3">
@@ -141,7 +141,7 @@ export default async function DoctorAvailabilityPage({
             href="/app/doctors"
             className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-muted transition hover:border-brand-200 hover:text-brand-700"
           >
-            Volver a doctores
+            Volver a profesionales
           </Link>
           <span className="rounded-full border border-brand-100 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700">
             Timezone: {availability.timezone}
@@ -172,13 +172,13 @@ export default async function DoctorAvailabilityPage({
                     Disponibilidad semanal
                   </p>
                   <p className="mt-3 text-sm leading-7 text-muted">
-                    Cada bloque define cuando el doctor puede recibir citas nuevas.
+                    Cada bloque define cuándo el profesional puede recibir reservas nuevas.
                     Solo los bloques activos se toman en cuenta para calcular slots.
                   </p>
                 </div>
                 <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4 text-sm text-muted">
                   <p className="font-semibold text-ink">
-                    {availability.doctor.specialty ?? "Sin especialidad"}
+                    {availability.doctor.specialty ?? "Sin rol o especialidad"}
                   </p>
                   {availability.doctor.bio ? (
                     <p className="mt-2 max-w-sm leading-6">{availability.doctor.bio}</p>
@@ -255,7 +255,7 @@ export default async function DoctorAvailabilityPage({
 
             <article className="surface-card p-6 sm:p-7">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Ausencias del doctor
+                Ausencias del profesional
               </p>
               <div className="mt-5 grid gap-3">
                 {availability.doctor.timeOffs.length ? (
@@ -275,7 +275,7 @@ export default async function DoctorAvailabilityPage({
                   ))
                 ) : (
                   <div className="rounded-[22px] border border-dashed border-line bg-surface-soft px-4 py-4 text-sm text-muted">
-                    No hay ausencias registradas para este doctor.
+                    No hay ausencias registradas para este profesional.
                   </div>
                 )}
               </div>
@@ -283,7 +283,7 @@ export default async function DoctorAvailabilityPage({
 
             <article className="surface-card p-6 sm:p-7">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Bloqueos generales del consultorio
+                Bloqueos generales del negocio
               </p>
               <div className="mt-5 grid gap-3">
                 {availability.clinicBlockedTimes.length ? (
@@ -364,7 +364,7 @@ export default async function DoctorAvailabilityPage({
 
             <article className="surface-card p-6">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Registrar ausencia del doctor
+                Registrar ausencia del profesional
               </p>
               <form action={createDoctorTimeOffAction} className="mt-5 grid gap-4">
                 <input type="hidden" name="doctorId" value={doctorId} />
@@ -410,7 +410,7 @@ export default async function DoctorAvailabilityPage({
 
             <article className="surface-card p-6">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Bloqueo general del consultorio
+                Bloqueo general del negocio
               </p>
               <form action={createClinicBlockedTimeAction} className="mt-5 grid gap-4">
                 <input type="hidden" name="doctorId" value={doctorId} />

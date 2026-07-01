@@ -143,8 +143,8 @@ export default async function CalendarPage({
   return (
     <PanelPage
       eyebrow="Agenda"
-      title="Agenda medica visual"
-      description="Consulta la agenda diaria o semanal del clinic actual con citas reales, filtros por doctor y acciones operativas reutilizando las mismas reglas de estado del panel."
+      title="Agenda visual"
+      description="Consulta la agenda diaria o semanal del negocio actual con reservas reales, filtros por profesional y acciones operativas reutilizando las mismas reglas de estado del panel."
     >
       <div className="grid gap-6">
         {flash ? (

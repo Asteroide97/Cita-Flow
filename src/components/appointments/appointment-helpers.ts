@@ -22,9 +22,9 @@ export const appointmentStatusLabels: AppointmentStatusLabels = {
 
 export const appointmentSourceLabels: AppointmentSourceLabels = {
   ADMIN: "Panel",
-  PUBLIC_BOOKING: "Booking publico",
+  PUBLIC_BOOKING: "Booking público",
   WHATSAPP: "WhatsApp",
-  IMPORT: "Importacion",
+  IMPORT: "Importación",
 };
 
 export function formatAppointmentMoney(cents: number | null, currency: string) {
@@ -72,7 +72,7 @@ export function resolveAppointmentsFlashMessage(
       case "doctor-required":
         return {
           tone: "error",
-          message: "Selecciona un doctor antes de buscar o crear la cita.",
+          message: "Selecciona un profesional antes de buscar o crear la reserva.",
         };
       case "service-required":
         return {
@@ -82,72 +82,72 @@ export function resolveAppointmentsFlashMessage(
       case "date-required":
         return {
           tone: "error",
-          message: "Selecciona una fecha valida para cargar horarios.",
+          message: "Selecciona una fecha válida para cargar horarios.",
         };
       case "slot-required":
         return {
           tone: "error",
-          message: "Selecciona un horario disponible para crear la cita.",
+          message: "Selecciona un horario disponible para crear la reserva.",
         };
       case "slot-unavailable":
         return {
           tone: "error",
-          message: "Ese horario ya no esta disponible. Revisa las opciones actualizadas.",
+          message: "Ese horario ya no está disponible. Revisa las opciones actualizadas.",
         };
       case "doctor-inactive":
         return {
           tone: "error",
-          message: "El doctor seleccionado esta inactivo o no pertenece a esta clinica.",
+          message: "El profesional seleccionado está inactivo o no pertenece a este negocio.",
         };
       case "service-inactive":
         return {
           tone: "error",
-          message: "El servicio seleccionado esta inactivo o no pertenece a esta clinica.",
+          message: "El servicio seleccionado está inactivo o no pertenece a este negocio.",
         };
       case "patient-not-found":
         return {
           tone: "error",
-          message: "No encontre ese paciente dentro de la clinica actual.",
+          message: "No encontré ese cliente dentro del negocio actual.",
         };
       case "patient-name-required":
         return {
           tone: "error",
-          message: "Si no eliges un paciente existente, el nombre es obligatorio.",
+          message: "Si no eliges un cliente existente, el nombre es obligatorio.",
         };
       case "patient-phone-required":
         return {
           tone: "error",
-          message: "Si no eliges un paciente existente, el telefono es obligatorio.",
+          message: "Si no eliges un cliente existente, el teléfono es obligatorio.",
         };
       case "patient-phone-invalid":
         return {
           tone: "error",
-          message: "El telefono no tiene un formato valido.",
+          message: "El teléfono no tiene un formato válido.",
         };
       case "patient-email-invalid":
         return {
           tone: "error",
-          message: "El email del paciente no es valido.",
+          message: "El email del cliente no es válido.",
         };
       case "appointment-not-found":
         return {
           tone: "error",
-          message: "No encontre esa cita dentro de la clinica actual.",
+          message: "No encontré esa reserva dentro del negocio actual.",
         };
       case "appointment-action-invalid":
         return {
           tone: "error",
-          message: "La accion solicitada no esta permitida para el estado actual de la cita.",
+          message: "La acción solicitada no está permitida para el estado actual de la reserva.",
         };
       case "appointment-save":
         return {
           tone: "error",
-          message: "No pude guardar la cita. Intenta de nuevo.",
+          message: "No pude guardar la reserva. Intenta de nuevo.",
         };
       default:
         return {
           tone: "error",
-          message: "No pude completar la accion solicitada.",
+          message: "No pude completar la acción solicitada.",
         };
     }
   }
@@ -156,27 +156,27 @@ export function resolveAppointmentsFlashMessage(
     case "appointment-created":
       return {
         tone: "success",
-        message: "Cita creada correctamente desde el panel.",
+        message: "Reserva creada correctamente desde el panel.",
       };
     case "appointment-confirmed":
       return {
         tone: "success",
-        message: "La cita quedo confirmada nuevamente.",
+        message: "La reserva quedó confirmada nuevamente.",
       };
     case "appointment-cancelled":
       return {
         tone: "success",
-        message: "La cita fue cancelada sin borrar historial.",
+        message: "La reserva fue cancelada sin borrar historial.",
       };
     case "appointment-completed":
       return {
         tone: "success",
-        message: "La cita fue marcada como completada.",
+        message: "La reserva fue marcada como completada.",
       };
     case "appointment-no-show":
       return {
         tone: "success",
-        message: "La cita fue marcada como no-show.",
+        message: "La reserva fue marcada como no-show.",
       };
     default:
       return null;

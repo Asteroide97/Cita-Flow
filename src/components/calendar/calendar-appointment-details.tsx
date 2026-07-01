@@ -63,14 +63,14 @@ export function CalendarAppointmentDetails({
     return (
       <article className="surface-card p-6 sm:p-7">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
-          Detalle de cita
+          Detalle de reserva
         </p>
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-          Selecciona una cita
+          Selecciona una reserva
         </h2>
         <p className="mt-3 text-sm leading-7 text-muted">
-          Haz clic sobre un bloque de la agenda para revisar al paciente, el servicio,
-          la hora y ejecutar acciones rapidas desde esta vista.
+          Haz clic sobre un bloque de la agenda para revisar al cliente, el servicio,
+          la hora y ejecutar acciones rápidas desde esta vista.
         </p>
       </article>
     );
@@ -83,7 +83,7 @@ export function CalendarAppointmentDetails({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
-            Detalle de cita
+            Detalle de reserva
           </p>
           <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
             {appointment.patient.name}
@@ -112,7 +112,7 @@ export function CalendarAppointmentDetails({
 
         <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Doctor y servicio
+            Profesional y servicio
           </p>
           <p className="mt-3 text-base font-semibold text-ink">
             {appointment.doctor.name}

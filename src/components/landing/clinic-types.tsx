@@ -16,9 +16,9 @@ export function ClinicTypes() {
   return (
     <SectionShell>
       <SectionHeading
-        eyebrow="Especialidades"
-        title="¿Que tipo de consultorio tienes?"
-        description="Cada flujo cambia segun tu especialidad. CitaFlow se presenta con beneficios adaptados para distintos tipos de practica medica."
+        eyebrow="Tipos de negocio"
+        title="¿Qué tipo de negocio tienes?"
+        description="Cada operación tiene ritmos, servicios y horarios distintos. CitaFlow se adapta a negocios que viven de su agenda."
       />
 
       <div className="mt-16">

@@ -12,7 +12,7 @@ export function BookingSubmitButton() {
       className="mt-2 inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
       style={{ backgroundColor: "var(--booking-brand)" }}
     >
-      {pending ? "Confirmando..." : "Solicitar cita"}
+      {pending ? "Confirmando..." : "Solicitar reserva"}
     </button>
   );
 }

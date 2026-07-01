@@ -2,9 +2,8 @@
 
 import { useActionState } from "react";
 
-import type { AppointmentSelfServiceLinksState } from "@/types/appointments";
-
 import { generateAppointmentSelfServiceLinksAction } from "@/app/app/appointments/actions";
+import type { AppointmentSelfServiceLinksState } from "@/types/appointments";
 
 const initialState: AppointmentSelfServiceLinksState = {
   error: null,
@@ -49,11 +48,11 @@ export function AppointmentSelfServiceLinks({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Autoservicio publico
+            Autoservicio público
           </p>
           <p className="mt-2 text-sm leading-7 text-muted">
             En desarrollo puedes abrir enlaces reales para confirmar, cancelar o
-            reagendar esta cita sin iniciar sesion.
+            reagendar esta reserva sin iniciar sesión.
           </p>
         </div>
 

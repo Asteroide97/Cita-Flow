@@ -19,17 +19,17 @@ export function BookingConfirmation({
       </span>
 
       <h2 className="mt-5 text-3xl font-semibold tracking-[-0.06em] text-ink sm:text-4xl">
-        Tu cita quedó pendiente de confirmación
+        Tu reserva quedó pendiente de confirmación
       </h2>
       <p className="mt-4 max-w-2xl text-base leading-8 text-muted">
-        El consultorio recibió tu solicitud y confirmará el horario contigo. Aquí
+        El negocio recibió tu solicitud y confirmará el horario contigo. Aquí
         tienes el resumen de la reserva.
       </p>
 
       <div className="mt-8 grid gap-3 md:grid-cols-2">
         <div className="rounded-[24px] border border-line/80 bg-surface-soft px-5 py-5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Consultorio
+            Negocio
           </p>
           <p className="mt-3 text-base font-semibold text-ink">
             {confirmation.clinicName}
@@ -56,7 +56,7 @@ export function BookingConfirmation({
 
         <div className="rounded-[24px] border border-line/80 bg-white px-5 py-5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Doctor
+            Profesional
           </p>
           <p className="mt-3 text-base font-semibold text-ink">
             {confirmation.doctorName}
@@ -82,7 +82,7 @@ export function BookingConfirmation({
           className="inline-flex rounded-full px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
           style={{ backgroundColor: "var(--booking-brand)" }}
         >
-          Reservar otra cita
+          Reservar otra vez
         </Link>
         <Link
           href="/"

@@ -7,7 +7,7 @@ import { getCurrentAuthContext } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   title: "Registro inicial | CitaFlow",
-  description: "Crea tu cuenta owner y tu clinica en CitaFlow.",
+  description: "Crea tu cuenta owner y tu negocio en CitaFlow.",
 };
 
 const registerHighlights = [
@@ -22,9 +22,9 @@ const registerHighlights = [
     note: "La contrasena nunca se guarda en texto plano dentro de la base.",
   },
   {
-    label: "Clinic",
-    value: "Slug unico",
-    note: "Validamos disponibilidad del slug antes de crear el consultorio.",
+    label: "Negocio",
+    value: "Slug único",
+    note: "Validamos disponibilidad del slug antes de crear el negocio.",
   },
   {
     label: "Entrada",
@@ -34,9 +34,9 @@ const registerHighlights = [
 ];
 
 const registerChecklist = [
-  "El owner queda vinculado a su clinica desde la primera sesion.",
+  "El owner queda vinculado a su negocio desde la primera sesión.",
   "La cookie solo guarda un token aleatorio y la base persiste su hash.",
-  "La estructura queda lista para selector de clinica y permisos mas finos.",
+  "La estructura queda lista para selector de cuenta y permisos más finos.",
 ];
 
 export default async function RegisterPage() {
@@ -49,10 +49,10 @@ export default async function RegisterPage() {
   return (
     <AuthShell
       eyebrow="Registro inicial"
-      title="Crea tu cuenta owner y deja listo el panel base de tu consultorio."
-      description="Este registro inicial activa la primera clinica dentro de CitaFlow y te da acceso inmediato al panel protegido para seguir creciendo el SaaS."
+      title="Crea tu cuenta owner y deja listo el panel base de tu negocio."
+      description="Este registro inicial activa el primer negocio dentro de CitaFlow y te da acceso inmediato al panel protegido para seguir creciendo el SaaS."
       asideTitle="Onboarding base sin romper la landing"
-      asideDescription="El alta crea la estructura minima del tenant, mantiene la UI en espanol y deja el proyecto listo para evolucionar a permisos, billing y flujos operativos reales."
+      asideDescription="El alta crea la estructura mínima del tenant, mantiene la UI en español y deja el proyecto listo para evolucionar a permisos, billing y flujos operativos reales."
       highlights={registerHighlights}
       checklist={registerChecklist}
     >

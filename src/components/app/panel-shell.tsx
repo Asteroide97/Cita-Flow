@@ -34,7 +34,7 @@ export function PanelShell({ auth, children }: PanelShellProps) {
                   Panel protegido
                 </p>
                 <p className="mt-1 text-sm text-muted">
-                  Sesion activa para {auth.clinic.name} · /{auth.clinic.slug}
+                  Sesión activa para {auth.clinic.name} · /{auth.clinic.slug}
                 </p>
               </div>
 
@@ -52,7 +52,7 @@ export function PanelShell({ auth, children }: PanelShellProps) {
                     Rol
                   </p>
                   <p className="mt-1 text-sm font-semibold text-ink">{roleLabel}</p>
-                  <p className="text-xs text-muted">Clinica actual: {auth.clinic.name}</p>
+                  <p className="text-xs text-muted">Negocio actual: {auth.clinic.name}</p>
                 </div>
 
                 <Link
@@ -64,7 +64,7 @@ export function PanelShell({ auth, children }: PanelShellProps) {
 
                 <form action="/logout" method="post">
                   <Button type="submit" variant="secondary" className="w-full xl:w-auto">
-                    Cerrar sesion
+                    Cerrar sesión
                   </Button>
                 </form>
               </div>

@@ -45,7 +45,7 @@ export function AppSidebar({
 
           <div className="mt-8 rounded-[28px] border border-white/10 bg-white/5 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Clinica actual
+              Negocio actual
             </p>
             <p className="mt-3 text-base font-semibold text-white">{clinicName}</p>
             <p className="mt-1 text-sm text-slate-400">/{clinicSlug}</p>
@@ -55,7 +55,7 @@ export function AppSidebar({
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Sesion activa
+                  Sesión activa
                 </p>
                 <p className="mt-3 text-base font-semibold text-white">{userName}</p>
                 <p className="mt-1 text-sm text-slate-400">{userEmail}</p>
@@ -113,11 +113,11 @@ export function AppSidebar({
 
           <div className="rounded-[28px] border border-emerald-500/20 bg-emerald-500/10 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
-              Tenant actual
+              Cuenta actual
             </p>
             <p className="mt-3 text-sm leading-6 text-slate-200">
-              La clinica se resuelve desde la sesion del usuario. Si existen varias
-              membresias, por ahora se usa la primera clinica activa.
+              El negocio se resuelve desde la sesión del usuario. Si existen varias
+              membresías, por ahora se usa la primera cuenta activa.
             </p>
           </div>
         </div>

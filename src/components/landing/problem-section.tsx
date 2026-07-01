@@ -8,8 +8,8 @@ export function ProblemSection() {
     <SectionShell className="bg-white/60">
       <SectionHeading
         eyebrow="Problema"
-        title="Para de perder tiempo y dinero en citas perdidas"
-        description="Cuando la agenda depende de mensajes manuales, cada cancelacion y cada confirmacion tardia terminan costando ingresos y foco operativo."
+        title="Para de perder tiempo y dinero en reservas mal coordinadas"
+        description="Cuando la agenda depende de mensajes manuales, cada cancelación y cada confirmación tardía terminan costando ingresos y foco operativo."
         align="center"
       />
 

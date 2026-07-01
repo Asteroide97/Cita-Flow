@@ -222,9 +222,9 @@ export default async function AppointmentsPage({
 
   return (
     <PanelPage
-      eyebrow="Citas"
-      title="Gestion operativa de citas"
-      description="Crea citas manuales desde el panel, filtra la agenda del clinic actual y ejecuta acciones seguras sobre cada cita usando la disponibilidad real del doctor."
+      eyebrow="Reservas"
+      title="Gestión de reservas"
+      description="Crea reservas manuales desde el panel, filtra la agenda del negocio actual y ejecuta acciones seguras sobre cada reserva usando la disponibilidad real del profesional."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(340px,0.96fr)_minmax(0,1.44fr)]">
         <div className="grid gap-6">

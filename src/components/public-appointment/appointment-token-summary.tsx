@@ -51,7 +51,7 @@ export function AppointmentTokenSummary({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Resumen de la cita
+            Resumen de la reserva
           </p>
           <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
             {clinicName}
@@ -68,11 +68,11 @@ export function AppointmentTokenSummary({
       <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Doctor
+            Profesional
           </p>
           <p className="mt-3 text-base font-semibold text-ink">{doctorName}</p>
           <p className="mt-1 text-sm text-muted">
-            {doctorSpecialty ?? "Sin especialidad"}
+            {doctorSpecialty ?? "Sin rol o especialidad"}
           </p>
         </div>
 
@@ -105,9 +105,7 @@ export function AppointmentTokenSummary({
           <p className="mt-3 text-base font-semibold text-ink">
             {appointmentStatusLabels[status]}
           </p>
-          <p className="mt-1 text-sm text-muted">
-            {appointmentSourceLabels[source]}
-          </p>
+          <p className="mt-1 text-sm text-muted">{appointmentSourceLabels[source]}</p>
         </div>
       </div>
 
@@ -116,7 +114,7 @@ export function AppointmentTokenSummary({
           Notas
         </p>
         <p className="mt-3 text-sm leading-7 text-muted">
-          {notes ?? "Sin notas adicionales para esta cita."}
+          {notes ?? "Sin notas adicionales para esta reserva."}
         </p>
       </div>
     </article>

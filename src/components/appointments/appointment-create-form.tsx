@@ -46,24 +46,24 @@ export function AppointmentCreateForm({
   return (
     <article className="surface-card p-6 sm:p-7">
       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-        Crear cita manual
+        Crear reserva manual
       </p>
       <p className="mt-3 text-sm leading-7 text-muted">
-        La cita del panel se crea como <strong>CONFIRMED</strong> con origen{" "}
-        <strong>ADMIN</strong>. Solo puedes reservar horarios reales disponibles.
+        La reserva del panel se crea como <strong>CONFIRMED</strong> con origen{" "}
+        <strong>ADMIN</strong>. Solo puedes apartar horarios reales disponibles.
       </p>
 
       {activeDoctors.length && activeServices.length ? (
         <>
           <form action="/app/appointments" className="mt-6 grid gap-4">
             <label className="text-sm font-semibold text-ink">
-              Doctor
+              Profesional
               <select
                 name="formDoctorId"
                 defaultValue={selectedDoctorId}
                 className={appointmentFieldClassName}
               >
-                <option value="">Selecciona un doctor</option>
+                <option value="">Selecciona un profesional</option>
                 {activeDoctors.map((doctor) => (
                   <option key={doctor.id} value={doctor.id}>
                     {doctor.name}
@@ -143,7 +143,7 @@ export function AppointmentCreateForm({
                     name="notes"
                     rows={3}
                     className={appointmentFieldClassName}
-                    placeholder="Motivo de consulta, comentarios internos o contexto adicional."
+                    placeholder="Motivo, comentarios internos o contexto adicional."
                   />
                 </label>
 
@@ -151,21 +151,21 @@ export function AppointmentCreateForm({
                   type="submit"
                   className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
                 >
-                  Crear cita confirmada
+                  Crear reserva confirmada
                 </button>
               </form>
             ) : (
               <div className="mt-6 rounded-[24px] border border-dashed border-line bg-white px-4 py-4 text-sm text-muted">
-                No hay horarios disponibles para esta combinacion. Prueba con otra
-                fecha, doctor o servicio.
+                No hay horarios disponibles para esta combinación. Prueba con otra
+                fecha, profesional o servicio.
               </div>
             )
           ) : null}
         </>
       ) : (
         <div className="mt-6 rounded-[24px] border border-dashed border-line bg-white px-4 py-4 text-sm text-muted">
-          Necesitas al menos un doctor activo y un servicio activo para crear citas
-          desde el panel.
+          Necesitas al menos un profesional activo y un servicio activo para crear
+          reservas desde el panel.
         </div>
       )}
     </article>

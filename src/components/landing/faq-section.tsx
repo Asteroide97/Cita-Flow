@@ -9,7 +9,7 @@ export function FAQSection() {
       <SectionHeading
         eyebrow="FAQ"
         title="Preguntas frecuentes"
-        description="Respuestas rapidas a las dudas mas comunes sobre como operaria CitaFlow en un consultorio o clinica."
+        description="Respuestas rápidas a las dudas más comunes sobre cómo operaría CitaFlow en un negocio de servicios."
         align="center"
       />
 

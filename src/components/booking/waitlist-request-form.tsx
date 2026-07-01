@@ -36,10 +36,10 @@ export function WaitlistRequestForm({
         Lista de espera
       </p>
       <h3 className="mt-3 text-xl font-semibold tracking-[-0.04em] text-ink">
-        Unete a la lista de espera
+        Únete a la lista de espera
       </h3>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Esto no crea una cita. Te avisaremos si se libera un horario compatible.
+        Esto no crea una reserva. Te avisaremos si se libera un horario compatible.
       </p>
       <p className="mt-2 text-sm leading-7 text-muted">
         Lo registraremos para {selectedService.name} con {selectedDoctor.name}.
@@ -63,7 +63,7 @@ export function WaitlistRequestForm({
           </label>
 
           <label className="text-sm font-medium text-ink">
-            WhatsApp o telefono
+            WhatsApp o teléfono
             <input
               type="tel"
               name="patientPhone"
@@ -106,7 +106,7 @@ export function WaitlistRequestForm({
                 value="MORNING"
                 className="mr-3 h-4 w-4 border-line text-brand-600"
               />
-              Manana
+              Mañana
             </label>
             <label className="rounded-[22px] border border-line/80 bg-white px-4 py-4 text-sm font-medium text-ink transition hover:border-brand-200 hover:bg-brand-50">
               <input
@@ -138,7 +138,7 @@ export function WaitlistRequestForm({
             className="mt-1 h-4 w-4 border-line text-brand-600"
           />
           <span>
-            Acepto que me asignen automaticamente un horario si se libera uno
+            Acepto que me asignen automáticamente un horario si se libera uno
             compatible.
           </span>
         </label>
@@ -149,7 +149,7 @@ export function WaitlistRequestForm({
             name="notes"
             rows={4}
             className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
-            placeholder="Preferencias, sintomas o contexto para recepcion"
+            placeholder="Preferencias o contexto para el negocio"
           />
         </label>
 

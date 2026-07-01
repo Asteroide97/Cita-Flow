@@ -34,7 +34,7 @@ export function CalendarToolbar({
   dayHref,
   weekHref,
 }: CalendarToolbarProps) {
-  const navigationLabel = view === "day" ? "dia" : "semana";
+  const navigationLabel = view === "day" ? "día" : "semana";
 
   return (
     <article className="surface-card p-6 sm:p-7">
@@ -47,8 +47,8 @@ export function CalendarToolbar({
             {rangeLabel}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-            Vista {view === "day" ? "diaria" : "semanal"} de las citas reales del
-            clinic actual. Se cargan solo citas del tenant en la zona horaria{" "}
+            Vista {view === "day" ? "diaria" : "semanal"} de las reservas reales del
+            negocio actual. Se cargan solo datos del tenant en la zona horaria{" "}
             <span className="font-semibold text-ink">{timezone}</span>.
           </p>
         </div>
@@ -105,7 +105,7 @@ export function CalendarToolbar({
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <div className="rounded-[24px] border border-line/80 bg-surface-soft px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Citas en vista
+            Reservas en vista
           </p>
           <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-ink">
             {totalAppointments}
@@ -121,11 +121,11 @@ export function CalendarToolbar({
           </p>
           <p className="mt-3 text-base font-semibold text-ink">
             {doctorId
-              ? doctors.find((doctor) => doctor.id === doctorId)?.name ?? "Doctor filtrado"
-              : "Todos los doctores"}
+              ? doctors.find((doctor) => doctor.id === doctorId)?.name ?? "Profesional filtrado"
+              : "Todos los profesionales"}
           </p>
           <p className="mt-1 text-sm text-muted">
-            Cambia la fecha o el doctor para navegar la agenda.
+            Cambia la fecha o el profesional para navegar la agenda.
           </p>
         </div>
 
@@ -135,7 +135,7 @@ export function CalendarToolbar({
           </p>
           <p className="mt-3 text-base font-semibold text-ink">08:00 - 20:00</p>
           <p className="mt-1 text-sm text-muted">
-            La grilla muestra el tramo operativo principal del dia.
+            La grilla muestra el tramo operativo principal del día.
           </p>
         </div>
       </div>
@@ -154,13 +154,13 @@ export function CalendarToolbar({
         </label>
 
         <label className="text-sm font-medium text-ink">
-          Doctor
+          Profesional
           <select
             name="doctorId"
             defaultValue={doctorId}
             className={appointmentFieldClassName}
           >
-            <option value="">Todos los doctores</option>
+            <option value="">Todos los profesionales</option>
             {doctors.map((doctor) => (
               <option key={doctor.id} value={doctor.id}>
                 {doctor.name}

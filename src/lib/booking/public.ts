@@ -155,7 +155,7 @@ export function resolveBookingFlashMessage(
       case "doctor-required":
         return {
           tone: "error",
-          message: "Selecciona un doctor disponible para continuar.",
+          message: "Selecciona un profesional disponible para continuar.",
         };
       case "date-required":
         return {
@@ -165,7 +165,7 @@ export function resolveBookingFlashMessage(
       case "slot-required":
         return {
           tone: "error",
-          message: "Selecciona un horario disponible antes de confirmar tu cita.",
+          message: "Selecciona un horario disponible antes de confirmar tu reserva.",
         };
       case "service-unavailable":
         return {
@@ -175,7 +175,7 @@ export function resolveBookingFlashMessage(
       case "doctor-unavailable":
         return {
           tone: "error",
-          message: "Ese doctor ya no esta disponible en este consultorio.",
+          message: "Ese profesional ya no está disponible en este negocio.",
         };
       case "slot-unavailable":
         return {
@@ -185,7 +185,7 @@ export function resolveBookingFlashMessage(
       case "patient-name-required":
         return {
           tone: "error",
-          message: "Necesitamos el nombre del paciente para crear la cita.",
+          message: "Necesitamos tu nombre para crear la reserva.",
         };
       case "patient-phone-required":
         return {
@@ -251,7 +251,7 @@ export function resolveBookingFlashMessage(
   if (status === "booking-created") {
     return {
       tone: "success",
-      message: "Tu solicitud de cita quedo registrada correctamente.",
+      message: "Tu solicitud de reserva quedó registrada correctamente.",
     };
   }
 
@@ -339,5 +339,5 @@ export function resolvePreferredTimeRange(
 }
 
 export function getBookingClinicDescription(clinic: BookingClinic) {
-  return `Reserva una cita en ${clinic.name}. Elige servicio, doctor, fecha y horario usando la disponibilidad real del consultorio.`;
+  return `Reserva en ${clinic.name}. Elige servicio, profesional, fecha y horario usando la disponibilidad real del negocio.`;
 }

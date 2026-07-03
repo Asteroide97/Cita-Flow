@@ -18,6 +18,7 @@ import {
   cancelNotificationAction,
   markNotificationFailedAction,
   markNotificationSentAction,
+  sendWhatsAppNotificationAction,
 } from "./actions";
 
 type NotificationsPageProps = {
@@ -48,10 +49,20 @@ function resolveFlashMessage(status?: string, error?: string) {
     }
   }
 
-  switch (status) {
-    case "notification-sent":
-      return {
-        tone: "success" as const,
+    switch (status) {
+      case "notification-whatsapp-sent":
+        return {
+          tone: "success" as const,
+          message: "WhatsApp enviado correctamente por Meta Cloud API.",
+        };
+      case "notification-whatsapp-failed":
+        return {
+          tone: "error" as const,
+          message: "No se pudo enviar por WhatsApp. Revisa el error guardado en la notificación.",
+        };
+      case "notification-sent":
+        return {
+          tone: "success" as const,
         message: "Notificacion marcada como enviada.",
       };
     case "notification-failed":
@@ -145,8 +156,10 @@ function getAppointmentSourceLabel(source: AppointmentSource) {
   }
 }
 
-function actionButtonClassName(tone: "sent" | "failed" | "cancel") {
+function actionButtonClassName(tone: "sent" | "failed" | "cancel" | "whatsapp") {
   switch (tone) {
+    case "whatsapp":
+      return "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 transition hover:border-brand-300 hover:bg-brand-100";
     case "sent":
       return "rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100";
     case "failed":
@@ -209,7 +222,8 @@ export default async function NotificationsPage({
         </div>
 
         <article className="surface-card px-5 py-4 text-sm text-muted">
-          El envio real sigue desactivado. Esta vista solo prepara y revisa mensajes.
+          El envío automático sigue desactivado. Desde aquí puedes disparar manualmente
+          mensajes de WhatsApp para validar la integración con Meta Cloud API.
         </article>
 
         {flash ? (
@@ -361,6 +375,23 @@ export default async function NotificationsPage({
                       </div>
 
                       <div className="grid gap-2 lg:min-w-[220px]">
+                        {notification.channel === NotificationChannel.WHATSAPP &&
+                        notification.status === NotificationStatus.PENDING ? (
+                          <form action={sendWhatsAppNotificationAction}>
+                            <input
+                              type="hidden"
+                              name="notificationId"
+                              value={notification.id}
+                            />
+                            <button
+                              type="submit"
+                              className={actionButtonClassName("whatsapp")}
+                            >
+                              Enviar WhatsApp
+                            </button>
+                          </form>
+                        ) : null}
+
                         {notification.status !== NotificationStatus.SENT &&
                         notification.status !== NotificationStatus.CANCELLED ? (
                           <form action={markNotificationSentAction}>

@@ -1,11 +1,12 @@
 "use server";
 
-import { NotificationStatus } from "@prisma/client";
+import { NotificationChannel, NotificationStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createAuditLog } from "@/lib/audit";
 import { requireAuthContext } from "@/lib/auth/session";
+import { sendPendingWhatsAppNotification } from "@/lib/notifications/send-whatsapp";
 import { prisma } from "@/lib/prisma";
 
 type NotificationsPathOptions = {
@@ -185,4 +186,52 @@ export async function cancelNotificationAction(formData: FormData) {
     notificationId: String(formData.get("notificationId") ?? "").trim(),
     intent: "cancel",
   });
+}
+
+export async function sendWhatsAppNotificationAction(formData: FormData) {
+  const authContext = await requireAuthContext();
+  const notificationId = String(formData.get("notificationId") ?? "").trim();
+
+  if (!notificationId) {
+    redirect(buildNotificationsPath({ error: "notification-not-found" }));
+  }
+
+  const notification = await prisma.notificationOutbox.findFirst({
+    where: {
+      id: notificationId,
+      clinicId: authContext.clinic.id,
+    },
+    select: {
+      id: true,
+      channel: true,
+      status: true,
+    },
+  });
+
+  if (!notification) {
+    redirect(buildNotificationsPath({ error: "notification-not-found" }));
+  }
+
+  if (
+    notification.channel !== NotificationChannel.WHATSAPP ||
+    notification.status !== NotificationStatus.PENDING
+  ) {
+    redirect(buildNotificationsPath({ error: "notification-action-invalid" }));
+  }
+
+  const result = await sendPendingWhatsAppNotification(notification.id, {
+    actorUserId: authContext.user.id,
+  });
+
+  revalidateNotificationViews();
+
+  if (result.ok) {
+    redirect(buildNotificationsPath({ status: "notification-whatsapp-sent" }));
+  }
+
+  if (result.reason === "SEND_FAILED") {
+    redirect(buildNotificationsPath({ status: "notification-whatsapp-failed" }));
+  }
+
+  redirect(buildNotificationsPath({ error: "notification-action-invalid" }));
 }

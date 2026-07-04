@@ -169,6 +169,12 @@ model Clinic {
   timezone              String
   currency              String
   brandColor            String?
+  businessType          String?
+  publicName            String?
+  publicDescription     String?
+  websiteUrl            String?
+  contactEmail          String?
+  contactPhone          String?
   isActive              Boolean                @default(true)
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt

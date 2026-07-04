@@ -203,7 +203,7 @@ export const howItWorksSteps: HowStep[] = [
   },
   {
     number: "04",
-    title: "CitaFlow automatiza el seguimiento",
+    title: "Agenda Viva automatiza el seguimiento",
     description:
       "Envía recordatorios, registra anticipos y recupera horarios liberados con lista de espera.",
   },
@@ -242,7 +242,7 @@ export const clinicTypes: ClinicType[] = [
   {
     id: "dental",
     label: "Dental",
-    tagline: "Limpiezas, valoraciones y tratamientos protegidos con menos huecos entre pacientes.",
+    tagline: "Limpiezas, valoraciones y tratamientos protegidos con menos huecos entre clientes.",
     description:
       "Organiza servicios por duración y anticipo sin perder seguimiento ni tiempo en recepción.",
     benefits: [
@@ -632,12 +632,12 @@ export const faqs: Faq[] = [
   {
     question: "¿Necesito tarjeta para empezar?",
     answer:
-      "No necesariamente. Puedes evaluar el flujo comercial primero y activar cobros o suscripción cuando decidas operar formalmente con CitaFlow.",
+      "No necesariamente. Puedes evaluar el flujo comercial primero y activar cobros o suscripción cuando decidas operar formalmente con Agenda Viva.",
   },
   {
     question: "¿Puedo cobrar anticipos?",
     answer:
-      "Sí. CitaFlow está pensado para permitir anticipos por servicio o tipo de reserva cuando quieras proteger espacios de alto valor.",
+      "Sí. Agenda Viva está pensado para permitir anticipos por servicio o tipo de reserva cuando quieras proteger espacios de alto valor.",
   },
   {
     question: "¿Funciona con WhatsApp?",
@@ -669,7 +669,7 @@ export const faqs: Faq[] = [
 export const footerLinks = [
   { label: "Producto", href: "#beneficios" },
   { label: "Precios", href: "#precios" },
-  { label: "Soporte", href: "mailto:hola@citaflow.app" },
+  { label: "Soporte", href: "mailto:hola@agendaviva.app" },
   { label: "Privacidad", href: "#footer" },
   { label: "Términos", href: "#footer" },
 ];

@@ -252,7 +252,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                   required
                   defaultValue={editingService?.name ?? ""}
                   className={formFieldClassName()}
-                  placeholder="Primera consulta"
+                  placeholder="Servicio completo"
                 />
               </label>
 

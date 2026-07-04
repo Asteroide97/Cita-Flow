@@ -8,6 +8,12 @@ type MetaWhatsAppConfig = {
   apiVersion: string;
 };
 
+export type MetaWhatsAppConfigStatus = {
+  isConfigured: boolean;
+  missingKeys: string[];
+  apiVersion: string;
+};
+
 type MetaGraphApiErrorPayload = {
   error?: {
     message?: string;
@@ -79,6 +85,22 @@ export class MetaWhatsAppRequestError extends Error {
 }
 
 function getMetaWhatsAppConfig(): MetaWhatsAppConfig {
+  const status = getMetaWhatsAppConfigStatus();
+  const accessToken = process.env.META_WHATSAPP_ACCESS_TOKEN?.trim() ?? "";
+  const phoneNumberId = process.env.META_WHATSAPP_PHONE_NUMBER_ID?.trim() ?? "";
+
+  if (status.missingKeys.length) {
+    throw new MetaWhatsAppConfigError(status.missingKeys);
+  }
+
+  return {
+    accessToken,
+    phoneNumberId,
+    apiVersion: status.apiVersion,
+  };
+}
+
+export function getMetaWhatsAppConfigStatus(): MetaWhatsAppConfigStatus {
   const accessToken = process.env.META_WHATSAPP_ACCESS_TOKEN?.trim() ?? "";
   const phoneNumberId = process.env.META_WHATSAPP_PHONE_NUMBER_ID?.trim() ?? "";
   const apiVersion =
@@ -89,13 +111,9 @@ function getMetaWhatsAppConfig(): MetaWhatsAppConfig {
     !phoneNumberId ? "META_WHATSAPP_PHONE_NUMBER_ID" : null,
   ].filter((value): value is string => Boolean(value));
 
-  if (missingKeys.length) {
-    throw new MetaWhatsAppConfigError(missingKeys);
-  }
-
   return {
-    accessToken,
-    phoneNumberId,
+    isConfigured: missingKeys.length === 0,
+    missingKeys,
     apiVersion,
   };
 }

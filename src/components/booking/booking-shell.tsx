@@ -20,6 +20,7 @@ function hexToRgba(hexColor: string, alpha: number) {
 type BookingShellProps = {
   clinicName: string;
   clinicSlug: string;
+  clinicDescription?: string | null;
   title: string;
   description: string;
   brandColor: string;
@@ -30,6 +31,7 @@ type BookingShellProps = {
 export function BookingShell({
   clinicName,
   clinicSlug,
+  clinicDescription,
   title,
   description,
   brandColor,
@@ -63,7 +65,7 @@ export function BookingShell({
 
             <div>
               <p className="text-lg font-extrabold tracking-[-0.05em] text-ink">
-                CitaFlow
+                Agenda Viva
               </p>
               <p className="text-sm text-muted">Reserva pública del negocio</p>
             </div>
@@ -75,6 +77,11 @@ export function BookingShell({
             </p>
             <p className="mt-1 text-sm font-semibold text-ink">{clinicName}</p>
             <p className="text-xs text-muted">/{clinicSlug}</p>
+            {clinicDescription ? (
+              <p className="mt-2 max-w-xs text-xs leading-6 text-muted">
+                {clinicDescription}
+              </p>
+            ) : null}
           </div>
         </div>
 

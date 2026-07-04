@@ -40,7 +40,7 @@ type RescheduleAppointmentPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Reagendar reserva | CitaFlow",
+  title: "Reagendar reserva | Agenda Viva",
   description: "Reagenda tu reserva desde un enlace público seguro.",
 };
 
@@ -116,7 +116,7 @@ export default async function RescheduleAppointmentPage({
 
     return (
       <PublicAppointmentShell
-        clinicName="CitaFlow"
+        clinicName="Agenda Viva"
         clinicSlug="autoservicio"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir este enlace"

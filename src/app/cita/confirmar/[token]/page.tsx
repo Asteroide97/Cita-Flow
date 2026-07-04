@@ -28,7 +28,7 @@ type ConfirmAppointmentPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Confirmar reserva | CitaFlow",
+  title: "Confirmar reserva | Agenda Viva",
   description: "Confirma tu reserva desde un enlace público seguro.",
 };
 
@@ -104,7 +104,7 @@ export default async function ConfirmAppointmentPage({
 
     return (
       <PublicAppointmentShell
-        clinicName="CitaFlow"
+        clinicName="Agenda Viva"
         clinicSlug="autoservicio"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir este enlace"

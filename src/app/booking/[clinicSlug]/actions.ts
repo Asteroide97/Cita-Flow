@@ -20,6 +20,7 @@ import { setPublicBookingConfirmationCookie } from "@/lib/booking/confirmation";
 import {
   buildBookingPath,
   getBookingClientIp,
+  getBookingClinicDisplayName,
   isValidBookingEmail,
   normalizeBookingEmail,
   resolvePreferredTimeRange,
@@ -52,6 +53,7 @@ type BookingRedirectState = {
 type PublicClinicContext = {
   id: string;
   name: string;
+  publicName: string | null;
   slug: string;
   timezone: string;
   isActive: boolean;
@@ -115,6 +117,7 @@ async function loadPublicClinic(clinicSlug: string) {
     select: {
       id: true,
       name: true,
+      publicName: true,
       slug: true,
       timezone: true,
       isActive: true,
@@ -326,7 +329,7 @@ async function redirectToPublicBookingConfirmation(params: {
 
   await setPublicBookingConfirmationCookie({
     clinicSlug: params.clinic.slug,
-    clinicName: params.clinic.name,
+    clinicName: getBookingClinicDisplayName(params.clinic),
     serviceName: params.serviceName,
     doctorName: params.doctorName,
     startAtIso: params.appointmentStartAt.toISOString(),

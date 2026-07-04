@@ -17,6 +17,8 @@ import {
 import { readPublicBookingConfirmationCookie } from "@/lib/booking/confirmation";
 import {
   buildBookingPath,
+  getBookingClinicDescription,
+  getBookingClinicDisplayName,
   getBookingDateOptions,
   getBookingTodayDateValue,
   normalizeBookingBrandColor,
@@ -54,20 +56,26 @@ export async function generateMetadata({
     },
     select: {
       name: true,
+      publicName: true,
+      publicDescription: true,
       isActive: true,
     },
   });
 
   if (!clinic || !clinic.isActive) {
     return {
-      title: "Booking no disponible | CitaFlow",
+      title: "Booking no disponible | Agenda Viva",
       description: "El enlace de reserva solicitado no está disponible.",
     };
   }
 
+  const clinicName = getBookingClinicDisplayName(clinic);
+
   return {
-    title: `Reservar en ${clinic.name} | CitaFlow`,
-    description: `Reserva en ${clinic.name} usando la disponibilidad real del negocio.`,
+    title: `Reservar en ${clinicName} | Agenda Viva`,
+    description: clinic.publicDescription?.trim()
+      ? clinic.publicDescription.trim()
+      : `Reserva en ${clinicName} usando la disponibilidad real del negocio.`,
   };
 }
 
@@ -87,6 +95,8 @@ export default async function PublicBookingPage({
       timezone: true,
       currency: true,
       brandColor: true,
+      publicName: true,
+      publicDescription: true,
       isActive: true,
     },
   });
@@ -104,7 +114,7 @@ export default async function PublicBookingPage({
           <p className="text-sm leading-8 text-muted">
             Si llegaste aquí desde un enlace antiguo, solicita al negocio su
             link actualizado. También puedes volver a la página principal de
-            CitaFlow.
+            Agenda Viva.
           </p>
           <div className="mt-6">
             <Link
@@ -119,7 +129,10 @@ export default async function PublicBookingPage({
     );
   }
 
-  const typedClinic: BookingClinic = clinic;
+  const typedClinic: BookingClinic = {
+    ...clinic,
+    name: getBookingClinicDisplayName(clinic),
+  };
   const [services, doctors] = await Promise.all([
     prisma.service.findMany({
       where: {
@@ -203,8 +216,13 @@ export default async function PublicBookingPage({
     <BookingShell
       clinicName={typedClinic.name}
       clinicSlug={typedClinic.slug}
+      clinicDescription={typedClinic.publicDescription}
       title="Reserva tu horario"
-      description="Elige servicio, profesional y horario disponible."
+      description={
+        typedClinic.publicDescription
+          ? "Elige servicio, profesional y horario disponible."
+          : getBookingClinicDescription(typedClinic)
+      }
       brandColor={brandColor}
       aside={
         confirmation ? undefined : (

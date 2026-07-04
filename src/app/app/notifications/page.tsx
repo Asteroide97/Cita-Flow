@@ -8,6 +8,7 @@ import {
 import { PanelPage } from "@/components/app/panel-page";
 import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
 import { requireAuthContext } from "@/lib/auth/session";
+import { getMetaWhatsAppConfigStatus } from "@/lib/meta/whatsapp-client";
 import { listNotificationOutbox } from "@/lib/notifications/outbox";
 import {
   notificationTemplateKeys,
@@ -34,12 +35,17 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "notification-not-found":
         return {
           tone: "error" as const,
-          message: "No encontré esa notificación dentro del negocio actual.",
+          message: "No encontre esa notificacion dentro del negocio actual.",
         };
       case "notification-action-invalid":
         return {
           tone: "error" as const,
           message: "La accion ya no esta permitida para el estado actual de la notificacion.",
+        };
+      case "notification-whatsapp-not-configured":
+        return {
+          tone: "error" as const,
+          message: "Configura Meta Cloud API antes de intentar enviar notificaciones reales por WhatsApp.",
         };
       default:
         return {
@@ -49,20 +55,20 @@ function resolveFlashMessage(status?: string, error?: string) {
     }
   }
 
-    switch (status) {
-      case "notification-whatsapp-sent":
-        return {
-          tone: "success" as const,
-          message: "WhatsApp enviado correctamente por Meta Cloud API.",
-        };
-      case "notification-whatsapp-failed":
-        return {
-          tone: "error" as const,
-          message: "No se pudo enviar por WhatsApp. Revisa el error guardado en la notificación.",
-        };
-      case "notification-sent":
-        return {
-          tone: "success" as const,
+  switch (status) {
+    case "notification-whatsapp-sent":
+      return {
+        tone: "success" as const,
+        message: "WhatsApp enviado correctamente por Meta Cloud API.",
+      };
+    case "notification-whatsapp-failed":
+      return {
+        tone: "error" as const,
+        message: "No se pudo enviar por WhatsApp. Revisa el error guardado en la notificacion.",
+      };
+    case "notification-sent":
+      return {
+        tone: "success" as const,
         message: "Notificacion marcada como enviada.",
       };
     case "notification-failed":
@@ -117,10 +123,10 @@ function getChannelClassName(channel: NotificationChannel) {
 }
 
 function resolveTemplateLabel(templateKey: string) {
-  if (
-    (notificationTemplateKeys as readonly string[]).includes(templateKey)
-  ) {
-    return notificationTemplateLabels[templateKey as keyof typeof notificationTemplateLabels];
+  if ((notificationTemplateKeys as readonly string[]).includes(templateKey)) {
+    return notificationTemplateLabels[
+      templateKey as keyof typeof notificationTemplateLabels
+    ];
   }
 
   return templateKey;
@@ -159,7 +165,7 @@ function getAppointmentSourceLabel(source: AppointmentSource) {
 function actionButtonClassName(tone: "sent" | "failed" | "cancel" | "whatsapp") {
   switch (tone) {
     case "whatsapp":
-      return "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 transition hover:border-brand-300 hover:bg-brand-100";
+      return "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 transition hover:border-brand-300 hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-60";
     case "sent":
       return "rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100";
     case "failed":
@@ -179,6 +185,7 @@ export default async function NotificationsPage({
   const notifications = await listNotificationOutbox({
     clinicId: authContext.clinic.id,
   });
+  const metaConfig = getMetaWhatsAppConfigStatus();
   const flash = resolveFlashMessage(query.status, query.error);
 
   const pendingCount = notifications.filter(
@@ -222,8 +229,9 @@ export default async function NotificationsPage({
         </div>
 
         <article className="surface-card px-5 py-4 text-sm text-muted">
-          El envío automático sigue desactivado. Desde aquí puedes disparar manualmente
-          mensajes de WhatsApp para validar la integración con Meta Cloud API.
+          {metaConfig.isConfigured
+            ? "Meta Cloud API ya esta configurada, pero el envio automatico sigue en pausa. Usa esta cola solo para disparos manuales de prueba."
+            : "WhatsApp real esta pendiente de configuracion. Las notificaciones se preparan en la cola, pero no se envian automaticamente."}
         </article>
 
         {flash ? (
@@ -377,19 +385,34 @@ export default async function NotificationsPage({
                       <div className="grid gap-2 lg:min-w-[220px]">
                         {notification.channel === NotificationChannel.WHATSAPP &&
                         notification.status === NotificationStatus.PENDING ? (
-                          <form action={sendWhatsAppNotificationAction}>
-                            <input
-                              type="hidden"
-                              name="notificationId"
-                              value={notification.id}
-                            />
-                            <button
-                              type="submit"
-                              className={actionButtonClassName("whatsapp")}
-                            >
-                              Enviar WhatsApp
-                            </button>
-                          </form>
+                          metaConfig.isConfigured ? (
+                            <form action={sendWhatsAppNotificationAction}>
+                              <input
+                                type="hidden"
+                                name="notificationId"
+                                value={notification.id}
+                              />
+                              <button
+                                type="submit"
+                                className={actionButtonClassName("whatsapp")}
+                              >
+                                Enviar WhatsApp
+                              </button>
+                            </form>
+                          ) : (
+                            <div className="grid gap-2">
+                              <button
+                                type="button"
+                                disabled
+                                className={actionButtonClassName("whatsapp")}
+                              >
+                                Enviar WhatsApp
+                              </button>
+                              <p className="text-xs leading-6 text-muted">
+                                Configura Meta Cloud API para enviar.
+                              </p>
+                            </div>
+                          )
                         ) : null}
 
                         {notification.status !== NotificationStatus.SENT &&
@@ -458,7 +481,7 @@ export default async function NotificationsPage({
                 Aun no hay notificaciones
               </p>
               <p className="mt-3 text-sm leading-7 text-muted">
-                Crea una reserva o usa el booking público para poblar esta cola.
+                Crea una reserva o usa el booking publico para poblar esta cola.
               </p>
             </div>
           )}

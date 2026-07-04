@@ -13,8 +13,8 @@ import {
 } from "@/lib/whatsapp/engine";
 
 export const metadata: Metadata = {
-  title: "WhatsApp Simulator | CitaFlow",
-  description: "Simulador interno del motor conversacional de WhatsApp para CitaFlow.",
+  title: "WhatsApp Simulator | Agenda Viva",
+  description: "Simulador interno del motor conversacional de WhatsApp para Agenda Viva.",
 };
 
 type WhatsAppSimulatorPageProps = {
@@ -68,6 +68,10 @@ export default async function WhatsAppSimulatorPage({
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.86fr)]">
         <div className="grid gap-6">
+          <article className="surface-card px-5 py-4 text-sm text-muted">
+            Simulador local. No envia mensajes reales.
+          </article>
+
           {errorMessage ? (
             <div className="rounded-[28px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700">
               {errorMessage}

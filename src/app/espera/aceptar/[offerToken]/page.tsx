@@ -24,7 +24,7 @@ type AcceptWaitlistOfferPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Aceptar oferta | CitaFlow",
+  title: "Aceptar oferta | Agenda Viva",
   description: "Acepta un horario liberado desde la lista de espera publica.",
 };
 
@@ -99,7 +99,7 @@ export default async function AcceptWaitlistOfferPage({
 
     return (
       <PublicAppointmentShell
-        clinicName="CitaFlow"
+        clinicName="Agenda Viva"
         clinicSlug="lista-espera"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir esta oferta"

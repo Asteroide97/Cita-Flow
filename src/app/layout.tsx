@@ -10,9 +10,17 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "CitaFlow | Reservas para negocios de servicios",
+  title: "Agenda Viva | Reservas para negocios de servicios",
   description:
-    "Landing pública de CitaFlow, una plataforma SaaS para reservas, recordatorios y anticipos en negocios de servicios.",
+    "Agenda Viva automatiza reservas, recordatorios y horarios liberados para negocios de servicios.",
+  openGraph: {
+    title: "Agenda Viva | Reservas para negocios de servicios",
+    description:
+      "Agenda Viva automatiza reservas, recordatorios y horarios liberados para negocios de servicios.",
+    siteName: "Agenda Viva",
+    locale: "es_MX",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

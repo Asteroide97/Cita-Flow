@@ -6,8 +6,8 @@ import { RegisterForm } from "@/components/auth/register-form";
 import { getCurrentAuthContext } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
-  title: "Registro inicial | CitaFlow",
-  description: "Crea tu cuenta owner y tu negocio en CitaFlow.",
+  title: "Registro inicial | Agenda Viva",
+  description: "Crea tu cuenta owner y tu negocio en Agenda Viva.",
 };
 
 const registerHighlights = [
@@ -23,7 +23,7 @@ const registerHighlights = [
   },
   {
     label: "Negocio",
-    value: "Slug único",
+    value: "Slug unico",
     note: "Validamos disponibilidad del slug antes de crear el negocio.",
   },
   {
@@ -34,9 +34,9 @@ const registerHighlights = [
 ];
 
 const registerChecklist = [
-  "El owner queda vinculado a su negocio desde la primera sesión.",
+  "El owner queda vinculado a su negocio desde la primera sesion.",
   "La cookie solo guarda un token aleatorio y la base persiste su hash.",
-  "La estructura queda lista para selector de cuenta y permisos más finos.",
+  "La estructura queda lista para selector de cuenta y permisos mas finos.",
 ];
 
 export default async function RegisterPage() {
@@ -50,9 +50,9 @@ export default async function RegisterPage() {
     <AuthShell
       eyebrow="Registro inicial"
       title="Crea tu cuenta owner y deja listo el panel base de tu negocio."
-      description="Este registro inicial activa el primer negocio dentro de CitaFlow y te da acceso inmediato al panel protegido para seguir creciendo el SaaS."
+      description="Este registro inicial activa el primer negocio dentro de Agenda Viva y te da acceso inmediato al panel protegido para seguir creciendo el SaaS."
       asideTitle="Onboarding base sin romper la landing"
-      asideDescription="El alta crea la estructura mínima del tenant, mantiene la UI en español y deja el proyecto listo para evolucionar a permisos, billing y flujos operativos reales."
+      asideDescription="El alta crea la estructura minima del tenant, mantiene la UI en espanol y deja el proyecto listo para evolucionar a permisos, billing y flujos operativos reales."
       highlights={registerHighlights}
       checklist={registerChecklist}
     >

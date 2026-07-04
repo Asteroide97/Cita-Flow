@@ -1,8 +1,8 @@
 {
-  "name": "cita-flow",
+  "name": "agenda-viva",
   "version": "0.1.0",
   "private": true,
-  "description": "Landing page de CitaFlow construida con Next.js, TypeScript y Tailwind CSS.",
+  "description": "Landing page de Agenda Viva construida con Next.js, TypeScript y Tailwind CSS.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",

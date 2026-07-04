@@ -1,6 +1,6 @@
 export const DEMO_CLINIC_ID = "clinic_demo";
 export const DEMO_CLINIC_SLUG = "clinica-demo";
-export const DEMO_CLINIC_NAME = "Clinica Demo";
+export const DEMO_CLINIC_NAME = "Negocio Demo";
 export const DEMO_TIMEZONE = "America/Mexico_City";
 
 export type TemporaryClinicContext = {

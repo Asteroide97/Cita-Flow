@@ -5,8 +5,8 @@ import { PanelShell } from "@/components/app/panel-shell";
 import { requireAuthContext } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
-  title: "CitaFlow App",
-  description: "Panel protegido del SaaS multi-tenant de CitaFlow.",
+  title: "Agenda Viva | Panel",
+  description: "Panel protegido del SaaS multi-tenant de Agenda Viva.",
 };
 
 export default async function SaaSLayout({ children }: { children: ReactNode }) {

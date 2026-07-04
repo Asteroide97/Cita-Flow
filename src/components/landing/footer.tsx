@@ -19,7 +19,7 @@ export function Footer() {
                   </span>
                 </span>
                 <p className="text-xl font-extrabold tracking-[-0.05em] text-white">
-                  CitaFlow
+                  Agenda Viva
                 </p>
               </div>
 
@@ -59,7 +59,7 @@ export function Footer() {
           </div>
 
           <div className="mt-8 border-t border-white/10 pt-5 text-sm text-slate-400">
-            © 2026 CitaFlow. Todos los derechos reservados.
+            © 2026 Agenda Viva. Todos los derechos reservados.
           </div>
         </div>
       </div>

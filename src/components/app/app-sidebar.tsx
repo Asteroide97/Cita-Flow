@@ -38,7 +38,7 @@ export function AppSidebar({
             </span>
 
             <div>
-              <p className="text-lg font-extrabold tracking-[-0.05em]">CitaFlow</p>
+              <p className="text-lg font-extrabold tracking-[-0.05em]">Agenda Viva</p>
               <p className="text-sm text-slate-400">Panel SaaS protegido</p>
             </div>
           </Link>
@@ -136,7 +136,7 @@ export function AppSidebar({
             </span>
             <div>
               <p className="text-base font-extrabold tracking-[-0.04em] text-ink">
-                CitaFlow
+                Agenda Viva
               </p>
               <p className="text-xs text-muted">
                 {clinicName} · {roleLabel}

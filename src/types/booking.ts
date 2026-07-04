@@ -38,6 +38,8 @@ export type BookingClinic = {
   timezone: string;
   currency: string;
   brandColor: string | null;
+  publicName: string | null;
+  publicDescription: string | null;
 };
 
 export type BookingServiceOption = {

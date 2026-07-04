@@ -61,7 +61,7 @@ export function PublicAppointmentShell({
 
             <div>
               <p className="text-lg font-extrabold tracking-[-0.05em] text-ink">
-                CitaFlow
+                Agenda Viva
               </p>
               <p className="text-sm text-muted">Autoservicio de reservas</p>
             </div>

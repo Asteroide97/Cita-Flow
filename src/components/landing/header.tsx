@@ -19,7 +19,7 @@ export function Header() {
           </span>
 
           <span className="block text-lg font-extrabold tracking-[-0.05em] text-ink sm:text-xl">
-            Cita<span className="text-brand-600">Flow</span>
+            Agenda <span className="text-brand-600">Viva</span>
           </span>
         </Link>
 

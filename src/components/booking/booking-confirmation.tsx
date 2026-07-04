@@ -88,7 +88,7 @@ export function BookingConfirmation({
           href="/"
           className="inline-flex rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
         >
-          Volver a CitaFlow
+          Volver a Agenda Viva
         </Link>
       </div>
     </section>

@@ -9,7 +9,7 @@ export function HowItWorks() {
       <SectionHeading
         eyebrow="Cómo funciona"
         title="Funciona en 4 pasos"
-        description="CitaFlow simplifica la operación desde la configuración inicial hasta el seguimiento automático de cada reserva."
+        description="Agenda Viva simplifica la operación desde la configuración inicial hasta el seguimiento automático de cada reserva."
         align="center"
       />
 

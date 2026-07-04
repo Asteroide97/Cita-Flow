@@ -26,7 +26,7 @@ type CancelAppointmentPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Cancelar reserva | CitaFlow",
+  title: "Cancelar reserva | Agenda Viva",
   description: "Cancela tu reserva desde un enlace público seguro.",
 };
 
@@ -102,7 +102,7 @@ export default async function CancelAppointmentPage({
 
     return (
       <PublicAppointmentShell
-        clinicName="CitaFlow"
+        clinicName="Agenda Viva"
         clinicSlug="autoservicio"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir este enlace"

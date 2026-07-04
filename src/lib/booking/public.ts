@@ -308,6 +308,12 @@ export function normalizeBookingEmail(value: string) {
   return value.trim().toLowerCase();
 }
 
+export function getBookingClinicDisplayName(
+  clinic: Pick<BookingClinic, "name" | "publicName">,
+) {
+  return clinic.publicName?.trim() || clinic.name;
+}
+
 export function isValidBookingEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -339,5 +345,9 @@ export function resolvePreferredTimeRange(
 }
 
 export function getBookingClinicDescription(clinic: BookingClinic) {
-  return `Reserva en ${clinic.name}. Elige servicio, profesional, fecha y horario usando la disponibilidad real del negocio.`;
+  if (clinic.publicDescription?.trim()) {
+    return clinic.publicDescription.trim();
+  }
+
+  return `Reserva en ${getBookingClinicDisplayName(clinic)}. Elige servicio, profesional, fecha y horario usando la disponibilidad real del negocio.`;
 }

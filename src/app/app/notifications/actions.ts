@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { createAuditLog } from "@/lib/audit";
 import { requireAuthContext } from "@/lib/auth/session";
+import { getMetaWhatsAppConfigStatus } from "@/lib/meta/whatsapp-client";
 import { sendPendingWhatsAppNotification } from "@/lib/notifications/send-whatsapp";
 import { prisma } from "@/lib/prisma";
 
@@ -191,9 +192,14 @@ export async function cancelNotificationAction(formData: FormData) {
 export async function sendWhatsAppNotificationAction(formData: FormData) {
   const authContext = await requireAuthContext();
   const notificationId = String(formData.get("notificationId") ?? "").trim();
+  const metaConfig = getMetaWhatsAppConfigStatus();
 
   if (!notificationId) {
     redirect(buildNotificationsPath({ error: "notification-not-found" }));
+  }
+
+  if (!metaConfig.isConfigured) {
+    redirect(buildNotificationsPath({ error: "notification-whatsapp-not-configured" }));
   }
 
   const notification = await prisma.notificationOutbox.findFirst({

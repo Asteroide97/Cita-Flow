@@ -20,7 +20,7 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-8 text-muted sm:text-[1.18rem]">
-            CitaFlow ayuda a clínicas, salones, spas, barberías y negocios de
+            Agenda Viva ayuda a clínicas, salones, spas, barberías y negocios de
             servicios a recibir reservas, enviar recordatorios, cobrar anticipos y
             recuperar horarios liberados.
           </p>

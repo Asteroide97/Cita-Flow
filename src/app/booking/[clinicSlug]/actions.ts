@@ -253,6 +253,7 @@ async function resolveActiveBookingCatalog(params: {
         id: params.doctorId,
         clinicId: params.clinicId,
         isActive: true,
+        isPublic: true,
       },
       select: {
         id: true,

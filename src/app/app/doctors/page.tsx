@@ -1,11 +1,13 @@
 import Link from "next/link";
 
 import { PanelPage } from "@/components/app/panel-page";
+import { ProfessionalAvatar } from "@/components/doctors/professional-avatar";
 import { requireAuthContext } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 
 import {
   createDoctorAction,
+  toggleDoctorPublicVisibilityAction,
   toggleDoctorStatusAction,
   updateDoctorAction,
 } from "./actions";
@@ -15,11 +17,26 @@ type DoctorsPageProps = {
     edit?: string;
     status?: string;
     error?: string;
+    filter?: string;
   }>;
 };
 
+type DoctorFilter = "all" | "active" | "inactive" | "public" | "hidden";
+
 function formFieldClassName() {
   return "mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100";
+}
+
+function normalizeFilter(value?: string): DoctorFilter {
+  switch (value) {
+    case "active":
+    case "inactive":
+    case "public":
+    case "hidden":
+      return value;
+    default:
+      return "all";
+  }
 }
 
 function resolveFlashMessage(status?: string, error?: string) {
@@ -28,12 +45,27 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "doctor-not-found":
         return {
           tone: "error" as const,
-          message: "No encontré ese profesional dentro del negocio actual.",
+          message: "No encontre ese profesional dentro del negocio actual.",
         };
       case "doctor-name-required":
         return {
           tone: "error" as const,
           message: "El nombre del profesional es obligatorio.",
+        };
+      case "doctor-public-order-invalid":
+        return {
+          tone: "error" as const,
+          message: "El orden publico debe ser un numero entero igual o mayor a 0.",
+        };
+      case "doctor-photo-url-invalid":
+        return {
+          tone: "error" as const,
+          message: "La foto debe ser una URL valida con http o https.",
+        };
+      case "doctor-save":
+        return {
+          tone: "error" as const,
+          message: "No pude guardar el profesional. Intenta de nuevo.",
         };
       default:
         return {
@@ -64,9 +96,31 @@ function resolveFlashMessage(status?: string, error?: string) {
         tone: "success" as const,
         message: "Profesional desactivado sin borrar historial de reservas.",
       };
+    case "doctor-public":
+      return {
+        tone: "success" as const,
+        message: "Profesional visible nuevamente en el booking publico.",
+      };
+    case "doctor-hidden":
+      return {
+        tone: "success" as const,
+        message: "Profesional ocultado del booking publico.",
+      };
     default:
       return null;
   }
+}
+
+function getDoctorStatusBadgeClassName(isActive: boolean) {
+  return isActive
+    ? "rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700"
+    : "rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-700";
+}
+
+function getDoctorVisibilityBadgeClassName(isPublic: boolean) {
+  return isPublic
+    ? "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700"
+    : "rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700";
 }
 
 export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
@@ -74,16 +128,25 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
     requireAuthContext(),
     searchParams,
   ]);
+  const filter = normalizeFilter(query.filter);
   const doctors = await prisma.doctor.findMany({
     where: {
       clinicId: authContext.clinic.id,
     },
-    orderBy: [{ isActive: "desc" }, { createdAt: "asc" }],
+    orderBy: [
+      { isActive: "desc" },
+      { isPublic: "desc" },
+      { publicOrder: "asc" },
+      { name: "asc" },
+    ],
     select: {
       id: true,
       name: true,
       specialty: true,
       bio: true,
+      publicOrder: true,
+      isPublic: true,
+      photoUrl: true,
       isActive: true,
       availabilityBlocks: {
         where: {
@@ -111,8 +174,25 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
     },
   });
 
+  const visibleDoctors = doctors.filter((doctor) => {
+    switch (filter) {
+      case "active":
+        return doctor.isActive;
+      case "inactive":
+        return !doctor.isActive;
+      case "public":
+        return doctor.isPublic;
+      case "hidden":
+        return !doctor.isPublic;
+      default:
+        return true;
+    }
+  });
+
   const activeCount = doctors.filter((doctor) => doctor.isActive).length;
   const inactiveCount = doctors.length - activeCount;
+  const publicCount = doctors.filter((doctor) => doctor.isPublic).length;
+  const hiddenCount = doctors.length - publicCount;
   const editingDoctor = query.edit
     ? doctors.find((doctor) => doctor.id === query.edit) ?? null
     : null;
@@ -121,10 +201,10 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
   return (
     <PanelPage
       eyebrow="Profesionales"
-      title="Profesionales"
-      description="Gestiona a las personas que atienden reservas en tu negocio. Desde aquí puedes crear, editar, activar, desactivar y entrar a la disponibilidad real de cada profesional."
+      title="Catalogo publico de profesionales"
+      description="Gestiona a las personas que atienden reservas en tu negocio. Controla visibilidad, orden publico, descripcion y disponibilidad sin tocar el historial operativo."
     >
-      <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.95fr)_minmax(0,1.35fr)]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.4fr)]">
         <div className="grid gap-6">
           <article className="surface-card p-6 sm:p-7">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
@@ -149,16 +229,34 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   {inactiveCount}
                 </p>
               </div>
+
+              <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                  Publicos
+                </p>
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
+                  {publicCount}
+                </p>
+              </div>
+
+              <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                  Ocultos
+                </p>
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
+                  {hiddenCount}
+                </p>
+              </div>
             </div>
 
             <div className="mt-5 grid gap-3 text-sm text-muted">
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                Los profesionales con reservas no se eliminan físicamente. Si hace
-                falta retirarlos, se desactivan.
+                Solo los profesionales activos y visibles aparecen en el booking
+                publico.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                La disponibilidad operativa se sigue gestionando por profesional desde
-                su ficha.
+                El orden publico controla el catalogo del booking; primero se usa
+                `publicOrder` y despues el nombre.
               </div>
             </div>
           </article>
@@ -183,14 +281,14 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
                   {editingDoctor
-                    ? "Actualiza nombre, rol o especialidad, descripción y estado sin salir del panel."
-                    : "Agrega un nuevo profesional para empezar a manejar agenda y disponibilidad real."}
+                    ? "Actualiza perfil publico, foto, visibilidad y datos operativos sin salir del panel."
+                    : "Agrega un profesional nuevo y decide si debe publicarse de inmediato en el booking."}
                 </p>
               </div>
 
               {editingDoctor ? (
                 <Link
-                  href="/app/doctors"
+                  href={filter === "all" ? "/app/doctors" : `/app/doctors?filter=${filter}`}
                   className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-muted transition hover:border-brand-200 hover:text-brand-700"
                 >
                   Cancelar
@@ -205,6 +303,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
               {editingDoctor ? (
                 <input type="hidden" name="doctorId" value={editingDoctor.id} />
               ) : null}
+              <input type="hidden" name="returnFilter" value={filter} />
 
               <label className="text-sm font-semibold text-ink">
                 Nombre
@@ -213,42 +312,81 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   required
                   defaultValue={editingDoctor?.name ?? ""}
                   className={formFieldClassName()}
-                  placeholder="Sofía Herrera"
+                  placeholder="Sofia Herrera"
                 />
               </label>
 
-              <label className="text-sm font-semibold text-ink">
-                Rol o especialidad opcional
-                <input
-                  name="specialty"
-                  defaultValue={editingDoctor?.specialty ?? ""}
-                  className={formFieldClassName()}
-                  placeholder="Estilista senior"
-                />
-              </label>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="text-sm font-semibold text-ink">
+                  Rol o especialidad
+                  <input
+                    name="specialty"
+                    defaultValue={editingDoctor?.specialty ?? ""}
+                    className={formFieldClassName()}
+                    placeholder="Estilista senior"
+                  />
+                </label>
+
+                <label className="text-sm font-semibold text-ink">
+                  Foto publica opcional
+                  <input
+                    name="photoUrl"
+                    type="url"
+                    defaultValue={editingDoctor?.photoUrl ?? ""}
+                    className={formFieldClassName()}
+                    placeholder="https://..."
+                  />
+                </label>
+              </div>
 
               <label className="text-sm font-semibold text-ink">
-                Descripción opcional
+                Descripcion opcional
                 <textarea
                   name="bio"
                   rows={4}
                   defaultValue={editingDoctor?.bio ?? ""}
                   className={formFieldClassName()}
-                  placeholder="Describe enfoque, experiencia o tipo de atención."
+                  placeholder="Describe enfoque, experiencia o tipo de atencion."
                 />
               </label>
 
-              <label className="text-sm font-semibold text-ink">
-                Estado
-                <select
-                  name="isActive"
-                  defaultValue={editingDoctor?.isActive === false ? "false" : "true"}
-                  className={formFieldClassName()}
-                >
-                  <option value="true">Activo</option>
-                  <option value="false">Inactivo</option>
-                </select>
-              </label>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <label className="text-sm font-semibold text-ink">
+                  Orden publico
+                  <input
+                    name="publicOrder"
+                    type="number"
+                    min="0"
+                    step="1"
+                    defaultValue={editingDoctor?.publicOrder ?? 0}
+                    className={formFieldClassName()}
+                  />
+                </label>
+
+                <label className="text-sm font-semibold text-ink">
+                  Visibilidad
+                  <select
+                    name="isPublic"
+                    defaultValue={editingDoctor?.isPublic === false ? "false" : "true"}
+                    className={formFieldClassName()}
+                  >
+                    <option value="true">Visible en booking</option>
+                    <option value="false">Oculto en booking</option>
+                  </select>
+                </label>
+
+                <label className="text-sm font-semibold text-ink">
+                  Estado
+                  <select
+                    name="isActive"
+                    defaultValue={editingDoctor?.isActive === false ? "false" : "true"}
+                    className={formFieldClassName()}
+                  >
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
+                  </select>
+                </label>
+              </div>
 
               <button
                 type="submit"
@@ -261,44 +399,109 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
         </div>
 
         <div className="grid gap-6">
-          {doctors.length ? (
-            doctors.map((doctor) => (
+          <article className="surface-card p-6 sm:p-7">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
+                  Profesionales del catalogo
+                </p>
+                <p className="mt-2 text-sm leading-7 text-muted">
+                  Filtra activos, inactivos, publicos u ocultos y ajusta el booking
+                  sin salir del listado.
+                </p>
+              </div>
+
+              <form className="grid gap-3 sm:grid-cols-[220px_auto]">
+                <label className="text-sm font-semibold text-ink">
+                  Filtro
+                  <select
+                    name="filter"
+                    defaultValue={filter}
+                    className={formFieldClassName()}
+                  >
+                    <option value="all">Todos</option>
+                    <option value="active">Solo activos</option>
+                    <option value="inactive">Solo inactivos</option>
+                    <option value="public">Solo publicos</option>
+                    <option value="hidden">Solo ocultos</option>
+                  </select>
+                </label>
+
+                <div className="flex gap-3 self-end">
+                  <button
+                    type="submit"
+                    className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                  >
+                    Aplicar
+                  </button>
+
+                  {filter !== "all" ? (
+                    <Link
+                      href="/app/doctors"
+                      className="rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                    >
+                      Limpiar
+                    </Link>
+                  ) : null}
+                </div>
+              </form>
+            </div>
+          </article>
+
+          {visibleDoctors.length ? (
+            visibleDoctors.map((doctor) => (
               <article key={doctor.id} className="surface-card p-6 sm:p-7">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="text-2xl font-semibold tracking-[-0.05em] text-ink">
-                      {doctor.name}
-                    </p>
-                    <p className="mt-2 text-sm text-muted">
-                      {doctor.specialty ?? "Sin rol o especialidad registrada"}
-                    </p>
+                <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                  <div className="flex min-w-0 items-start gap-4">
+                    <ProfessionalAvatar
+                      name={doctor.name}
+                      photoUrl={doctor.photoUrl}
+                      size="lg"
+                    />
+
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="text-2xl font-semibold tracking-[-0.05em] text-ink">
+                          {doctor.name}
+                        </p>
+                        <span className={getDoctorStatusBadgeClassName(doctor.isActive)}>
+                          {doctor.isActive ? "Activo" : "Inactivo"}
+                        </span>
+                        <span
+                          className={getDoctorVisibilityBadgeClassName(doctor.isPublic)}
+                        >
+                          {doctor.isPublic ? "Publico" : "Oculto"}
+                        </span>
+                      </div>
+
+                      <p className="mt-3 text-sm font-medium text-muted">
+                        {doctor.specialty ?? "Sin rol o especialidad registrada"}
+                      </p>
+                      <p className="mt-2 text-sm leading-7 text-muted">
+                        {doctor.bio ??
+                          "Sin descripcion registrada para este profesional."}
+                      </p>
+                    </div>
                   </div>
 
-                  <span
-                    className={
-                      doctor.isActive
-                        ? "rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700"
-                        : "rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600"
+                  <Link
+                    href={
+                      filter === "all"
+                        ? `/app/doctors?edit=${doctor.id}`
+                        : `/app/doctors?edit=${doctor.id}&filter=${filter}`
                     }
+                    className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
                   >
-                    {doctor.isActive ? "Activo" : "Inactivo"}
-                  </span>
+                    Editar
+                  </Link>
                 </div>
 
-                {doctor.bio ? (
-                  <p className="mt-4 text-sm leading-7 text-muted">{doctor.bio}</p>
-                ) : (
-                  <p className="mt-4 text-sm leading-7 text-muted">
-                    Sin descripción registrada para este profesional.
-                  </p>
-                )}
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
                       Bloques activos
                     </p>
-                    <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+                    <p className="mt-3 text-lg font-semibold text-ink">
                       {doctor.availabilityBlocks.length}
                     </p>
                   </div>
@@ -307,30 +510,31 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
                       Ausencias futuras
                     </p>
-                    <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+                    <p className="mt-3 text-lg font-semibold text-ink">
                       {doctor.timeOffs.length}
                     </p>
                   </div>
 
                   <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                      Citas asociadas
-                      
+                      Orden publico
                     </p>
-                    <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+                    <p className="mt-3 text-lg font-semibold text-ink">
+                      {doctor.publicOrder}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                      Reservas asociadas
+                    </p>
+                    <p className="mt-3 text-lg font-semibold text-ink">
                       {doctor._count.appointments}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <Link
-                    href={`/app/doctors?edit=${doctor.id}`}
-                    className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
-                  >
-                    Editar
-                  </Link>
-
                   <Link
                     href={`/app/doctors/${doctor.id}/availability`}
                     className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
@@ -340,6 +544,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
 
                   <form action={toggleDoctorStatusAction}>
                     <input type="hidden" name="doctorId" value={doctor.id} />
+                    <input type="hidden" name="returnFilter" value={filter} />
                     <input
                       type="hidden"
                       name="nextIsActive"
@@ -356,17 +561,38 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                       {doctor.isActive ? "Desactivar" : "Activar"}
                     </button>
                   </form>
+
+                  <form action={toggleDoctorPublicVisibilityAction}>
+                    <input type="hidden" name="doctorId" value={doctor.id} />
+                    <input type="hidden" name="returnFilter" value={filter} />
+                    <input
+                      type="hidden"
+                      name="nextIsPublic"
+                      value={doctor.isPublic ? "false" : "true"}
+                    />
+                    <button
+                      type="submit"
+                      className={
+                        doctor.isPublic
+                          ? "rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700"
+                          : "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700"
+                      }
+                    >
+                      {doctor.isPublic ? "Ocultar del booking" : "Mostrar en booking"}
+                    </button>
+                  </form>
                 </div>
               </article>
             ))
           ) : (
             <article className="surface-card p-7">
               <p className="text-lg font-semibold text-ink">
-                Todavía no hay profesionales cargados para este negocio.
+                No hay profesionales para este filtro.
               </p>
               <p className="mt-3 text-sm leading-7 text-muted">
-                Crea el primer profesional desde el formulario para empezar a operar
-                agenda y disponibilidad.
+                {doctors.length
+                  ? "Ajusta el filtro o cambia la visibilidad de un profesional existente."
+                  : "Crea el primer profesional para empezar a construir el catalogo publico del negocio."}
               </p>
             </article>
           )}

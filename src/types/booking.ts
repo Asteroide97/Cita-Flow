@@ -62,6 +62,7 @@ export type BookingDoctorOption = {
   name: string;
   specialty: string | null;
   bio: string | null;
+  photoUrl: string | null;
 };
 
 export type BookingFlashMessage = {

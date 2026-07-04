@@ -161,15 +161,15 @@ export default async function PublicBookingPage({
       where: {
         clinicId: typedClinic.id,
         isActive: true,
+        isPublic: true,
       },
-      orderBy: {
-        name: "asc",
-      },
+      orderBy: [{ publicOrder: "asc" }, { name: "asc" }],
       select: {
         id: true,
         name: true,
         specialty: true,
         bio: true,
+        photoUrl: true,
       },
     }),
   ]);

@@ -223,6 +223,9 @@ model Doctor {
   name                  String
   specialty             String?
   bio                   String?
+  publicOrder           Int                    @default(0)
+  isPublic              Boolean                @default(true)
+  photoUrl              String?
   isActive              Boolean                @default(true)
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
@@ -236,6 +239,7 @@ model Doctor {
 
   @@unique([clinicId, userId])
   @@index([clinicId, isActive])
+  @@index([clinicId, isActive, isPublic, publicOrder])
   @@index([clinicId, name])
 }
 
@@ -401,21 +405,21 @@ model WaitlistEntry {
 }
 
 model WaitlistOffer {
-  id             String              @id @default(cuid())
-  clinicId       String
+  id              String              @id @default(cuid())
+  clinicId        String
   waitlistEntryId String
-  appointmentId  String?
-  offeredStartAt DateTime
-  offeredEndAt   DateTime
-  status         WaitlistOfferStatus @default(PENDING)
-  expiresAt      DateTime
-  tokenHash      String              @unique
-  consumedAt     DateTime?
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  clinic         Clinic              @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  waitlistEntry  WaitlistEntry       @relation(fields: [waitlistEntryId], references: [id], onDelete: Cascade)
-  appointment    Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  appointmentId   String?
+  offeredStartAt  DateTime
+  offeredEndAt    DateTime
+  status          WaitlistOfferStatus @default(PENDING)
+  expiresAt       DateTime
+  tokenHash       String              @unique
+  consumedAt      DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  clinic          Clinic              @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  waitlistEntry   WaitlistEntry       @relation(fields: [waitlistEntryId], references: [id], onDelete: Cascade)
+  appointment     Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
 
   @@index([clinicId, status, expiresAt])
   @@index([waitlistEntryId, createdAt])

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ProfessionalAvatar } from "@/components/doctors/professional-avatar";
 import { buildBookingAnchorHref } from "@/lib/booking/public";
 import type { BookingDoctorOption } from "@/types/booking";
 
@@ -26,12 +27,12 @@ export function DoctorStep({
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
         Selecciona a la persona con quien deseas reservar. Solo se muestran
-        profesionales activos.
+        profesionales activos y visibles en el booking publico.
       </p>
 
       {!doctors.length ? (
         <div className="mt-6 rounded-[24px] border border-dashed border-line/90 bg-surface-soft px-5 py-6 text-sm leading-7 text-muted">
-          Este negocio aún no tiene profesionales disponibles para booking público.
+          Este negocio aun no tiene profesionales visibles para booking publico.
         </div>
       ) : (
         <div className="mt-6 grid gap-3">
@@ -63,32 +64,47 @@ export function DoctorStep({
                 }
               >
                 <div className="flex items-start gap-4">
-                  <span
-                    className={
-                      isSelected
-                        ? "mt-1 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold"
-                        : "mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-line/80 text-[10px] font-bold text-muted"
-                    }
-                    style={
-                      isSelected
-                        ? {
-                            borderColor: "var(--booking-brand)",
-                            color: "var(--booking-brand)",
-                          }
-                        : undefined
-                    }
-                  >
-                    {isSelected ? "✓" : "2"}
-                  </span>
+                  <div className="flex flex-col items-center gap-3">
+                    <span
+                      className={
+                        isSelected
+                          ? "flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold"
+                          : "flex h-5 w-5 items-center justify-center rounded-full border border-line/80 text-[10px] font-bold text-muted"
+                      }
+                      style={
+                        isSelected
+                          ? {
+                              borderColor: "var(--booking-brand)",
+                              color: "var(--booking-brand)",
+                            }
+                          : undefined
+                      }
+                    >
+                      {isSelected ? "OK" : "2"}
+                    </span>
+
+                    <ProfessionalAvatar
+                      name={doctor.name}
+                      photoUrl={doctor.photoUrl}
+                      size="md"
+                      className="rounded-[20px]"
+                    />
+                  </div>
+
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
                       <p className="text-base font-semibold text-ink">{doctor.name}</p>
                       <span className="rounded-full border border-line/80 bg-surface-soft px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-                        {doctor.specialty ?? "Atención"}
+                        {doctor.specialty ?? "Atencion"}
                       </span>
                     </div>
+
                     <p className="mt-2 text-sm leading-7 text-muted">
-                      {doctor.bio ?? "Agenda disponible para reservas en línea."}
+                      {doctor.bio ?? "Agenda disponible para reservas en linea."}
+                    </p>
+
+                    <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                      Perfil publico del profesional
                     </p>
                   </div>
                 </div>

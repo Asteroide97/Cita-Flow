@@ -133,6 +133,8 @@ async function main() {
       name: "Sofia Herrera",
       specialty: "Atencion general",
       bio: "Atencion inicial, seguimiento y agenda diaria de servicios.",
+      publicOrder: 0,
+      isPublic: true,
       isActive: true,
     },
     create: {
@@ -141,6 +143,8 @@ async function main() {
       name: "Sofia Herrera",
       specialty: "Atencion general",
       bio: "Atencion inicial, seguimiento y agenda diaria de servicios.",
+      publicOrder: 0,
+      isPublic: true,
       isActive: true,
     },
   });
@@ -152,6 +156,8 @@ async function main() {
       name: "Diego Campos",
       specialty: "Servicio especializado",
       bio: "Reservas de valoracion, revisiones y atencion especializada.",
+      publicOrder: 1,
+      isPublic: true,
       isActive: true,
     },
     create: {
@@ -160,6 +166,8 @@ async function main() {
       name: "Diego Campos",
       specialty: "Servicio especializado",
       bio: "Reservas de valoracion, revisiones y atencion especializada.",
+      publicOrder: 1,
+      isPublic: true,
       isActive: true,
     },
   });

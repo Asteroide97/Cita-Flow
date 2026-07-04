@@ -23,6 +23,9 @@ type BookingShellProps = {
   clinicName: string;
   clinicSlug: string;
   clinicDescription?: string | null;
+  clinicWebsiteUrl?: string | null;
+  clinicContactEmail?: string | null;
+  clinicContactPhone?: string | null;
   title: string;
   description: string;
   brandColor: string;
@@ -34,12 +37,18 @@ export function BookingShell({
   clinicName,
   clinicSlug,
   clinicDescription,
+  clinicWebsiteUrl,
+  clinicContactEmail,
+  clinicContactPhone,
   title,
   description,
   brandColor,
   aside,
   children,
 }: BookingShellProps) {
+  const hasContactDetails =
+    Boolean(clinicWebsiteUrl) || Boolean(clinicContactEmail) || Boolean(clinicContactPhone);
+
   return (
     <div
       className="min-h-screen text-ink"
@@ -83,6 +92,36 @@ export function BookingShell({
               <p className="mt-2 max-w-xs text-xs leading-6 text-muted">
                 {clinicDescription}
               </p>
+            ) : null}
+            {hasContactDetails ? (
+              <div className="mt-3 grid gap-2 border-t border-line/70 pt-3 text-xs text-muted">
+                {clinicWebsiteUrl ? (
+                  <a
+                    href={clinicWebsiteUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="break-all font-medium text-ink transition hover:text-brand-700"
+                  >
+                    Sitio web: {clinicWebsiteUrl}
+                  </a>
+                ) : null}
+                {clinicContactEmail ? (
+                  <a
+                    href={`mailto:${clinicContactEmail}`}
+                    className="break-all font-medium text-ink transition hover:text-brand-700"
+                  >
+                    Email: {clinicContactEmail}
+                  </a>
+                ) : null}
+                {clinicContactPhone ? (
+                  <a
+                    href={`tel:${clinicContactPhone}`}
+                    className="font-medium text-ink transition hover:text-brand-700"
+                  >
+                    Telefono: {clinicContactPhone}
+                  </a>
+                ) : null}
+              </div>
             ) : null}
           </div>
         </div>

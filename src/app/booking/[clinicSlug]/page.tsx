@@ -96,8 +96,12 @@ export default async function PublicBookingPage({
       timezone: true,
       currency: true,
       brandColor: true,
+      businessType: true,
       publicName: true,
       publicDescription: true,
+      websiteUrl: true,
+      contactEmail: true,
+      contactPhone: true,
       isActive: true,
     },
   });
@@ -218,6 +222,9 @@ export default async function PublicBookingPage({
       clinicName={typedClinic.name}
       clinicSlug={typedClinic.slug}
       clinicDescription={typedClinic.publicDescription}
+      clinicWebsiteUrl={typedClinic.websiteUrl}
+      clinicContactEmail={typedClinic.contactEmail}
+      clinicContactPhone={typedClinic.contactPhone}
       title="Reserva tu horario"
       description={
         typedClinic.publicDescription

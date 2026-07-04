@@ -135,7 +135,10 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
 
   const flash = resolveFlashMessage(query.status, query.error);
   const bookingUrl = `/booking/${clinic.slug}`;
+  const fullBookingUrl = new URL(bookingUrl, brand.appUrl).toString();
   const displayName = clinic.publicName ?? clinic.name;
+  const hasPublicContact =
+    Boolean(clinic.websiteUrl) || Boolean(clinic.contactEmail) || Boolean(clinic.contactPhone);
 
   return (
     <PanelPage
@@ -167,7 +170,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                   Link de booking
                 </p>
                 <p className="mt-2 break-all text-sm font-semibold text-ink">
-                  {bookingUrl}
+                  {fullBookingUrl}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-3">
                   <Link
@@ -177,6 +180,29 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                     Abrir booking
                   </Link>
                 </div>
+              </div>
+
+              <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                  Contacto publico
+                </p>
+                {hasPublicContact ? (
+                  <div className="mt-3 grid gap-2 text-sm text-ink">
+                    {clinic.websiteUrl ? (
+                      <p className="break-all font-medium">{clinic.websiteUrl}</p>
+                    ) : null}
+                    {clinic.contactEmail ? (
+                      <p className="break-all font-medium">{clinic.contactEmail}</p>
+                    ) : null}
+                    {clinic.contactPhone ? (
+                      <p className="font-medium">{clinic.contactPhone}</p>
+                    ) : null}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-muted">
+                    Agrega sitio, email o telefono para mostrarlos en el booking.
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">

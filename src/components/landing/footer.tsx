@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { footerLinks } from "@/data/landing";
+import { brand } from "@/lib/brand";
 
 export function Footer() {
   return (
@@ -19,13 +20,12 @@ export function Footer() {
                   </span>
                 </span>
                 <p className="text-xl font-extrabold tracking-[-0.05em] text-white">
-                  Agenda Viva
+                  {brand.name}
                 </p>
               </div>
 
               <p className="mt-4 text-sm leading-7 text-slate-300">
-                Plataforma SaaS de reservas para negocios de servicios que buscan
-                operar con más orden, confirmaciones y menos ausencias.
+                {brand.shortTagline}
               </p>
             </div>
 
@@ -59,7 +59,7 @@ export function Footer() {
           </div>
 
           <div className="mt-8 border-t border-white/10 pt-5 text-sm text-slate-400">
-            © 2026 Agenda Viva. Todos los derechos reservados.
+            © 2026 {brand.name}. Todos los derechos reservados.
           </div>
         </div>
       </div>

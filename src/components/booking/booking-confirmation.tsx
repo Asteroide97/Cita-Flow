@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
+import { brand } from "@/lib/brand";
 import type { BookingConfirmationData } from "@/types/booking";
 
 type BookingConfirmationProps = {
@@ -88,7 +89,7 @@ export function BookingConfirmation({
           href="/"
           className="inline-flex rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
         >
-          Volver a Agenda Viva
+          Volver a {brand.name}
         </Link>
       </div>
     </section>

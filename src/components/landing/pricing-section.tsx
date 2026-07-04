@@ -1,4 +1,5 @@
 import { pricingFeatures } from "@/data/landing";
+import { brand } from "@/lib/brand";
 
 import { ButtonLink } from "../ui/button-link";
 import { SectionHeading } from "../ui/section-heading";
@@ -19,7 +20,7 @@ export function PricingSection() {
           <div className="grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:items-start">
             <div>
               <div className="inline-flex rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Agenda Viva Pro
+                {brand.name} Pro
               </div>
 
               <div className="mt-4 inline-flex rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">

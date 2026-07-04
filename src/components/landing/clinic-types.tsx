@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { clinicTypes } from "@/data/landing";
+import { brand } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 import { SectionHeading } from "../ui/section-heading";
@@ -18,7 +19,7 @@ export function ClinicTypes() {
       <SectionHeading
         eyebrow="Tipos de negocio"
         title="¿Qué tipo de negocio tienes?"
-        description="Cada operación tiene ritmos, servicios y horarios distintos. Agenda Viva se adapta a negocios que viven de su agenda."
+        description={`Cada operación tiene ritmos, servicios y horarios distintos. ${brand.name} se adapta a negocios que viven de su agenda.`}
       />
 
       <div className="mt-16">

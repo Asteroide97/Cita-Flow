@@ -1,4 +1,5 @@
 import { faqs } from "@/data/landing";
+import { brand } from "@/lib/brand";
 
 import { SectionHeading } from "../ui/section-heading";
 import { SectionShell } from "../ui/section-shell";
@@ -9,7 +10,7 @@ export function FAQSection() {
       <SectionHeading
         eyebrow="FAQ"
         title="Preguntas frecuentes"
-        description="Respuestas rápidas a las dudas más comunes sobre cómo operaría Agenda Viva en un negocio de servicios."
+        description={`Respuestas rápidas a las dudas más comunes sobre cómo operaría ${brand.name} en un negocio de servicios.`}
         align="center"
       />
 

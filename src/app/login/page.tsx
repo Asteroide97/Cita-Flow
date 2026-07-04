@@ -3,11 +3,12 @@ import { redirect } from "next/navigation";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 import { LoginForm } from "@/components/auth/login-form";
+import { brand, withBrandTitle } from "@/lib/brand";
 import { getCurrentAuthContext } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
-  title: "Iniciar sesion | Agenda Viva",
-  description: "Acceso al panel SaaS de Agenda Viva.",
+  title: withBrandTitle("Iniciar sesion"),
+  description: `Acceso al panel SaaS de ${brand.name}.`,
 };
 
 const loginHighlights = [

@@ -13,6 +13,7 @@ import {
 } from "@/lib/appointments/public-self-service";
 import { validateAppointmentToken } from "@/lib/appointments/tokens";
 import { normalizeBookingBrandColor } from "@/lib/booking/public";
+import { brand, withBrandTitle } from "@/lib/brand";
 
 import { cancelAppointmentByTokenAction } from "../../actions";
 
@@ -26,8 +27,8 @@ type CancelAppointmentPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Cancelar reserva | Agenda Viva",
-  description: "Cancela tu reserva desde un enlace público seguro.",
+  title: withBrandTitle("Cancelar reserva"),
+  description: "Cancela tu reserva desde un enlace publico seguro.",
 };
 
 export default async function CancelAppointmentPage({
@@ -102,7 +103,7 @@ export default async function CancelAppointmentPage({
 
     return (
       <PublicAppointmentShell
-        clinicName="Agenda Viva"
+        clinicName={brand.name}
         clinicSlug="autoservicio"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir este enlace"
@@ -122,11 +123,11 @@ export default async function CancelAppointmentPage({
           validation.context.appointment.clinic.brandColor,
         )}
         title="Esta reserva ya no puede cancelarse"
-        description="El estado actual de la reserva ya no permite una cancelación pública."
+        description="El estado actual de la reserva ya no permite una cancelacion publica."
       >
         <TokenErrorState
-          title="La reserva ya no admite cancelación"
-          description="El negocio ya la marcó como cancelada, completada o no-show."
+          title="La reserva ya no admite cancelacion"
+          description="El negocio ya la marco como cancelada, completada o no-show."
         />
       </PublicAppointmentShell>
     );
@@ -142,7 +143,7 @@ export default async function CancelAppointmentPage({
         validation.context.appointment.clinic.brandColor,
       )}
       title="Cancela tu reserva"
-      description="Si ya no podrás asistir, libera el horario para que el negocio pueda reorganizar su agenda."
+      description="Si ya no podras asistir, libera el horario para que el negocio pueda reorganizar su agenda."
     >
       <AppointmentTokenSummary
         clinicName={validation.context.appointment.clinic.name}
@@ -169,7 +170,10 @@ export default async function CancelAppointmentPage({
         </div>
       ) : null}
 
-      <CancelAppointmentForm token={token} action={cancelAppointmentByTokenAction} />
+      <CancelAppointmentForm
+        token={token}
+        action={cancelAppointmentByTokenAction}
+      />
     </PublicAppointmentShell>
   );
 }

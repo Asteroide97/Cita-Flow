@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { brand } from "@/lib/brand";
+
 type AuthHighlight = {
   label: string;
   value: string;
@@ -42,7 +44,9 @@ export function AuthShell({
           </span>
 
           <div>
-            <p className="text-lg font-extrabold tracking-[-0.05em] text-ink">Agenda Viva</p>
+            <p className="text-lg font-extrabold tracking-[-0.05em] text-ink">
+              {brand.name}
+            </p>
             <p className="text-sm text-muted">Acceso al panel SaaS</p>
           </div>
         </Link>

@@ -5,6 +5,7 @@ import { PublicAppointmentShell } from "@/components/public-appointment/public-a
 import { TokenErrorState } from "@/components/public-appointment/token-error-state";
 import { WaitlistOfferSummary } from "@/components/public-appointment/waitlist-offer-summary";
 import { normalizeBookingBrandColor } from "@/lib/booking/public";
+import { brand, withBrandTitle } from "@/lib/brand";
 import {
   resolveWaitlistOfferFlashMessage,
   resolveWaitlistTokenErrorCopy,
@@ -24,7 +25,7 @@ type AcceptWaitlistOfferPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Aceptar oferta | Agenda Viva",
+  title: withBrandTitle("Aceptar oferta"),
   description: "Acepta un horario liberado desde la lista de espera publica.",
 };
 
@@ -99,7 +100,7 @@ export default async function AcceptWaitlistOfferPage({
 
     return (
       <PublicAppointmentShell
-        clinicName="Agenda Viva"
+        clinicName={brand.name}
         clinicSlug="lista-espera"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir esta oferta"
@@ -124,7 +125,7 @@ export default async function AcceptWaitlistOfferPage({
       >
         <TokenErrorState
           title="Oferta no disponible"
-          description="Solicita una nueva confirmación al negocio para continuar."
+          description="Solicita una nueva confirmacion al negocio para continuar."
         />
       </PublicAppointmentShell>
     );
@@ -138,7 +139,7 @@ export default async function AcceptWaitlistOfferPage({
       clinicSlug={validation.context.clinic.slug}
       brandColor={normalizeBookingBrandColor(validation.context.clinic.brandColor)}
       title="Acepta este horario liberado"
-      description="Si el espacio sigue libre, registraremos tu reserva sin que tengas que iniciar sesión."
+      description="Si el espacio sigue libre, registraremos tu reserva sin que tengas que iniciar sesion."
     >
       <WaitlistOfferSummary
         clinicName={validation.context.clinic.name}

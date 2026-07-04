@@ -1,4 +1,5 @@
 import { heroAlerts, heroAppointments, heroMetrics } from "@/data/landing";
+import { brand } from "@/lib/brand";
 
 import { ButtonLink } from "../ui/button-link";
 import { SectionShell } from "../ui/section-shell";
@@ -20,7 +21,7 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-8 text-muted sm:text-[1.18rem]">
-            Agenda Viva ayuda a clínicas, salones, spas, barberías y negocios de
+            {brand.name} ayuda a clínicas, salones, spas, barberías y negocios de
             servicios a recibir reservas, enviar recordatorios, cobrar anticipos y
             recuperar horarios liberados.
           </p>

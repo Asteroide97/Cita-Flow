@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 
+import { brand } from "@/lib/brand";
+
 import "./globals.css";
 
 const manrope = Manrope({
@@ -10,14 +12,14 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Agenda Viva | Reservas para negocios de servicios",
-  description:
-    "Agenda Viva automatiza reservas, recordatorios y horarios liberados para negocios de servicios.",
+  metadataBase: new URL(brand.appUrl),
+  title: brand.metaTitle,
+  description: brand.metaDescription,
   openGraph: {
-    title: "Agenda Viva | Reservas para negocios de servicios",
-    description:
-      "Agenda Viva automatiza reservas, recordatorios y horarios liberados para negocios de servicios.",
-    siteName: "Agenda Viva",
+    title: brand.metaTitle,
+    description: brand.metaDescription,
+    siteName: brand.name,
+    url: brand.appUrl,
     locale: "es_MX",
     type: "website",
   },

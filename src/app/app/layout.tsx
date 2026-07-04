@@ -3,10 +3,11 @@ import type { ReactNode } from "react";
 
 import { PanelShell } from "@/components/app/panel-shell";
 import { requireAuthContext } from "@/lib/auth/session";
+import { brand, withBrandTitle } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Agenda Viva | Panel",
-  description: "Panel protegido del SaaS multi-tenant de Agenda Viva.",
+  title: withBrandTitle("Panel"),
+  description: `Panel protegido del SaaS multi-tenant de ${brand.name}.`,
 };
 
 export default async function SaaSLayout({ children }: { children: ReactNode }) {

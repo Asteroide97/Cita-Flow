@@ -3,11 +3,12 @@ import { redirect } from "next/navigation";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 import { RegisterForm } from "@/components/auth/register-form";
+import { brand, withBrandTitle } from "@/lib/brand";
 import { getCurrentAuthContext } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
-  title: "Registro inicial | Agenda Viva",
-  description: "Crea tu cuenta owner y tu negocio en Agenda Viva.",
+  title: withBrandTitle("Registro inicial"),
+  description: `Crea tu cuenta owner y tu negocio en ${brand.name}.`,
 };
 
 const registerHighlights = [
@@ -50,7 +51,7 @@ export default async function RegisterPage() {
     <AuthShell
       eyebrow="Registro inicial"
       title="Crea tu cuenta owner y deja listo el panel base de tu negocio."
-      description="Este registro inicial activa el primer negocio dentro de Agenda Viva y te da acceso inmediato al panel protegido para seguir creciendo el SaaS."
+      description={`Este registro inicial activa el primer negocio dentro de ${brand.name} y te da acceso inmediato al panel protegido para seguir creciendo el SaaS.`}
       asideTitle="Onboarding base sin romper la landing"
       asideDescription="El alta crea la estructura minima del tenant, mantiene la UI en espanol y deja el proyecto listo para evolucionar a permisos, billing y flujos operativos reales."
       highlights={registerHighlights}

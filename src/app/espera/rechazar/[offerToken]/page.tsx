@@ -5,6 +5,7 @@ import { RejectWaitlistOfferForm } from "@/components/public-appointment/reject-
 import { TokenErrorState } from "@/components/public-appointment/token-error-state";
 import { WaitlistOfferSummary } from "@/components/public-appointment/waitlist-offer-summary";
 import { normalizeBookingBrandColor } from "@/lib/booking/public";
+import { brand, withBrandTitle } from "@/lib/brand";
 import { resolveWaitlistTokenErrorCopy } from "@/lib/waitlist/public";
 import { readPublicWaitlistOfferResultCookie } from "@/lib/waitlist/public-result";
 import { validateWaitlistOfferToken } from "@/lib/waitlist/tokens";
@@ -18,7 +19,7 @@ type RejectWaitlistOfferPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Rechazar oferta | Agenda Viva",
+  title: withBrandTitle("Rechazar oferta"),
   description: "Rechaza un horario liberado desde la lista de espera publica.",
 };
 
@@ -92,7 +93,7 @@ export default async function RejectWaitlistOfferPage({
 
     return (
       <PublicAppointmentShell
-        clinicName="Agenda Viva"
+        clinicName={brand.name}
         clinicSlug="lista-espera"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir esta oferta"
@@ -117,7 +118,7 @@ export default async function RejectWaitlistOfferPage({
       >
         <TokenErrorState
           title="Oferta no disponible"
-          description="Solicita una nueva confirmación al negocio para continuar."
+          description="Solicita una nueva confirmacion al negocio para continuar."
         />
       </PublicAppointmentShell>
     );

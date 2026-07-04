@@ -13,6 +13,7 @@ import {
   DEMO_CLINIC_SLUG,
   DEMO_TIMEZONE,
 } from "../src/lib/demo-tenant";
+import { brand } from "../src/lib/brand";
 import { hashPassword } from "../src/lib/security/password";
 
 function getDatabaseUrl() {
@@ -76,7 +77,7 @@ async function main() {
     update: {
       name: DEMO_CLINIC_NAME,
       slug: DEMO_CLINIC_SLUG,
-      legalName: "Agenda Viva Negocio Demo S.A. de C.V.",
+      legalName: brand.demo.legalName,
       timezone: DEMO_TIMEZONE,
       currency: "MXN",
       brandColor: "#2563eb",
@@ -84,8 +85,8 @@ async function main() {
       publicName: "Negocio Demo",
       publicDescription:
         "Reservas online para servicios, atencion especializada y horarios por profesional.",
-      websiteUrl: "https://demo.agendaviva.app",
-      contactEmail: "hola@agendaviva-demo.app",
+      websiteUrl: brand.demo.websiteUrl,
+      contactEmail: brand.demo.contactEmail,
       contactPhone: "+525500000010",
       isActive: true,
     },
@@ -93,7 +94,7 @@ async function main() {
       id: DEMO_CLINIC_ID,
       name: DEMO_CLINIC_NAME,
       slug: DEMO_CLINIC_SLUG,
-      legalName: "Agenda Viva Negocio Demo S.A. de C.V.",
+      legalName: brand.demo.legalName,
       timezone: DEMO_TIMEZONE,
       currency: "MXN",
       brandColor: "#2563eb",
@@ -101,8 +102,8 @@ async function main() {
       publicName: "Negocio Demo",
       publicDescription:
         "Reservas online para servicios, atencion especializada y horarios por profesional.",
-      websiteUrl: "https://demo.agendaviva.app",
-      contactEmail: "hola@agendaviva-demo.app",
+      websiteUrl: brand.demo.websiteUrl,
+      contactEmail: brand.demo.contactEmail,
       contactPhone: "+525500000010",
       isActive: true,
     },

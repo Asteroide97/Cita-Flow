@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { brand } from "@/lib/brand";
+
 function hexToRgba(hexColor: string, alpha: number) {
   const normalized = hexColor.replace("#", "");
   const compact =
@@ -65,7 +67,7 @@ export function BookingShell({
 
             <div>
               <p className="text-lg font-extrabold tracking-[-0.05em] text-ink">
-                Agenda Viva
+                {brand.name}
               </p>
               <p className="text-sm text-muted">Reserva pública del negocio</p>
             </div>

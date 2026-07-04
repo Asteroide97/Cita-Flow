@@ -24,6 +24,7 @@ import {
   normalizeBookingBrandColor,
   resolveBookingFlashMessage,
 } from "@/lib/booking/public";
+import { brand } from "@/lib/brand";
 import { prisma } from "@/lib/prisma";
 import type {
   BookingClinic,
@@ -64,7 +65,7 @@ export async function generateMetadata({
 
   if (!clinic || !clinic.isActive) {
     return {
-      title: "Booking no disponible | Agenda Viva",
+      title: `Booking no disponible | ${brand.name}`,
       description: "El enlace de reserva solicitado no está disponible.",
     };
   }
@@ -72,7 +73,7 @@ export async function generateMetadata({
   const clinicName = getBookingClinicDisplayName(clinic);
 
   return {
-    title: `Reservar en ${clinicName} | Agenda Viva`,
+    title: `Reservar en ${clinicName} | ${brand.name}`,
     description: clinic.publicDescription?.trim()
       ? clinic.publicDescription.trim()
       : `Reserva en ${clinicName} usando la disponibilidad real del negocio.`,
@@ -114,7 +115,7 @@ export default async function PublicBookingPage({
           <p className="text-sm leading-8 text-muted">
             Si llegaste aquí desde un enlace antiguo, solicita al negocio su
             link actualizado. También puedes volver a la página principal de
-            Agenda Viva.
+            {brand.name}.
           </p>
           <div className="mt-6">
             <Link

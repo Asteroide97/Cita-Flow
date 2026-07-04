@@ -5,6 +5,7 @@ import { BookingDraftCard } from "@/components/whatsapp/booking-draft-card";
 import { ConversationThread } from "@/components/whatsapp/conversation-thread";
 import { SimulatorComposer } from "@/components/whatsapp/simulator-composer";
 import { requireAuthContext } from "@/lib/auth/session";
+import { brand, withBrandTitle } from "@/lib/brand";
 import {
   getWhatsAppSimulatorCatalog,
   getWhatsAppSimulatorSnapshot,
@@ -13,8 +14,8 @@ import {
 } from "@/lib/whatsapp/engine";
 
 export const metadata: Metadata = {
-  title: "WhatsApp Simulator | Agenda Viva",
-  description: "Simulador interno del motor conversacional de WhatsApp para Agenda Viva.",
+  title: withBrandTitle("WhatsApp Simulator"),
+  description: `Simulador interno del motor conversacional de WhatsApp para ${brand.name}.`,
 };
 
 type WhatsAppSimulatorPageProps = {

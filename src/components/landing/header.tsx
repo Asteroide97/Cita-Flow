@@ -1,10 +1,13 @@
 import Link from "next/link";
 
 import { navigationLinks } from "@/data/landing";
+import { brand } from "@/lib/brand";
 
 import { ButtonLink } from "../ui/button-link";
 
 export function Header() {
+  const [brandLead, ...brandRest] = brand.name.split(" ");
+
   return (
     <header className="sticky top-0 z-50 px-4 pt-4 sm:px-6">
       <div className="mx-auto flex max-w-6xl items-center justify-between rounded-full border border-white/80 bg-white/82 px-3 py-3 shadow-soft backdrop-blur-xl sm:px-4 md:px-6">
@@ -19,7 +22,7 @@ export function Header() {
           </span>
 
           <span className="block text-lg font-extrabold tracking-[-0.05em] text-ink sm:text-xl">
-            Agenda <span className="text-brand-600">Viva</span>
+            {brandLead} <span className="text-brand-600">{brandRest.join(" ")}</span>
           </span>
         </Link>
 

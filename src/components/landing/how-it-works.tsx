@@ -1,4 +1,5 @@
 import { howItWorksSteps } from "@/data/landing";
+import { brand } from "@/lib/brand";
 
 import { SectionHeading } from "../ui/section-heading";
 import { SectionShell } from "../ui/section-shell";
@@ -9,7 +10,7 @@ export function HowItWorks() {
       <SectionHeading
         eyebrow="Cómo funciona"
         title="Funciona en 4 pasos"
-        description="Agenda Viva simplifica la operación desde la configuración inicial hasta el seguimiento automático de cada reserva."
+        description={`${brand.name} simplifica la operación desde la configuración inicial hasta el seguimiento automático de cada reserva.`}
         align="center"
       />
 

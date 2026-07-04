@@ -1,3 +1,5 @@
+import { brand, brandSupportMailto } from "@/lib/brand";
+
 export type NavLink = {
   label: string;
   href: string;
@@ -203,7 +205,7 @@ export const howItWorksSteps: HowStep[] = [
   },
   {
     number: "04",
-    title: "Agenda Viva automatiza el seguimiento",
+    title: `${brand.name} automatiza el seguimiento`,
     description:
       "Envía recordatorios, registra anticipos y recupera horarios liberados con lista de espera.",
   },
@@ -632,12 +634,12 @@ export const faqs: Faq[] = [
   {
     question: "¿Necesito tarjeta para empezar?",
     answer:
-      "No necesariamente. Puedes evaluar el flujo comercial primero y activar cobros o suscripción cuando decidas operar formalmente con Agenda Viva.",
+      `No necesariamente. Puedes evaluar el flujo comercial primero y activar cobros o suscripción cuando decidas operar formalmente con ${brand.name}.`,
   },
   {
     question: "¿Puedo cobrar anticipos?",
     answer:
-      "Sí. Agenda Viva está pensado para permitir anticipos por servicio o tipo de reserva cuando quieras proteger espacios de alto valor.",
+      `Sí. ${brand.name} está pensado para permitir anticipos por servicio o tipo de reserva cuando quieras proteger espacios de alto valor.`,
   },
   {
     question: "¿Funciona con WhatsApp?",
@@ -669,7 +671,7 @@ export const faqs: Faq[] = [
 export const footerLinks = [
   { label: "Producto", href: "#beneficios" },
   { label: "Precios", href: "#precios" },
-  { label: "Soporte", href: "mailto:hola@agendaviva.app" },
+  { label: "Soporte", href: brandSupportMailto },
   { label: "Privacidad", href: "#footer" },
   { label: "Términos", href: "#footer" },
 ];

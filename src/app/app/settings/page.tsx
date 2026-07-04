@@ -6,6 +6,7 @@ import {
   getBusinessTypeLabel,
 } from "@/data/business-types";
 import { requireAuthContext } from "@/lib/auth/session";
+import { brand } from "@/lib/brand";
 import { prisma } from "@/lib/prisma";
 
 import { updateBusinessSettingsAction } from "./actions";
@@ -140,7 +141,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
     <PanelPage
       eyebrow="Configuracion"
       title="Configuracion del negocio"
-      description="Ajusta la identidad publica de tu negocio, el slug de booking y los datos base que usara Agenda Viva en el panel y en la experiencia publica."
+      description={`Ajusta la identidad publica de tu negocio, el slug de booking y los datos base que usara ${brand.name} en el panel y en la experiencia publica.`}
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.38fr)]">
         <div className="grid gap-6">

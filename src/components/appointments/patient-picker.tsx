@@ -1,4 +1,5 @@
 import type { AppointmentPatientOption } from "@/types/appointments";
+import { brand } from "@/lib/brand";
 
 import {
   appointmentFieldClassName,
@@ -25,7 +26,7 @@ export function PatientPicker({ patients }: PatientPickerProps) {
       </label>
 
       <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4 text-sm text-muted">
-        Si no eliges un cliente existente, Agenda Viva intentara reutilizar uno del
+        Si no eliges un cliente existente, {brand.name} intentara reutilizar uno del
         mismo negocio si encuentra el mismo telefono.
       </div>
 

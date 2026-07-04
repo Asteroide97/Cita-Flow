@@ -11,10 +11,9 @@ import {
   resolvePublicAppointmentFlashMessage,
   resolveTokenErrorCopy,
 } from "@/lib/appointments/public-self-service";
-import {
-  normalizeBookingBrandColor,
-} from "@/lib/booking/public";
 import { validateAppointmentToken } from "@/lib/appointments/tokens";
+import { normalizeBookingBrandColor } from "@/lib/booking/public";
+import { brand, withBrandTitle } from "@/lib/brand";
 
 import { confirmAppointmentByTokenAction } from "../../actions";
 
@@ -28,8 +27,8 @@ type ConfirmAppointmentPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Confirmar reserva | Agenda Viva",
-  description: "Confirma tu reserva desde un enlace público seguro.",
+  title: withBrandTitle("Confirmar reserva"),
+  description: "Confirma tu reserva desde un enlace publico seguro.",
 };
 
 export default async function ConfirmAppointmentPage({
@@ -48,7 +47,7 @@ export default async function ConfirmAppointmentPage({
         clinicName={successResult.clinicName}
         clinicSlug={successResult.clinicSlug}
         brandColor={normalizeBookingBrandColor(successResult.brandColor)}
-        title="Tu reserva ya quedó confirmada"
+        title="Tu reserva ya quedo confirmada"
         description={successResult.message}
       >
         <article className="surface-card p-6 sm:p-8">
@@ -104,7 +103,7 @@ export default async function ConfirmAppointmentPage({
 
     return (
       <PublicAppointmentShell
-        clinicName="Agenda Viva"
+        clinicName={brand.name}
         clinicSlug="autoservicio"
         brandColor={normalizeBookingBrandColor(null)}
         title="No pudimos abrir este enlace"
@@ -124,10 +123,10 @@ export default async function ConfirmAppointmentPage({
           validation.context.appointment.clinic.brandColor,
         )}
         title="Esta reserva ya no puede confirmarse"
-        description="El estado actual de la reserva ya no permite una confirmación pública."
+        description="El estado actual de la reserva ya no permite una confirmacion publica."
       >
         <TokenErrorState
-          title="La reserva ya no admite confirmación"
+          title="La reserva ya no admite confirmacion"
           description="El horario fue cancelado, completado o marcado como no-show por el negocio."
         />
       </PublicAppointmentShell>

@@ -1,11 +1,17 @@
 import Link from "next/link";
 
 import { PanelPage } from "@/components/app/panel-page";
+import { formatAppointmentMoney } from "@/components/appointments/appointment-helpers";
+import {
+  getServiceCategoryLabel,
+  serviceCategoryOptions,
+} from "@/data/service-categories";
 import { requireAuthContext } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 
 import {
   createServiceAction,
+  toggleServicePublicVisibilityAction,
   toggleServiceStatusAction,
   updateServiceAction,
 } from "./actions";
@@ -15,11 +21,26 @@ type ServicesPageProps = {
     edit?: string;
     status?: string;
     error?: string;
+    filter?: string;
   }>;
 };
 
+type ServiceFilter = "all" | "active" | "inactive" | "public" | "hidden";
+
 function formFieldClassName() {
   return "mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100";
+}
+
+function normalizeFilter(value?: string): ServiceFilter {
+  switch (value) {
+    case "active":
+    case "inactive":
+    case "public":
+    case "hidden":
+      return value;
+    default:
+      return "all";
+  }
 }
 
 function resolveFlashMessage(status?: string, error?: string) {
@@ -28,12 +49,17 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "service-not-found":
         return {
           tone: "error" as const,
-          message: "No encontré ese servicio dentro del negocio actual.",
+          message: "No encontre ese servicio dentro del negocio actual.",
         };
       case "service-name-required":
         return {
           tone: "error" as const,
           message: "El nombre del servicio es obligatorio.",
+        };
+      case "service-category-invalid":
+        return {
+          tone: "error" as const,
+          message: "Selecciona una categoria valida para el servicio.",
         };
       case "service-duration-min":
         return {
@@ -59,6 +85,11 @@ function resolveFlashMessage(status?: string, error?: string) {
         return {
           tone: "error" as const,
           message: "El monto de anticipo no puede ser negativo.",
+        };
+      case "service-public-order-invalid":
+        return {
+          tone: "error" as const,
+          message: "El orden publico debe ser un numero entero igual o mayor a 0.",
         };
       case "service-name-duplicate":
         return {
@@ -99,21 +130,19 @@ function resolveFlashMessage(status?: string, error?: string) {
         tone: "success" as const,
         message: "Servicio desactivado sin borrar historial.",
       };
+    case "service-public":
+      return {
+        tone: "success" as const,
+        message: "Servicio visible nuevamente en el booking publico.",
+      };
+    case "service-hidden":
+      return {
+        tone: "success" as const,
+        message: "Servicio ocultado del booking publico.",
+      };
     default:
       return null;
   }
-}
-
-function formatMoney(cents: number | null, currency: string) {
-  if (cents === null) {
-    return "No configurado";
-  }
-
-  return new Intl.NumberFormat("es-MX", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(cents / 100);
 }
 
 function centsToInputValue(cents: number | null) {
@@ -124,24 +153,45 @@ function centsToInputValue(cents: number | null) {
   return (cents / 100).toFixed(2);
 }
 
+function getServiceStatusBadgeClassName(isActive: boolean) {
+  return isActive
+    ? "rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700"
+    : "rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-700";
+}
+
+function getServiceVisibilityBadgeClassName(isPublic: boolean) {
+  return isPublic
+    ? "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700"
+    : "rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700";
+}
+
 export default async function ServicesPage({ searchParams }: ServicesPageProps) {
   const [authContext, query] = await Promise.all([
     requireAuthContext(),
     searchParams,
   ]);
+  const filter = normalizeFilter(query.filter);
   const services = await prisma.service.findMany({
     where: {
       clinicId: authContext.clinic.id,
     },
-    orderBy: [{ isActive: "desc" }, { createdAt: "asc" }],
+    orderBy: [
+      { isActive: "desc" },
+      { isPublic: "desc" },
+      { publicOrder: "asc" },
+      { name: "asc" },
+    ],
     select: {
       id: true,
       name: true,
+      category: true,
       description: true,
       durationMinutes: true,
       priceCents: true,
       depositRequired: true,
       depositCents: true,
+      publicOrder: true,
+      isPublic: true,
       isActive: true,
       _count: {
         select: {
@@ -151,8 +201,25 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
     },
   });
 
+  const visibleServices = services.filter((service) => {
+    switch (filter) {
+      case "active":
+        return service.isActive;
+      case "inactive":
+        return !service.isActive;
+      case "public":
+        return service.isPublic;
+      case "hidden":
+        return !service.isPublic;
+      default:
+        return true;
+    }
+  });
+
   const activeCount = services.filter((service) => service.isActive).length;
   const inactiveCount = services.length - activeCount;
+  const publicCount = services.filter((service) => service.isPublic).length;
+  const hiddenCount = services.length - publicCount;
   const editingService = query.edit
     ? services.find((service) => service.id === query.edit) ?? null
     : null;
@@ -161,10 +228,10 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
   return (
     <PanelPage
       eyebrow="Servicios"
-      title="Catálogo operativo de servicios"
-      description="Administra los servicios que el negocio puede vender y reservar. Todo queda aislado por tenant y alimenta el panel, la disponibilidad y el simulador local de WhatsApp."
+      title="Catalogo publico de servicios"
+      description="Administra el catalogo que alimenta el booking publico del negocio. Define categoria, visibilidad, orden y reglas operativas sin tocar el historial de reservas."
     >
-      <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.95fr)_minmax(0,1.35fr)]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.4fr)]">
         <div className="grid gap-6">
           <article className="surface-card p-6 sm:p-7">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
@@ -189,15 +256,33 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                   {inactiveCount}
                 </p>
               </div>
+
+              <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                  Publicos
+                </p>
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
+                  {publicCount}
+                </p>
+              </div>
+
+              <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                  Ocultos
+                </p>
+                <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
+                  {hiddenCount}
+                </p>
+              </div>
             </div>
 
             <div className="mt-5 grid gap-3 text-sm text-muted">
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                La duracion minima es de 15 minutos y siempre debe ser multiplo de 15.
+                Solo los servicios activos y visibles aparecen en el booking publico.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                Los servicios no se eliminan físicamente si ya tienen reservas; solo se
-                activan o desactivan.
+                El orden publico controla como se presenta el catalogo; primero se usa
+                `publicOrder` y despues el nombre.
               </div>
             </div>
           </article>
@@ -222,14 +307,14 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
                   {editingService
-                    ? "Actualiza nombre, duración, precio, anticipo y estado del servicio."
-                    : "Carga un servicio nuevo para que el negocio pueda ofrecerlo en panel y canales futuros."}
+                    ? "Actualiza categoria, visibilidad, orden publico, precio y reglas del servicio."
+                    : "Carga un servicio nuevo y decide si debe publicarse inmediatamente en el booking."}
                 </p>
               </div>
 
               {editingService ? (
                 <Link
-                  href="/app/services"
+                  href={filter === "all" ? "/app/services" : `/app/services?filter=${filter}`}
                   className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-muted transition hover:border-brand-200 hover:text-brand-700"
                 >
                   Cancelar
@@ -244,6 +329,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
               {editingService ? (
                 <input type="hidden" name="serviceId" value={editingService.id} />
               ) : null}
+              <input type="hidden" name="returnFilter" value={filter} />
 
               <label className="text-sm font-semibold text-ink">
                 Nombre
@@ -256,6 +342,36 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 />
               </label>
 
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="text-sm font-semibold text-ink">
+                  Categoria
+                  <select
+                    name="category"
+                    defaultValue={editingService?.category ?? "general"}
+                    className={formFieldClassName()}
+                  >
+                    {serviceCategoryOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="text-sm font-semibold text-ink">
+                  Orden publico
+                  <input
+                    name="publicOrder"
+                    type="number"
+                    min="0"
+                    step="1"
+                    required
+                    defaultValue={editingService?.publicOrder ?? services.length}
+                    className={formFieldClassName()}
+                  />
+                </label>
+              </div>
+
               <label className="text-sm font-semibold text-ink">
                 Descripcion opcional
                 <textarea
@@ -263,7 +379,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                   rows={3}
                   defaultValue={editingService?.description ?? ""}
                   className={formFieldClassName()}
-                  placeholder="Explica brevemente el servicio y su alcance."
+                  placeholder="Explica brevemente el servicio y lo que incluye."
                 />
               </label>
 
@@ -309,7 +425,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 </label>
 
                 <label className="text-sm font-semibold text-ink">
-                  Monto de anticipo opcional
+                  Monto de anticipo
                   <input
                     name="deposit"
                     type="number"
@@ -322,17 +438,31 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 </label>
               </div>
 
-              <label className="text-sm font-semibold text-ink">
-                Estado
-                <select
-                  name="isActive"
-                  defaultValue={editingService?.isActive === false ? "false" : "true"}
-                  className={formFieldClassName()}
-                >
-                  <option value="true">Activo</option>
-                  <option value="false">Inactivo</option>
-                </select>
-              </label>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="text-sm font-semibold text-ink">
+                  Estado
+                  <select
+                    name="isActive"
+                    defaultValue={editingService?.isActive === false ? "false" : "true"}
+                    className={formFieldClassName()}
+                  >
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
+                  </select>
+                </label>
+
+                <label className="text-sm font-semibold text-ink">
+                  Visibilidad publica
+                  <select
+                    name="isPublic"
+                    defaultValue={editingService?.isPublic === false ? "false" : "true"}
+                    className={formFieldClassName()}
+                  >
+                    <option value="true">Visible en booking</option>
+                    <option value="false">Oculto del booking</option>
+                  </select>
+                </label>
+              </div>
 
               <button
                 type="submit"
@@ -345,32 +475,100 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
         </div>
 
         <div className="grid gap-6">
-          {services.length ? (
-            services.map((service) => (
+          <article className="surface-card p-6 sm:p-7">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
+                  Servicios del catalogo
+                </p>
+                <p className="mt-2 text-sm leading-7 text-muted">
+                  Filtra activos, inactivos, publicos u ocultos y ajusta la visibilidad
+                  sin salir del listado.
+                </p>
+              </div>
+
+              <form className="grid gap-3 sm:grid-cols-[220px_auto]">
+                <label className="text-sm font-semibold text-ink">
+                  Filtro
+                  <select
+                    name="filter"
+                    defaultValue={filter}
+                    className={formFieldClassName()}
+                  >
+                    <option value="all">Todos</option>
+                    <option value="active">Solo activos</option>
+                    <option value="inactive">Solo inactivos</option>
+                    <option value="public">Solo publicos</option>
+                    <option value="hidden">Solo ocultos</option>
+                  </select>
+                </label>
+
+                <div className="flex gap-3 self-end">
+                  <button
+                    type="submit"
+                    className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                  >
+                    Aplicar
+                  </button>
+
+                  {filter !== "all" ? (
+                    <Link
+                      href="/app/services"
+                      className="rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                    >
+                      Limpiar
+                    </Link>
+                  ) : null}
+                </div>
+              </form>
+            </div>
+          </article>
+
+          {visibleServices.length ? (
+            visibleServices.map((service) => (
               <article key={service.id} className="surface-card p-6 sm:p-7">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="text-2xl font-semibold tracking-[-0.05em] text-ink">
-                      {service.name}
-                    </p>
-                    <p className="mt-2 text-sm text-muted">
-                      {service.description ?? "Sin descripcion registrada"}
+                <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="text-2xl font-semibold tracking-[-0.05em] text-ink">
+                        {service.name}
+                      </p>
+                      <span className={getServiceStatusBadgeClassName(service.isActive)}>
+                        {service.isActive ? "Activo" : "Inactivo"}
+                      </span>
+                      <span className={getServiceVisibilityBadgeClassName(service.isPublic)}>
+                        {service.isPublic ? "Publico" : "Oculto"}
+                      </span>
+                    </div>
+
+                    <p className="mt-3 text-sm leading-7 text-muted">
+                      {service.description ?? "Sin descripcion registrada para este servicio."}
                     </p>
                   </div>
 
-                  <span
-                    className={
-                      service.isActive
-                        ? "rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700"
-                        : "rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600"
+                  <Link
+                    href={
+                      filter === "all"
+                        ? `/app/services?edit=${service.id}`
+                        : `/app/services?edit=${service.id}&filter=${filter}`
                     }
+                    className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
                   >
-                    {service.isActive ? "Activo" : "Inactivo"}
-                  </span>
+                    Editar
+                  </Link>
                 </div>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                   <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                      Categoria
+                    </p>
+                    <p className="mt-3 text-lg font-semibold text-ink">
+                      {getServiceCategoryLabel(service.category)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
                       Duracion
                     </p>
@@ -384,7 +582,10 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                       Precio
                     </p>
                     <p className="mt-3 text-lg font-semibold text-ink">
-                      {formatMoney(service.priceCents, authContext.clinic.currency)}
+                      {formatAppointmentMoney(
+                        service.priceCents,
+                        authContext.clinic.currency,
+                      )}
                     </p>
                   </div>
 
@@ -394,31 +595,28 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                     </p>
                     <p className="mt-3 text-lg font-semibold text-ink">
                       {service.depositRequired
-                        ? formatMoney(service.depositCents, authContext.clinic.currency)
+                        ? formatAppointmentMoney(
+                            service.depositCents,
+                            authContext.clinic.currency,
+                          )
                         : "No requerido"}
                     </p>
                   </div>
 
                   <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                      Reservas asociadas
+                      Orden publico
                     </p>
                     <p className="mt-3 text-lg font-semibold text-ink">
-                      {service._count.appointments}
+                      {service.publicOrder}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <Link
-                    href={`/app/services?edit=${service.id}`}
-                    className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
-                  >
-                    Editar
-                  </Link>
-
                   <form action={toggleServiceStatusAction}>
                     <input type="hidden" name="serviceId" value={service.id} />
+                    <input type="hidden" name="returnFilter" value={filter} />
                     <input
                       type="hidden"
                       name="nextIsActive"
@@ -435,17 +633,44 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                       {service.isActive ? "Desactivar" : "Activar"}
                     </button>
                   </form>
+
+                  <form action={toggleServicePublicVisibilityAction}>
+                    <input type="hidden" name="serviceId" value={service.id} />
+                    <input type="hidden" name="returnFilter" value={filter} />
+                    <input
+                      type="hidden"
+                      name="nextIsPublic"
+                      value={service.isPublic ? "false" : "true"}
+                    />
+                    <button
+                      type="submit"
+                      className={
+                        service.isPublic
+                          ? "rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700"
+                          : "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700"
+                      }
+                    >
+                      {service.isPublic ? "Ocultar del booking" : "Mostrar en booking"}
+                    </button>
+                  </form>
+
+                  <div className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm text-muted">
+                    {service._count.appointments} reserva
+                    {service._count.appointments === 1 ? "" : "s"} asociada
+                    {service._count.appointments === 1 ? "" : "s"}
+                  </div>
                 </div>
               </article>
             ))
           ) : (
             <article className="surface-card p-7">
               <p className="text-lg font-semibold text-ink">
-                Todavía no hay servicios cargados para este negocio.
+                No hay servicios para este filtro.
               </p>
               <p className="mt-3 text-sm leading-7 text-muted">
-                Crea el primer servicio desde el formulario para habilitar reservas y
-                flujos operativos.
+                {services.length
+                  ? "Ajusta el filtro o cambia la visibilidad de un servicio existente."
+                  : "Crea el primer servicio para empezar a construir el catalogo publico del negocio."}
               </p>
             </article>
           )}

@@ -243,11 +243,14 @@ model Service {
   id                    String                 @id @default(cuid())
   clinicId              String
   name                  String
+  category              String?
   description           String?
   durationMinutes       Int
   priceCents            Int?
   depositRequired       Boolean                @default(false)
   depositCents          Int?
+  publicOrder           Int                    @default(0)
+  isPublic              Boolean                @default(true)
   isActive              Boolean                @default(true)
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
@@ -258,6 +261,7 @@ model Service {
 
   @@unique([clinicId, name])
   @@index([clinicId, isActive])
+  @@index([clinicId, isActive, isPublic, publicOrder])
 }
 
 model Patient {

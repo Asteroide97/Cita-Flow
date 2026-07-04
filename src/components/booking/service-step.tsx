@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { formatAppointmentMoney } from "@/components/appointments/appointment-helpers";
+import { getServiceCategoryLabel } from "@/data/service-categories";
 import { buildBookingAnchorHref } from "@/lib/booking/public";
 import type { BookingServiceOption } from "@/types/booking";
 
@@ -27,7 +28,7 @@ export function ServiceStep({
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
         Selecciona el servicio que quieres reservar. Solo se muestran servicios
-        activos del negocio.
+        activos y publicos del negocio.
       </p>
 
       {!services.length ? (
@@ -83,6 +84,11 @@ export function ServiceStep({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
                       <p className="text-base font-semibold text-ink">{service.name}</p>
+                      {service.category ? (
+                        <span className="rounded-full border border-line/80 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                          {getServiceCategoryLabel(service.category)}
+                        </span>
+                      ) : null}
                       <span className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">
                         {service.durationMinutes} min
                       </span>

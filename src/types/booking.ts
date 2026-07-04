@@ -49,6 +49,7 @@ export type BookingClinic = {
 export type BookingServiceOption = {
   id: string;
   name: string;
+  category: string | null;
   description: string | null;
   durationMinutes: number;
   priceCents: number | null;

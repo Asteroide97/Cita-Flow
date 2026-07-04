@@ -1,8 +1,10 @@
 import { OnboardingChecklist } from "@/components/app/onboarding-checklist";
+import { OperationalStatus } from "@/components/app/operational-status";
 import { MetricCard } from "@/components/app/metric-card";
 import { PanelPage } from "@/components/app/panel-page";
 import { dashboardMetrics } from "@/data/panel";
 import { brand } from "@/lib/brand";
+import { getOperationalStatus } from "@/lib/dashboard/operational-status";
 import { prisma } from "@/lib/prisma";
 import { getCurrentClinicContext } from "@/lib/tenant";
 
@@ -14,7 +16,8 @@ export default async function DashboardPage() {
     activeDoctorsCount,
     firstActiveDoctor,
     activeAvailabilityCount,
-  ] = await prisma.$transaction([
+    operationalStatus,
+  ] = await Promise.all([
     prisma.clinic.findUnique({
       where: {
         id: clinic.clinicId,
@@ -59,6 +62,7 @@ export default async function DashboardPage() {
         isActive: true,
       },
     }),
+    getOperationalStatus(clinic.clinicId),
   ]);
 
   if (!clinicRecord) {
@@ -157,6 +161,10 @@ export default async function DashboardPage() {
         bookingUrl={bookingPath}
         steps={onboardingSteps}
       />
+
+      <div className="mt-8">
+        <OperationalStatus {...operationalStatus} />
+      </div>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {dashboardMetrics.map((metric) => (

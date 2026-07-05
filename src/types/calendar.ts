@@ -22,6 +22,13 @@ export type CalendarDoctorOption = AppointmentDoctorOption;
 
 export type CalendarAppointment = AppointmentListItem;
 
+export type CalendarBlockedTime = {
+  id: string;
+  startAt: Date;
+  endAt: Date;
+  reason: string | null;
+};
+
 export type CalendarDayDefinition = {
   key: string;
   dateValue: string;
@@ -38,6 +45,14 @@ export type CalendarAppointmentLayout = {
   height: number;
   leftPercent: number;
   widthPercent: number;
+  startLabel: string;
+  endLabel: string;
+};
+
+export type CalendarBlockedLayout = {
+  blockedTime: CalendarBlockedTime;
+  top: number;
+  height: number;
   startLabel: string;
   endLabel: string;
 };

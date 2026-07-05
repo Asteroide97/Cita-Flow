@@ -3,22 +3,27 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type {
   CalendarAppointment,
+  CalendarBlockedTime,
   CalendarDayDefinition,
 } from "@/types/calendar";
 
 import { CalendarAppointmentBlock } from "./calendar-appointment-block";
+import { CalendarBlockedTimeBlock } from "./calendar-blocked-time-block";
 import { CalendarEmptyState } from "./calendar-empty-state";
 import {
   buildCalendarAppointmentLayouts,
+  buildCalendarBlockedLayouts,
   buildCalendarHourRows,
   buildCalendarPath,
   CALENDAR_TIMELINE_HEIGHT,
+  filterCalendarBlockedTimesForDateValue,
   groupAppointmentsByDateValue,
 } from "./calendar-helpers";
 
 type CalendarWeekViewProps = {
   days: CalendarDayDefinition[];
   appointments: CalendarAppointment[];
+  blockedTimes: CalendarBlockedTime[];
   timezone: string;
   doctorId: string;
   selectedAppointmentId?: string;
@@ -27,6 +32,7 @@ type CalendarWeekViewProps = {
 export function CalendarWeekView({
   days,
   appointments,
+  blockedTimes,
   timezone,
   doctorId,
   selectedAppointmentId,
@@ -55,7 +61,7 @@ export function CalendarWeekView({
         </div>
       </div>
 
-      {!appointments.length ? (
+      {!appointments.length && !blockedTimes.length ? (
         <div className="p-6 sm:p-7">
           <CalendarEmptyState />
         </div>
@@ -94,6 +100,27 @@ export function CalendarWeekView({
                     {(appointmentsByDay[day.dateValue] ?? []).length} reserva
                     {(appointmentsByDay[day.dateValue] ?? []).length === 1 ? "" : "s"}
                   </p>
+                  {filterCalendarBlockedTimesForDateValue(
+                    blockedTimes,
+                    day.dateValue,
+                    timezone,
+                  ).length ? (
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">
+                      {filterCalendarBlockedTimesForDateValue(
+                        blockedTimes,
+                        day.dateValue,
+                        timezone,
+                      ).length}{" "}
+                      bloqueo
+                      {filterCalendarBlockedTimesForDateValue(
+                        blockedTimes,
+                        day.dateValue,
+                        timezone,
+                      ).length === 1
+                        ? ""
+                        : "s"}
+                    </p>
+                  ) : null}
                 </Link>
               ))}
             </div>
@@ -123,8 +150,18 @@ export function CalendarWeekView({
 
               {days.map((day) => {
                 const dayAppointments = appointmentsByDay[day.dateValue] ?? [];
+                const dayBlockedTimes = filterCalendarBlockedTimesForDateValue(
+                  blockedTimes,
+                  day.dateValue,
+                  timezone,
+                );
                 const dayLayouts = buildCalendarAppointmentLayouts(
                   dayAppointments,
+                  timezone,
+                );
+                const dayBlockedLayouts = buildCalendarBlockedLayouts(
+                  dayBlockedTimes,
+                  day.dateValue,
                   timezone,
                 );
 
@@ -144,7 +181,17 @@ export function CalendarWeekView({
                         <div
                           key={row.key}
                           className="absolute inset-x-0 border-t border-dashed border-line/80"
-                          style={{ top: `${row.top}px` }}
+                      style={{ top: `${row.top}px` }}
+                        />
+                      ))}
+
+                      {dayBlockedLayouts.map((layout) => (
+                        <CalendarBlockedTimeBlock
+                          key={layout.blockedTime.id}
+                          blockedTime={layout.blockedTime}
+                          timezone={timezone}
+                          variant="week"
+                          layout={layout}
                         />
                       ))}
 
@@ -178,6 +225,11 @@ export function CalendarWeekView({
           <div className="grid gap-4 p-4 xl:hidden">
             {days.map((day) => {
               const dayAppointments = appointmentsByDay[day.dateValue] ?? [];
+              const dayBlockedTimes = filterCalendarBlockedTimesForDateValue(
+                blockedTimes,
+                day.dateValue,
+                timezone,
+              );
 
               return (
                 <section
@@ -210,6 +262,19 @@ export function CalendarWeekView({
                     </span>
                   </div>
 
+                  {dayBlockedTimes.length ? (
+                    <div className="mt-4 grid gap-3">
+                      {dayBlockedTimes.map((blockedTime) => (
+                        <CalendarBlockedTimeBlock
+                          key={blockedTime.id}
+                          blockedTime={blockedTime}
+                          timezone={timezone}
+                          variant="list"
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+
                   {dayAppointments.length ? (
                     <div className="mt-4 grid gap-3">
                       {dayAppointments.map((appointment) => (
@@ -232,7 +297,9 @@ export function CalendarWeekView({
                     </div>
                   ) : (
                     <p className="mt-4 text-sm leading-7 text-muted">
-                      No hay reservas programadas.
+                      {dayBlockedTimes.length
+                        ? "Sin reservas, pero hay bloqueos activos este día."
+                        : "No hay reservas programadas."}
                     </p>
                   )}
                 </section>

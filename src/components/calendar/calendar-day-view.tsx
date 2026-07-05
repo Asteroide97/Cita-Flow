@@ -2,14 +2,17 @@ import Link from "next/link";
 
 import type {
   CalendarAppointment,
+  CalendarBlockedTime,
   CalendarDayDefinition,
   CalendarDoctorOption,
 } from "@/types/calendar";
 
 import { CalendarAppointmentBlock } from "./calendar-appointment-block";
+import { CalendarBlockedTimeBlock } from "./calendar-blocked-time-block";
 import { CalendarEmptyState } from "./calendar-empty-state";
 import {
   buildCalendarAppointmentLayouts,
+  buildCalendarBlockedLayouts,
   buildCalendarPath,
   buildCalendarHourRows,
   CALENDAR_TIMELINE_HEIGHT,
@@ -24,6 +27,7 @@ type CalendarDayViewProps = {
   selectedAppointmentId?: string;
   selectedServiceLabel?: string | null;
   createLinksByDoctorId: Record<string, string>;
+  blockedTimes: CalendarBlockedTime[];
   availableSlotsByDoctorId: Record<
     string,
     Array<{
@@ -80,10 +84,16 @@ export function CalendarDayView({
   selectedAppointmentId,
   selectedServiceLabel = null,
   createLinksByDoctorId,
+  blockedTimes,
   availableSlotsByDoctorId,
 }: CalendarDayViewProps) {
   const hourRows = buildCalendarHourRows();
   const hourLines = hourRows.slice(0, -1);
+  const blockedLayouts = buildCalendarBlockedLayouts(
+    blockedTimes,
+    day.dateValue,
+    timezone,
+  );
   const visibleDoctors = doctors.length ? doctors : [];
   const appointmentsByDoctorId = appointments.reduce<Record<string, CalendarAppointment[]>>(
     (accumulator, appointment) => {
@@ -99,12 +109,12 @@ export function CalendarDayView({
   );
   const hasAnySlots = Object.values(availableSlotsByDoctorId).some((slots) => slots.length);
 
-  if (!appointments.length && !hasAnySlots) {
+  if (!appointments.length && !hasAnySlots && !blockedTimes.length) {
     return (
       <article className="surface-card p-6 sm:p-7">
         <CalendarEmptyState
           title="No hay reservas para este día."
-          description="No hay reservas ni huecos listos para crear una reserva rápida en la fecha seleccionada."
+          description="No hay reservas, bloqueos ni huecos listos para crear una reserva rápida en la fecha seleccionada."
         />
       </article>
     );
@@ -221,9 +231,21 @@ export function CalendarDayView({
                     />
                   ))}
 
+                  {blockedLayouts.map((layout) => (
+                    <CalendarBlockedTimeBlock
+                      key={layout.blockedTime.id}
+                      blockedTime={layout.blockedTime}
+                      timezone={timezone}
+                      variant="day"
+                      layout={layout}
+                    />
+                  ))}
+
                   {!dayAppointments.length ? (
                     <div className="absolute inset-x-4 top-6 rounded-[20px] border border-dashed border-line/80 bg-white/80 px-4 py-4 text-sm text-muted">
-                      {daySlots.length
+                      {blockedTimes.length
+                        ? "El negocio tiene bloqueos activos este día. Revisa los rangos sombreados."
+                        : daySlots.length
                         ? "Sin reservas todavía. Puedes usar un hueco libre para crear una."
                         : "Sin reservas ni huecos libres visibles para este profesional."}
                     </div>
@@ -292,6 +314,19 @@ export function CalendarDayView({
                   selectedServiceLabel={selectedServiceLabel}
                 />
               </div>
+
+              {blockedTimes.length ? (
+                <div className="mt-4 grid gap-3">
+                  {blockedTimes.map((blockedTime) => (
+                    <CalendarBlockedTimeBlock
+                      key={blockedTime.id}
+                      blockedTime={blockedTime}
+                      timezone={timezone}
+                      variant="list"
+                    />
+                  ))}
+                </div>
+              ) : null}
 
               {dayAppointments.length ? (
                 <div className="mt-4 grid gap-3">

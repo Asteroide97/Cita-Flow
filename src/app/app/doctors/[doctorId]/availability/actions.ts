@@ -92,6 +92,10 @@ function hasTimeOverlap(
   return leftStart < rightEnd && rightStart < leftEnd;
 }
 
+function minutesBetween(startAt: Date, endAt: Date) {
+  return Math.round((endAt.getTime() - startAt.getTime()) / 60000);
+}
+
 function parseTargetDays(value: FormDataEntryValue | null) {
   const raw = String(value ?? "").trim();
 
@@ -728,6 +732,10 @@ export async function createClinicBlockedTimeAction(formData: FormData) {
     redirect(buildAvailabilityPath(doctorId, { error: "blocked-invalid" }));
   }
 
+  if (minutesBetween(startAt, endAt) < MIN_BLOCK_MINUTES) {
+    redirect(buildAvailabilityPath(doctorId, { error: "blocked-invalid" }));
+  }
+
   await prisma.$transaction(async (transaction) => {
     const blockedTime = await transaction.clinicBlockedTime.create({
       data: {
@@ -742,7 +750,7 @@ export async function createClinicBlockedTimeAction(formData: FormData) {
       {
         clinicId: authContext.clinic.id,
         userId: authContext.user.id,
-        action: "CLINIC_BLOCKED_TIME_CREATED",
+        action: "BUSINESS_BLOCK_CREATED",
         entityType: "CLINIC_BLOCKED_TIME",
         entityId: blockedTime.id,
         metadata: {

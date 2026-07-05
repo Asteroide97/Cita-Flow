@@ -87,7 +87,7 @@ export function CalendarAppointmentBlock({
       href={href}
       title={title}
       className={cn(
-        "absolute overflow-hidden rounded-[22px] border px-3 py-2.5 transition-all duration-200 hover:-translate-y-0.5",
+        "absolute z-10 overflow-hidden rounded-[22px] border px-3 py-2.5 transition-all duration-200 hover:-translate-y-0.5",
         tone.blockClassName,
         isSelected ? "ring-2 ring-brand-300 ring-offset-2 ring-offset-white" : "",
         appointment.status === "CANCELLED" ? "opacity-80" : "",

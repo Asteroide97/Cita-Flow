@@ -32,6 +32,10 @@ import type {
 } from "@/types/calendar";
 
 import {
+  createCalendarBusinessBlockAction,
+  cancelCalendarBusinessBlockAction,
+} from "./actions";
+import {
   createAdminAppointmentAction,
   rescheduleAdminAppointmentAction,
   updateAppointmentStatusAction,
@@ -53,6 +57,45 @@ function formatDateValueInTimeZone(date: Date, timezone: string) {
     parts.find((part) => part.type === type)?.value ?? "";
 
   return `${getValue("year")}-${getValue("month")}-${getValue("day")}`;
+}
+
+function resolveCalendarPageFlash(status?: string, error?: string) {
+  if (error) {
+    switch (error) {
+      case "business-block-invalid":
+        return {
+          tone: "error" as const,
+          message: "Revisa la fecha y el rango del bloqueo antes de guardarlo.",
+        };
+      case "business-block-too-short":
+        return {
+          tone: "error" as const,
+          message: "El bloqueo debe durar al menos 15 minutos.",
+        };
+      case "business-block-not-found":
+        return {
+          tone: "error" as const,
+          message: "No encontre ese bloqueo dentro del negocio actual.",
+        };
+      default:
+        return resolveAppointmentsFlashMessage(status, error);
+    }
+  }
+
+  switch (status) {
+    case "business-block-created":
+      return {
+        tone: "success" as const,
+        message: "Horario bloqueado correctamente para todo el negocio.",
+      };
+    case "business-block-cancelled":
+      return {
+        tone: "success" as const,
+        message: "Bloqueo cancelado correctamente.",
+      };
+    default:
+      return resolveAppointmentsFlashMessage(status, error);
+  }
 }
 
 export default async function CalendarPage({
@@ -137,43 +180,63 @@ export default async function CalendarPage({
     appointmentWhere.doctorId = currentDoctorFilter;
   }
 
-  const appointments = await prisma.appointment.findMany({
-    where: appointmentWhere,
-    orderBy: [{ startAt: "asc" }],
-    include: {
-      patient: {
-        select: {
-          id: true,
-          name: true,
-          phoneE164: true,
-          email: true,
+  const [appointments, blockedTimes] = await Promise.all([
+    prisma.appointment.findMany({
+      where: appointmentWhere,
+      orderBy: [{ startAt: "asc" }],
+      include: {
+        patient: {
+          select: {
+            id: true,
+            name: true,
+            phoneE164: true,
+            email: true,
+          },
+        },
+        doctor: {
+          select: {
+            id: true,
+            name: true,
+            specialty: true,
+          },
+        },
+        service: {
+          select: {
+            id: true,
+            name: true,
+            durationMinutes: true,
+            priceCents: true,
+            depositRequired: true,
+            depositCents: true,
+          },
         },
       },
-      doctor: {
-        select: {
-          id: true,
-          name: true,
-          specialty: true,
+    }),
+    prisma.clinicBlockedTime.findMany({
+      where: {
+        clinicId: authContext.clinic.id,
+        startAt: {
+          lt: bounds.endAt,
+        },
+        endAt: {
+          gt: bounds.startAt,
         },
       },
-      service: {
-        select: {
-          id: true,
-          name: true,
-          durationMinutes: true,
-          priceCents: true,
-          depositRequired: true,
-          depositCents: true,
-        },
+      orderBy: [{ startAt: "asc" }],
+      select: {
+        id: true,
+        startAt: true,
+        endAt: true,
+        reason: true,
       },
-    },
-  });
+    }),
+  ]);
 
   const selectedAppointment =
     appointments.find((appointment) => appointment.id === selectedAppointmentId) ??
     null;
   const selectedDay = days.find((day) => day.isSelected) ?? days[0];
-  const flash = resolveAppointmentsFlashMessage(query.status, query.error);
+  const flash = resolveCalendarPageFlash(query.status, query.error);
   const todayDateValue = buildCalendarDateValue(
     getCurrentCalendarDateParts(timezone),
   );
@@ -255,6 +318,7 @@ export default async function CalendarPage({
           ),
         )
       : {};
+
   const createLinksByDoctorId =
     view === "day"
       ? Object.fromEntries(
@@ -346,7 +410,7 @@ export default async function CalendarPage({
     <PanelPage
       eyebrow="Agenda"
       title="Agenda visual"
-      description="Consulta la agenda diaria o semanal del negocio actual, crea reservas rápidas desde huecos disponibles y ejecuta acciones operativas sin salir de la vista."
+      description="Consulta la agenda diaria o semanal del negocio actual, crea reservas rápidas desde huecos disponibles, bloquea horarios generales y ejecuta acciones operativas sin salir de la vista."
     >
       <div className="grid gap-6">
         {flash ? (
@@ -402,6 +466,7 @@ export default async function CalendarPage({
               <CalendarDayView
                 day={selectedDay}
                 appointments={appointments}
+                blockedTimes={blockedTimes}
                 timezone={timezone}
                 doctorId={selectedDoctorId}
                 doctors={dayViewDoctors}
@@ -414,6 +479,7 @@ export default async function CalendarPage({
               <CalendarWeekView
                 days={days}
                 appointments={appointments}
+                blockedTimes={blockedTimes}
                 timezone={timezone}
                 doctorId={selectedDoctorId}
                 selectedAppointmentId={selectedAppointment?.id}
@@ -424,9 +490,143 @@ export default async function CalendarPage({
           <div className="grid gap-6 self-start xl:sticky xl:top-6">
             <CalendarStatusLegend
               totalAppointments={appointments.length}
+              totalBlockedTimes={blockedTimes.length}
               rangeLabel={rangeLabel}
               doctorLabel={selectedDoctor?.name ?? null}
             />
+
+            <article className="surface-card p-6 sm:p-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
+                Bloquear horario
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+                Bloqueos del negocio
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-muted">
+                Bloquea rangos completos del negocio para que no aparezcan como
+                disponibles en booking público ni en la creación interna.
+              </p>
+
+              <form action={createCalendarBusinessBlockAction} className="mt-6 grid gap-4">
+                <input type="hidden" name="redirectPath" value={detailRedirectPath} />
+
+                <label className="text-sm font-semibold text-ink">
+                  Fecha
+                  <input
+                    type="date"
+                    name="date"
+                    defaultValue={selectedDateValue}
+                    className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
+                  />
+                </label>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="text-sm font-semibold text-ink">
+                    Hora inicio
+                    <input
+                      type="time"
+                      name="startTime"
+                      defaultValue="09:00"
+                      className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
+                    />
+                  </label>
+
+                  <label className="text-sm font-semibold text-ink">
+                    Hora fin
+                    <input
+                      type="time"
+                      name="endTime"
+                      defaultValue="14:00"
+                      className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
+                    />
+                  </label>
+                </div>
+
+                <label className="text-sm font-semibold text-ink">
+                  Motivo opcional
+                  <textarea
+                    name="reason"
+                    rows={3}
+                    className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
+                    placeholder="Capacitacion, mantenimiento, cierre administrativo..."
+                  />
+                </label>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="submit"
+                    name="blockMode"
+                    value="range"
+                    className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                  >
+                    Bloquear rango de horas
+                  </button>
+
+                  <button
+                    type="submit"
+                    name="blockMode"
+                    value="full-day"
+                    className="rounded-full border border-amber-200 bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-700 transition hover:border-amber-300 hover:bg-amber-100"
+                  >
+                    Bloquear día completo
+                  </button>
+                </div>
+              </form>
+
+              <div className="mt-6 grid gap-3">
+                {blockedTimes.length ? (
+                  blockedTimes.map((blockedTime) => (
+                    <div
+                      key={blockedTime.id}
+                      className="rounded-[22px] border border-line/80 bg-white px-4 py-4"
+                    >
+                      <p className="text-sm font-semibold text-ink">
+                        {new Intl.DateTimeFormat("es-MX", {
+                          weekday: "short",
+                          day: "2-digit",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                          timeZone: timezone,
+                        }).format(blockedTime.startAt)}{" "}
+                        -{" "}
+                        {new Intl.DateTimeFormat("es-MX", {
+                          day: "2-digit",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                          timeZone: timezone,
+                        }).format(blockedTime.endAt)}
+                      </p>
+                      <p className="mt-2 text-sm text-muted">
+                        {blockedTime.reason ?? "Sin motivo especificado"}
+                      </p>
+
+                      <form action={cancelCalendarBusinessBlockAction} className="mt-4">
+                        <input type="hidden" name="blockId" value={blockedTime.id} />
+                        <input
+                          type="hidden"
+                          name="redirectPath"
+                          value={detailRedirectPath}
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
+                        >
+                          Cancelar bloqueo
+                        </button>
+                      </form>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-[22px] border border-dashed border-line bg-surface-soft px-4 py-4 text-sm text-muted">
+                    No hay bloqueos del negocio dentro del rango visible.
+                  </div>
+                )}
+              </div>
+            </article>
 
             <CalendarQuickCreateForm
               activeDoctors={activeDoctors}

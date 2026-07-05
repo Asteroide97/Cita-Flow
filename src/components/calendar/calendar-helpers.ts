@@ -9,6 +9,8 @@ import {
 import type {
   CalendarAppointment,
   CalendarAppointmentLayout,
+  CalendarBlockedLayout,
+  CalendarBlockedTime,
   CalendarDayDefinition,
   CalendarViewMode,
 } from "@/types/calendar";
@@ -462,6 +464,72 @@ export function groupAppointmentsByDateValue(
   }, {});
 }
 
+export function filterCalendarBlockedTimesForDateValue(
+  blockedTimes: CalendarBlockedTime[],
+  dateValue: string,
+  timezone: string,
+) {
+  const dateParts = parseIsoDateInput(dateValue);
+
+  if (!dateParts) {
+    return [];
+  }
+
+  const dayStart = buildClinicDateTime(dateParts, "00:00", timezone);
+  const dayEnd = buildClinicDateTime(shiftCalendarDateParts(dateParts, 1), "00:00", timezone);
+
+  return blockedTimes.filter(
+    (blockedTime) => blockedTime.startAt < dayEnd && blockedTime.endAt > dayStart,
+  );
+}
+
+export function buildCalendarBlockedLayouts(
+  blockedTimes: CalendarBlockedTime[],
+  dateValue: string,
+  timezone: string,
+) {
+  const dateParts = parseIsoDateInput(dateValue);
+
+  if (!dateParts) {
+    return [];
+  }
+
+  const dayStart = buildClinicDateTime(dateParts, "00:00", timezone);
+  const dayEnd = buildClinicDateTime(shiftCalendarDateParts(dateParts, 1), "00:00", timezone);
+
+  return blockedTimes
+    .map((blockedTime) => {
+      const clippedStart =
+        blockedTime.startAt > dayStart ? blockedTime.startAt : dayStart;
+      const clippedEnd = blockedTime.endAt < dayEnd ? blockedTime.endAt : dayEnd;
+      const startMinutes = getAppointmentMinutes(clippedStart, timezone);
+      const endMinutes = getAppointmentMinutes(clippedEnd, timezone);
+      const bounds = normalizeTimelineBounds(startMinutes, endMinutes);
+
+      if (!bounds) {
+        return null;
+      }
+
+      const top =
+        ((bounds.clippedStart - CALENDAR_START_HOUR * 60) / 60) *
+        CALENDAR_HOUR_HEIGHT;
+      const height = Math.max(
+        ((bounds.clippedEnd - bounds.clippedStart) / 60) * CALENDAR_HOUR_HEIGHT,
+        42,
+      );
+
+      return {
+        blockedTime,
+        top,
+        height,
+        startLabel: formatCalendarTime(clippedStart, timezone),
+        endLabel: formatCalendarTime(clippedEnd, timezone),
+      } satisfies CalendarBlockedLayout;
+    })
+    .filter((item): item is CalendarBlockedLayout => item !== null)
+    .sort((left, right) => left.top - right.top);
+}
+
 export function getCalendarStatusTone(status: AppointmentStatus) {
   switch (status) {
     case AppointmentStatus.CONFIRMED:
@@ -511,6 +579,15 @@ export function getCalendarStatusTone(status: AppointmentStatus) {
   }
 }
 
+export function getCalendarBlockedTone() {
+  return {
+    blockClassName:
+      "border-slate-300 bg-slate-200/55 text-slate-800 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.18)]",
+    badgeClassName: "border-slate-300 bg-slate-100 text-slate-700",
+    dotClassName: "bg-slate-500",
+  };
+}
+
 export function getCalendarStatusLegend() {
   return [
     {
@@ -542,4 +619,45 @@ export function getCalendarStatusLegend() {
     ...item,
     tone: getCalendarStatusTone(item.status),
   }));
+}
+
+export function getCalendarAgendaLegend() {
+  return [
+    {
+      key: "pending",
+      label: "Pendiente",
+      note: "Aun requiere confirmacion o accion del negocio.",
+      tone: getCalendarStatusTone(AppointmentStatus.PENDING),
+    },
+    {
+      key: "confirmed",
+      label: "Confirmada",
+      note: "Bloque activo dentro de la agenda del profesional.",
+      tone: getCalendarStatusTone(AppointmentStatus.CONFIRMED),
+    },
+    {
+      key: "cancelled",
+      label: "Cancelada",
+      note: "Se conserva en historial, pero ya no bloquea horario.",
+      tone: getCalendarStatusTone(AppointmentStatus.CANCELLED),
+    },
+    {
+      key: "completed",
+      label: "Completada",
+      note: "Reserva atendida y cerrada operativamente.",
+      tone: getCalendarStatusTone(AppointmentStatus.COMPLETED),
+    },
+    {
+      key: "no-show",
+      label: "No-show",
+      note: "El cliente no asistio al horario reservado.",
+      tone: getCalendarStatusTone(AppointmentStatus.NO_SHOW),
+    },
+    {
+      key: "blocked",
+      label: "Bloqueado",
+      note: "Horario bloqueado para todo el negocio. No genera reservas nuevas.",
+      tone: getCalendarBlockedTone(),
+    },
+  ];
 }

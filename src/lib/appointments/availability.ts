@@ -923,6 +923,8 @@ export async function getDoctorAvailability({
       name: true,
       specialty: true,
       bio: true,
+      photoUrl: true,
+      isPublic: true,
       isActive: true,
       clinic: {
         select: {

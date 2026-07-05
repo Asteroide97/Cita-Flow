@@ -104,11 +104,25 @@ export function buildCalendarPath({
   date,
   doctorId,
   appointmentId,
+  createDoctorId,
+  createServiceId,
+  createDate,
+  createSlotTime,
+  rescheduleAppointmentId,
+  rescheduleDate,
+  rescheduleSlotTime,
 }: {
   view: CalendarViewMode;
   date: string;
   doctorId?: string;
   appointmentId?: string;
+  createDoctorId?: string;
+  createServiceId?: string;
+  createDate?: string;
+  createSlotTime?: string;
+  rescheduleAppointmentId?: string;
+  rescheduleDate?: string;
+  rescheduleSlotTime?: string;
 }) {
   const params = new URLSearchParams();
 
@@ -121,6 +135,34 @@ export function buildCalendarPath({
 
   if (appointmentId) {
     params.set("appointmentId", appointmentId);
+  }
+
+  if (createDoctorId) {
+    params.set("createDoctorId", createDoctorId);
+  }
+
+  if (createServiceId) {
+    params.set("createServiceId", createServiceId);
+  }
+
+  if (createDate) {
+    params.set("createDate", createDate);
+  }
+
+  if (createSlotTime) {
+    params.set("createSlotTime", createSlotTime);
+  }
+
+  if (rescheduleAppointmentId) {
+    params.set("rescheduleAppointmentId", rescheduleAppointmentId);
+  }
+
+  if (rescheduleDate) {
+    params.set("rescheduleDate", rescheduleDate);
+  }
+
+  if (rescheduleSlotTime) {
+    params.set("rescheduleSlotTime", rescheduleSlotTime);
   }
 
   return `/app/calendar?${params.toString()}`;

@@ -5,10 +5,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
+  buildClinicDateMarker,
   buildClinicDateTime,
   createAppointmentSafely,
   getAvailableSlots,
   parseIsoDateInput,
+  validateAppointmentSlot,
 } from "@/lib/appointments/availability";
 import { createAppointmentTokens } from "@/lib/appointments/tokens";
 import { createAuditLog } from "@/lib/audit";
@@ -95,6 +97,48 @@ function appendFeedbackToPath(
   const serialized = query.toString();
 
   return `${pathname}${serialized ? `?${serialized}` : ""}`;
+}
+
+function updatePathSearchParams(
+  path: string,
+  params: Record<string, string | null | undefined>,
+) {
+  const [pathname, existingQuery = ""] = path.split("?");
+  const query = new URLSearchParams(existingQuery);
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === null || value === undefined || value === "") {
+      query.delete(key);
+      return;
+    }
+
+    query.set(key, value);
+  });
+
+  const serialized = query.toString();
+
+  return `${pathname}${serialized ? `?${serialized}` : ""}`;
+}
+
+function resolveCreateAppointmentRedirectPaths(params: {
+  redirectPathValue: FormDataEntryValue | null;
+  successRedirectPathValue: FormDataEntryValue | null;
+  fallbackPath: string;
+}) {
+  const redirectPath = params.redirectPathValue
+    ? resolveSafeRedirectPath(params.redirectPathValue, params.fallbackPath)
+    : null;
+  const successRedirectPath = params.successRedirectPathValue
+    ? resolveSafeRedirectPath(
+        params.successRedirectPathValue,
+        redirectPath ?? params.fallbackPath,
+      )
+    : redirectPath;
+
+  return {
+    redirectPath,
+    successRedirectPath,
+  };
 }
 
 function normalizeOptionalText(value: FormDataEntryValue | null) {
@@ -223,6 +267,12 @@ async function resolvePatientForAppointment({
 
 export async function createAdminAppointmentAction(formData: FormData) {
   const authContext = await requireAuthContext();
+  const fallbackPath = buildAppointmentsPath();
+  const explicitRedirects = resolveCreateAppointmentRedirectPaths({
+    redirectPathValue: formData.get("redirectPath"),
+    successRedirectPathValue: formData.get("successRedirectPath"),
+    fallbackPath,
+  });
   const formDoctorId = String(formData.get("doctorId") ?? "").trim();
   const formServiceId = String(formData.get("serviceId") ?? "").trim();
   const formDate = String(formData.get("date") ?? "").trim();
@@ -236,52 +286,45 @@ export async function createAdminAppointmentAction(formData: FormData) {
   const returnServiceId =
     String(formData.get("returnServiceId") ?? "").trim() || formServiceId;
   const returnDate = String(formData.get("returnDate") ?? "").trim() || formDate;
+  const buildErrorRedirect = (error: string) => {
+    if (explicitRedirects.redirectPath) {
+      return appendFeedbackToPath(explicitRedirects.redirectPath, { error });
+    }
+
+    return buildAppointmentsPath({
+      error,
+      formDoctorId: returnDoctorId,
+      formServiceId: returnServiceId,
+      formDate: returnDate,
+    });
+  };
 
   if (!formDoctorId) {
-    redirect(buildAppointmentsPath({ error: "doctor-required" }));
+    redirect(
+      explicitRedirects.redirectPath
+        ? appendFeedbackToPath(explicitRedirects.redirectPath, {
+            error: "doctor-required",
+          })
+        : buildAppointmentsPath({ error: "doctor-required" }),
+    );
   }
 
   if (!formServiceId) {
-    redirect(
-      buildAppointmentsPath({
-        error: "service-required",
-        formDoctorId: returnDoctorId,
-      }),
-    );
+    redirect(buildErrorRedirect("service-required"));
   }
 
   if (!formDate) {
-    redirect(
-      buildAppointmentsPath({
-        error: "date-required",
-        formDoctorId: returnDoctorId,
-        formServiceId: returnServiceId,
-      }),
-    );
+    redirect(buildErrorRedirect("date-required"));
   }
 
   if (!slotTime) {
-    redirect(
-      buildAppointmentsPath({
-        error: "slot-required",
-        formDoctorId: returnDoctorId,
-        formServiceId: returnServiceId,
-        formDate: returnDate,
-      }),
-    );
+    redirect(buildErrorRedirect("slot-required"));
   }
 
   const dateParts = parseIsoDateInput(formDate);
 
   if (!dateParts) {
-    redirect(
-      buildAppointmentsPath({
-        error: "date-required",
-        formDoctorId: returnDoctorId,
-        formServiceId: returnServiceId,
-        formDate: returnDate,
-      }),
-    );
+    redirect(buildErrorRedirect("date-required"));
   }
 
   const [doctor, service] = await Promise.all([
@@ -308,26 +351,14 @@ export async function createAdminAppointmentAction(formData: FormData) {
   ]);
 
   if (!doctor || !doctor.isActive) {
-    redirect(
-      buildAppointmentsPath({
-        error: "doctor-inactive",
-        formDoctorId: returnDoctorId,
-        formServiceId: returnServiceId,
-        formDate: returnDate,
-      }),
-    );
+    redirect(buildErrorRedirect("doctor-inactive"));
   }
 
   if (!service || !service.isActive) {
-    redirect(
-      buildAppointmentsPath({
-        error: "service-inactive",
-        formDoctorId: returnDoctorId,
-        formServiceId: returnServiceId,
-        formDate: returnDate,
-      }),
-    );
+    redirect(buildErrorRedirect("service-inactive"));
   }
+
+  let createdAppointmentId: string | null = null;
 
   try {
     await prisma.$transaction(async (transaction) => {
@@ -401,6 +432,8 @@ export async function createAdminAppointmentAction(formData: FormData) {
         actorUserId: authContext.user.id,
         db: transaction,
       });
+
+      createdAppointmentId = appointment.id;
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -414,30 +447,190 @@ export async function createAdminAppointmentAction(formData: FormData) {
       ]);
 
       if (knownErrors.has(error.message)) {
-        redirect(
-          buildAppointmentsPath({
-            error: error.message,
-            formDoctorId: returnDoctorId,
-            formServiceId: returnServiceId,
-            formDate: returnDate,
-          }),
-        );
+        redirect(buildErrorRedirect(error.message));
       }
     }
 
     console.error("No se pudo crear la cita desde el panel.", error);
+    redirect(buildErrorRedirect("appointment-save"));
+  }
+
+  revalidateAppointmentViews();
+
+  if (explicitRedirects.successRedirectPath && createdAppointmentId) {
     redirect(
-      buildAppointmentsPath({
-        error: "appointment-save",
-        formDoctorId: returnDoctorId,
-        formServiceId: returnServiceId,
-        formDate: returnDate,
+      updatePathSearchParams(explicitRedirects.successRedirectPath, {
+        status: "appointment-created",
+        error: null,
+        appointmentId: createdAppointmentId,
       }),
     );
   }
 
-  revalidateAppointmentViews();
   redirect(buildAppointmentsPath({ status: "appointment-created" }));
+}
+
+export async function rescheduleAdminAppointmentAction(formData: FormData) {
+  const authContext = await requireAuthContext();
+  const appointmentId = String(formData.get("appointmentId") ?? "").trim();
+  const selectedDate = String(formData.get("date") ?? "").trim();
+  const selectedSlotTime = String(formData.get("slotTime") ?? "").trim();
+  const fallbackPath = buildAppointmentsPath();
+  const redirectPath = resolveSafeRedirectPath(
+    formData.get("redirectPath"),
+    fallbackPath,
+  );
+  const successRedirectPath = resolveSafeRedirectPath(
+    formData.get("successRedirectPath"),
+    redirectPath,
+  );
+
+  if (!appointmentId) {
+    redirect(appendFeedbackToPath(redirectPath, { error: "appointment-not-found" }));
+  }
+
+  const appointment = await prisma.appointment.findFirst({
+    where: {
+      id: appointmentId,
+      clinicId: authContext.clinic.id,
+    },
+    select: {
+      id: true,
+      clinicId: true,
+      patientId: true,
+      doctorId: true,
+      serviceId: true,
+      status: true,
+      startAt: true,
+      endAt: true,
+    },
+  });
+
+  if (!appointment) {
+    redirect(appendFeedbackToPath(redirectPath, { error: "appointment-not-found" }));
+  }
+
+  if (
+    appointment.status !== AppointmentStatus.PENDING &&
+    appointment.status !== AppointmentStatus.CONFIRMED
+  ) {
+    redirect(
+      appendFeedbackToPath(redirectPath, { error: "appointment-action-invalid" }),
+    );
+  }
+
+  if (!selectedDate) {
+    redirect(appendFeedbackToPath(redirectPath, { error: "date-required" }));
+  }
+
+  if (!selectedSlotTime) {
+    redirect(appendFeedbackToPath(redirectPath, { error: "slot-required" }));
+  }
+
+  const dateParts = parseIsoDateInput(selectedDate);
+
+  if (!dateParts) {
+    redirect(appendFeedbackToPath(redirectPath, { error: "date-required" }));
+  }
+
+  const availableSlotResult = await getAvailableSlots({
+    clinicId: authContext.clinic.id,
+    doctorId: appointment.doctorId,
+    serviceId: appointment.serviceId,
+    date: buildClinicDateMarker(dateParts, authContext.clinic.timezone),
+    excludeAppointmentId: appointment.id,
+  });
+  const selectedSlot = availableSlotResult.slots.find(
+    (slot) => slot.startTime === selectedSlotTime,
+  );
+
+  if (!selectedSlot) {
+    redirect(appendFeedbackToPath(redirectPath, { error: "slot-unavailable" }));
+  }
+
+  const slotValidation = await validateAppointmentSlot({
+    clinicId: authContext.clinic.id,
+    doctorId: appointment.doctorId,
+    serviceId: appointment.serviceId,
+    patientId: appointment.patientId,
+    startAt: selectedSlot.startAt,
+    actorUserId: authContext.user.id,
+    excludeAppointmentId: appointment.id,
+  });
+
+  if (!slotValidation.ok) {
+    redirect(appendFeedbackToPath(redirectPath, { error: "slot-unavailable" }));
+  }
+
+  await prisma.$transaction(async (transaction) => {
+    const updatedAppointment = await transaction.appointment.update({
+      where: {
+        id: appointment.id,
+      },
+      data: {
+        startAt: slotValidation.startAt,
+        endAt: slotValidation.endAt,
+      },
+      select: {
+        id: true,
+        startAt: true,
+      },
+    });
+
+    const tokenBundle = await createAppointmentTokens({
+      clinicId: authContext.clinic.id,
+      appointmentId: updatedAppointment.id,
+      appointmentStartAt: updatedAppointment.startAt,
+      db: transaction,
+    });
+
+    await createAuditLog(
+      {
+        clinicId: authContext.clinic.id,
+        userId: authContext.user.id,
+        action: "APPOINTMENT_RESCHEDULED_ADMIN",
+        entityType: "APPOINTMENT",
+        entityId: appointment.id,
+        metadata: {
+          previousStatus: appointment.status,
+          nextStatus: appointment.status,
+          previousStartAt: appointment.startAt.toISOString(),
+          previousEndAt: appointment.endAt.toISOString(),
+          nextStartAt: slotValidation.startAt.toISOString(),
+          nextEndAt: slotValidation.endAt.toISOString(),
+          patientId: appointment.patientId,
+          doctorId: appointment.doctorId,
+          serviceId: appointment.serviceId,
+        },
+      },
+      transaction,
+    );
+
+    await enqueueAppointmentStatusChangedNotification({
+      clinicId: authContext.clinic.id,
+      appointmentId: updatedAppointment.id,
+      changeType: "RESCHEDULED",
+      selfServiceLinks: {
+        confirmUrl: tokenBundle.confirm.url,
+        cancelUrl: tokenBundle.cancel.url,
+        rescheduleUrl: tokenBundle.reschedule.url,
+      },
+      actorUserId: authContext.user.id,
+      db: transaction,
+    });
+  });
+
+  revalidateAppointmentViews();
+  redirect(
+    updatePathSearchParams(successRedirectPath, {
+      status: "appointment-rescheduled",
+      error: null,
+      appointmentId: appointment.id,
+      rescheduleAppointmentId: null,
+      rescheduleDate: null,
+      rescheduleSlotTime: null,
+    }),
+  );
 }
 
 export async function updateAppointmentStatusAction(formData: FormData) {

@@ -4,10 +4,12 @@ import { appointmentFieldClassName } from "./appointment-helpers";
 
 type AvailableSlotsPickerProps = {
   slots: AvailableSlot[];
+  selectedSlotTime?: string;
 };
 
 export function AvailableSlotsPicker({
   slots,
+  selectedSlotTime = "",
 }: AvailableSlotsPickerProps) {
   return (
     <label className="text-sm font-semibold text-ink">
@@ -15,6 +17,7 @@ export function AvailableSlotsPicker({
       <select
         name="slotTime"
         required
+        defaultValue={selectedSlotTime}
         className={appointmentFieldClassName}
       >
         <option value="">Selecciona un horario</option>

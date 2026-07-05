@@ -1,14 +1,17 @@
 import Link from "next/link";
 
 import {
+  appointmentFieldClassName,
   appointmentSourceLabels,
   formatAppointmentMoney,
   formatAppointmentPhone,
   getAppointmentActionAvailability,
 } from "@/components/appointments/appointment-helpers";
 import { AppointmentStatusBadge } from "@/components/appointments/appointment-status-badge";
+import { AvailableSlotsPicker } from "@/components/appointments/available-slots-picker";
 import { Button } from "@/components/ui/button";
-import type { CalendarAppointment } from "@/types/calendar";
+import type { GetAvailableSlotsResult } from "@/lib/appointments/availability";
+import type { CalendarAppointment, CalendarViewMode } from "@/types/calendar";
 
 import {
   formatCalendarDayTitle,
@@ -22,6 +25,15 @@ type CalendarAppointmentDetailsProps = {
   redirectPath: string;
   clearSelectionHref: string;
   action: (formData: FormData) => void | Promise<void>;
+  rescheduleAction: (formData: FormData) => void | Promise<void>;
+  view: CalendarViewMode;
+  calendarDateValue: string;
+  doctorFilterId: string;
+  rescheduleOpen: boolean;
+  rescheduleDateValue: string;
+  rescheduleSlotTime: string;
+  rescheduleAvailableSlotResult: GetAvailableSlotsResult | null;
+  rescheduleOpenHref: string;
 };
 
 function CalendarStatusActionButton({
@@ -58,6 +70,15 @@ export function CalendarAppointmentDetails({
   redirectPath,
   clearSelectionHref,
   action,
+  rescheduleAction,
+  view,
+  calendarDateValue,
+  doctorFilterId,
+  rescheduleOpen,
+  rescheduleDateValue,
+  rescheduleSlotTime,
+  rescheduleAvailableSlotResult,
+  rescheduleOpenHref,
 }: CalendarAppointmentDetailsProps) {
   if (!appointment) {
     return (
@@ -77,9 +98,10 @@ export function CalendarAppointmentDetails({
   }
 
   const actionAvailability = getAppointmentActionAvailability(appointment.status);
+  const canReschedule = actionAvailability.canCancel;
 
   return (
-    <article className="surface-card p-6 sm:p-7">
+    <article id="calendar-appointment-details" className="surface-card p-6 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
@@ -189,6 +211,88 @@ export function CalendarAppointmentDetails({
           />
         ) : null}
       </div>
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Link
+          href={`/app/patients/${appointment.patient.id}`}
+          className="inline-flex items-center rounded-full border border-line/80 bg-white px-4 py-3 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
+        >
+          Ir al detalle del cliente
+        </Link>
+
+        {canReschedule ? (
+          <Link
+            href={`${rescheduleOpenHref}#calendar-appointment-details`}
+            className="inline-flex items-center rounded-full border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700 transition-colors hover:border-brand-300 hover:bg-brand-100"
+          >
+            Reagendar desde agenda
+          </Link>
+        ) : null}
+      </div>
+
+      {rescheduleOpen && canReschedule ? (
+        <div className="mt-6 rounded-[24px] border border-line/80 bg-surface-soft px-4 py-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
+            Reagendar reserva
+          </p>
+          <p className="mt-2 text-sm leading-7 text-muted">
+            Selecciona otro día y confirma un horario libre del mismo profesional y
+            servicio.
+          </p>
+
+          <form action="/app/calendar" className="mt-4 grid gap-4">
+            <input type="hidden" name="view" value={view} />
+            <input type="hidden" name="date" value={calendarDateValue} />
+            <input type="hidden" name="doctorId" value={doctorFilterId} />
+            <input type="hidden" name="appointmentId" value={appointment.id} />
+            <input
+              type="hidden"
+              name="rescheduleAppointmentId"
+              value={appointment.id}
+            />
+
+            <label className="text-sm font-semibold text-ink">
+              Nueva fecha
+              <input
+                type="date"
+                name="rescheduleDate"
+                defaultValue={rescheduleDateValue}
+                className={appointmentFieldClassName}
+              />
+            </label>
+
+            <Button type="submit" variant="secondary">
+              Ver horarios para reagendar
+            </Button>
+          </form>
+
+          {rescheduleAvailableSlotResult ? (
+            rescheduleAvailableSlotResult.slots.length ? (
+              <form action={rescheduleAction} className="mt-4 grid gap-4">
+                <input type="hidden" name="appointmentId" value={appointment.id} />
+                <input type="hidden" name="date" value={rescheduleDateValue} />
+                <input type="hidden" name="redirectPath" value={redirectPath} />
+                <input
+                  type="hidden"
+                  name="successRedirectPath"
+                  value={clearSelectionHref}
+                />
+
+                <AvailableSlotsPicker
+                  slots={rescheduleAvailableSlotResult.slots}
+                  selectedSlotTime={rescheduleSlotTime}
+                />
+
+                <Button type="submit">Confirmar nuevo horario</Button>
+              </form>
+            ) : (
+              <div className="mt-4 rounded-[22px] border border-dashed border-line/80 bg-white px-4 py-4 text-sm text-muted">
+                No hay horarios disponibles para reagendar en la fecha elegida.
+              </div>
+            )
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="mt-6">
         <Link

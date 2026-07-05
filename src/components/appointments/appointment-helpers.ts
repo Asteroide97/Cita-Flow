@@ -178,6 +178,11 @@ export function resolveAppointmentsFlashMessage(
         tone: "success",
         message: "La reserva fue marcada como no-show.",
       };
+    case "appointment-rescheduled":
+      return {
+        tone: "success",
+        message: "La reserva fue reagendada correctamente.",
+      };
     default:
       return null;
   }

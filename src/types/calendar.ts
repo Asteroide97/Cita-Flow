@@ -7,6 +7,13 @@ export type CalendarPageSearchParams = {
   date?: string;
   doctorId?: string;
   appointmentId?: string;
+  createDoctorId?: string;
+  createServiceId?: string;
+  createDate?: string;
+  createSlotTime?: string;
+  rescheduleAppointmentId?: string;
+  rescheduleDate?: string;
+  rescheduleSlotTime?: string;
   status?: string;
   error?: string;
 };

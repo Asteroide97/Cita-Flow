@@ -18,6 +18,23 @@ import type {
   ReportsPageSearchParams,
 } from "@/types/reports";
 
+function SummaryField({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-[20px] border border-line/80 bg-white/92 px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+        {label}
+      </p>
+      <p className="mt-2 text-sm font-semibold text-ink">{value}</p>
+    </div>
+  );
+}
+
 type ReportsPageProps = {
   searchParams: Promise<ReportsPageSearchParams>;
 };
@@ -83,17 +100,14 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
     {
       label: "Ver agenda",
       href: `/app/calendar?view=day&date=${report.dateRange.to}`,
-      note: "Abrir la agenda operativa del negocio.",
     },
     {
       label: "Ver reservas",
       href: "/app/appointments",
-      note: "Revisar y accionar sobre reservas reales.",
     },
     {
       label: "Ver clientes",
       href: "/app/patients",
-      note: "Entrar a la base de clientes del negocio.",
     },
   ];
 
@@ -101,55 +115,55 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
     {
       label: "Total de reservas",
       value: String(report.metrics.totalReservations),
-      note: "Reservas encontradas dentro del rango filtrado.",
+      note: "Rango filtrado",
       tone: "brand" as const,
     },
     {
       label: "Confirmadas",
       value: String(report.metrics.confirmedCount),
-      note: "Reservas confirmadas para el rango actual.",
+      note: "Estado confirmado",
       tone: "emerald" as const,
     },
     {
       label: "Pendientes",
       value: String(report.metrics.pendingCount),
-      note: "Reservas que aun requieren confirmacion.",
+      note: "Por confirmar",
       tone: "amber" as const,
     },
     {
       label: "Canceladas",
       value: String(report.metrics.cancelledCount),
-      note: "Reservas canceladas dentro del periodo.",
+      note: "Estado cancelado",
       tone: "slate" as const,
     },
     {
       label: "Completadas",
       value: String(report.metrics.completedCount),
-      note: "Reservas atendidas y cerradas.",
+      note: "Atendidas",
       tone: "brand" as const,
     },
     {
       label: "No-show",
       value: String(report.metrics.noShowCount),
-      note: "Clientes que no asistieron al horario reservado.",
+      note: "No asistieron",
       tone: "amber" as const,
     },
     {
       label: "Clientes nuevos",
       value: String(report.metrics.newClientsCount),
-      note: "Clientes creados durante el rango seleccionado.",
+      note: "Creados en el rango",
       tone: "emerald" as const,
     },
     {
       label: "Tasa de cancelacion",
       value: formatReportPercentage(report.metrics.cancellationRate),
-      note: "Canceladas sobre el total de reservas del reporte.",
+      note: "Sobre total",
       tone: "slate" as const,
     },
     {
       label: "Tasa de no-show",
       value: formatReportPercentage(report.metrics.noShowRate),
-      note: "No-show sobre el total de reservas del reporte.",
+      note: "Sobre total",
       tone: "amber" as const,
     },
   ];
@@ -158,7 +172,7 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
     <PanelPage
       eyebrow="Reportes"
       title="Desempeno del negocio"
-      description="Consulta el comportamiento de reservas, clientes, servicios y profesionales con filtros simples y sin depender de herramientas externas."
+      description="Vista simple del rendimiento de reservas, clientes y servicios."
     >
       <div className="grid gap-6">
         <ReportFilters
@@ -167,7 +181,7 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
           values={filters}
         />
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
           {metrics.map((metric) => (
             <ReportMetricCard
               key={metric.label}
@@ -183,60 +197,42 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
           <ReportDailyTable rows={report.reservationsByDay} />
 
           <section className="grid gap-6 self-start xl:sticky xl:top-6">
-            <article className="surface-card p-6 sm:p-7">
+            <article className="surface-card p-5 sm:p-6">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Resumen aplicado
+                Resumen
               </p>
-              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-ink">
                 {report.dateRange.fromLabel} - {report.dateRange.toLabel}
               </h2>
-              <div className="mt-6 grid gap-4">
-                <div className="rounded-[24px] border border-line/80 bg-white/92 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                    Profesional
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-ink">
-                    {selectedDoctor
+              <div className="mt-5 grid gap-3">
+                <SummaryField
+                  label="Profesional"
+                  value={
+                    selectedDoctor
                       ? `${selectedDoctor.name}${selectedDoctor.specialty ? ` - ${selectedDoctor.specialty}` : ""}`
-                      : "Todos los profesionales"}
-                  </p>
-                </div>
-                <div className="rounded-[24px] border border-line/80 bg-white/92 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                    Servicio
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-ink">
-                    {selectedService ? selectedService.name : "Todos los servicios"}
-                  </p>
-                </div>
-                <div className="rounded-[24px] border border-line/80 bg-white/92 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                    Negocio actual
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-ink">
-                    {authContext.clinic.name}
-                  </p>
-                  <p className="mt-2 text-sm text-muted">
-                    Todos los datos del reporte se limitan al tenant actual y respetan
-                    la zona horaria del negocio.
-                  </p>
-                </div>
+                      : "Todos"
+                  }
+                />
+                <SummaryField
+                  label="Servicio"
+                  value={selectedService ? selectedService.name : "Todos"}
+                />
+                <SummaryField label="Negocio" value={authContext.clinic.name} />
               </div>
             </article>
 
-            <article className="surface-card p-6 sm:p-7">
+            <article className="surface-card p-5 sm:p-6">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Acciones rapidas
+                Acciones
               </p>
-              <div className="mt-6 grid gap-3">
+              <div className="mt-5 flex flex-wrap gap-2">
                 {quickLinks.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="rounded-[24px] border border-line/80 bg-white/92 px-4 py-4 transition hover:border-brand-200 hover:bg-brand-50/40"
+                    className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700"
                   >
-                    <p className="text-sm font-semibold text-ink">{item.label}</p>
-                    <p className="mt-2 text-sm leading-6 text-muted">{item.note}</p>
+                    {item.label}
                   </Link>
                 ))}
               </div>

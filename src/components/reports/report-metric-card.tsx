@@ -21,7 +21,7 @@ export function ReportMetricCard({
   tone = "slate",
 }: ReportMetricCardProps) {
   return (
-    <article className="surface-card p-5 sm:p-6">
+    <article className="surface-card p-4 sm:p-5">
       <span
         className={cn(
           "inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]",
@@ -30,10 +30,12 @@ export function ReportMetricCard({
       >
         {label}
       </span>
-      <p className="mt-4 text-3xl font-semibold tracking-[-0.06em] text-ink">
+      <p className="mt-3 text-2xl font-semibold tracking-[-0.06em] text-ink sm:text-3xl">
         {value}
       </p>
-      <p className="mt-2 text-sm leading-6 text-muted">{note}</p>
+      <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+        {note}
+      </p>
     </article>
   );
 }

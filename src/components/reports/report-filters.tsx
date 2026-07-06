@@ -16,23 +16,14 @@ export function ReportFilters({
   values,
 }: ReportFiltersProps) {
   return (
-    <section className="surface-card p-6 sm:p-7">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Filtros
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-            Ajusta el rango del reporte
-          </h2>
-          <p className="mt-3 text-sm leading-7 text-muted">
-            Filtra por fechas, profesional o servicio para revisar el desempeno del
-            negocio sin salir del panel.
-          </p>
-        </div>
+    <section className="surface-card p-5 sm:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
+          Filtros
+        </p>
       </div>
 
-      <form className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+      <form className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
         <label className="text-sm font-semibold text-ink">
           Desde
           <input
@@ -93,7 +84,7 @@ export function ReportFilters({
             type="submit"
             className="inline-flex w-full items-center justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 xl:w-auto"
           >
-            Aplicar filtros
+            Aplicar
           </button>
         </div>
       </form>

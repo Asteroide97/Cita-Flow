@@ -34,16 +34,16 @@ export function ReportRankingTable({
   const maxTotal = rows.reduce((current, row) => Math.max(current, row.total), 0);
 
   return (
-    <section className="surface-card p-6 sm:p-7">
+    <section className="surface-card p-5 sm:p-6">
       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
         {eyebrow}
       </p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+      <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-ink">
         {title}
       </h2>
 
       {rows.length ? (
-        <div className="mt-6 overflow-x-auto">
+        <div className="mt-5 overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-line/80 text-left text-xs uppercase tracking-[0.16em] text-muted">
@@ -74,7 +74,7 @@ export function ReportRankingTable({
 
                 return (
                   <tr key={row.id} className="border-b border-line/60 last:border-b-0">
-                    <td className="py-4 pr-4">
+                    <td className="py-3 pr-4">
                       {row.href ? (
                         <Link
                           href={row.href}
@@ -86,17 +86,17 @@ export function ReportRankingTable({
                         nameContent
                       )}
                     </td>
-                    <td className="py-4 pr-4 font-semibold text-ink">{row.total}</td>
-                    <td className="py-4 pr-4 text-emerald-700">
+                    <td className="py-3 pr-4 font-semibold text-ink">{row.total}</td>
+                    <td className="py-3 pr-4 text-emerald-700">
                       {getStatusValue(row, AppointmentStatus.CONFIRMED)}
                     </td>
-                    <td className="py-4 pr-4 text-amber-700">
+                    <td className="py-3 pr-4 text-amber-700">
                       {getStatusValue(row, AppointmentStatus.PENDING)}
                     </td>
-                    <td className="py-4 pr-4 text-rose-700">
+                    <td className="py-3 pr-4 text-rose-700">
                       {getStatusValue(row, AppointmentStatus.CANCELLED)}
                     </td>
-                    <td className="py-4 text-muted">
+                    <td className="py-3 text-muted">
                       {row.lastReservationAt
                         ? formatDateTimeInTimeZone(row.lastReservationAt, timezone)
                         : "Sin reservas"}
@@ -108,7 +108,7 @@ export function ReportRankingTable({
           </table>
         </div>
       ) : (
-        <div className="mt-6 rounded-[24px] border border-dashed border-line bg-surface-soft px-5 py-4 text-sm text-muted">
+        <div className="mt-5 rounded-[24px] border border-dashed border-line bg-surface-soft px-5 py-4 text-sm text-muted">
           {emptyMessage}
         </div>
       )}

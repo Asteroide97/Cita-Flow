@@ -1,10 +1,12 @@
+import { DashboardPendingAttention } from "@/components/app/dashboard-pending-attention";
+import { DashboardTodayOperations } from "@/components/app/dashboard-today-operations";
 import { OnboardingChecklist } from "@/components/app/onboarding-checklist";
 import { OperationalStatus } from "@/components/app/operational-status";
 import { MetricCard } from "@/components/app/metric-card";
 import { PanelPage } from "@/components/app/panel-page";
-import { dashboardMetrics } from "@/data/panel";
 import { brand } from "@/lib/brand";
 import { getOperationalStatus } from "@/lib/dashboard/operational-status";
+import { getDashboardTodayOverview } from "@/lib/dashboard/today-operations";
 import { prisma } from "@/lib/prisma";
 import { getCurrentClinicContext } from "@/lib/tenant";
 
@@ -17,6 +19,7 @@ export default async function DashboardPage() {
     firstActiveDoctor,
     activeAvailabilityCount,
     operationalStatus,
+    todayOverview,
   ] = await Promise.all([
     prisma.clinic.findUnique({
       where: {
@@ -63,6 +66,7 @@ export default async function DashboardPage() {
       },
     }),
     getOperationalStatus(clinic.clinicId),
+    getDashboardTodayOverview(clinic.clinicId),
   ]);
 
   if (!clinicRecord) {
@@ -78,6 +82,41 @@ export default async function DashboardPage() {
       clinicRecord.timezone.trim() &&
       clinicRecord.currency.trim(),
   );
+  const todayCalendarHref = `/app/calendar?view=day&date=${todayOverview.today.dateValue}`;
+  const pendingAppointmentsHref = "/app/appointments?filterStatus=PENDING";
+  const pendingWaitlistHref = "/app/waitlist";
+  const pendingNotificationsHref = "/app/notifications";
+  const dashboardMetrics = [
+    {
+      label: "Reservas de hoy",
+      value: String(todayOverview.today.totalReservations),
+      note: `${todayOverview.today.confirmedCount} confirmadas - ${todayOverview.today.pendingCount} pendientes`,
+      tone: "brand" as const,
+    },
+    {
+      label: "Proxima reserva",
+      value: todayOverview.today.nextAppointment?.timeLabel ?? "Sin proximas",
+      note:
+        todayOverview.today.nextAppointment?.summary ??
+        "No hay mas reservas activas pendientes para el resto del dia.",
+      tone: "emerald" as const,
+    },
+    {
+      label: "Horarios libres hoy",
+      value:
+        todayOverview.today.remainingSlotsTodayCount === null
+          ? "--"
+          : String(todayOverview.today.remainingSlotsTodayCount),
+      note: todayOverview.today.remainingSlotsTodayNote,
+      tone: "amber" as const,
+    },
+    {
+      label: "Pendientes por atender",
+      value: String(todayOverview.pending.totalPendingCount),
+      note: `${todayOverview.pending.pendingAppointmentsCount} reservas - ${todayOverview.pending.activeWaitlistEntriesCount} lista de espera - ${todayOverview.pending.pendingNotificationsCount} notificaciones`,
+      tone: "slate" as const,
+    },
+  ];
 
   const onboardingSteps = [
     {
@@ -154,7 +193,7 @@ export default async function DashboardPage() {
     <PanelPage
       eyebrow="Dashboard"
       title="Resumen del negocio"
-      description="Este dashboard inicial ya corre sobre sesion real y deja lista la base del SaaS para conectar datos operativos por tenant sin afectar la landing publica."
+      description="Revisa el estado operativo, la actividad de hoy y los pendientes principales del negocio actual sin salir del panel."
     >
       <OnboardingChecklist
         businessName={displayName}
@@ -179,53 +218,17 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="surface-card p-7">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Operacion del dia
-          </p>
-          <div className="mt-6 grid gap-4">
-            {[
-              "2 reservas en estado PENDING listas para confirmar.",
-              "1 profesional con agenda completa por la tarde.",
-              "Recordatorios y pagos quedaran conectados en fases posteriores.",
-            ].map((item, index) => (
-              <div
-                key={item}
-                className="rounded-[24px] border border-line/80 bg-surface-soft p-5"
-              >
-                <div className="flex items-start gap-4">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-50 text-sm font-semibold text-brand-700">
-                    {index + 1}
-                  </span>
-                  <p className="text-sm leading-7 text-ink">{item}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <DashboardTodayOperations
+          summary={todayOverview.today}
+          agendaHref={todayCalendarHref}
+        />
 
-        <div className="surface-card p-7">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Negocio actual
-          </p>
-          <div className="mt-6 space-y-4">
-            <div className="rounded-[24px] border border-brand-100 bg-brand-50 p-5">
-              <p className="text-sm font-semibold text-brand-700">{clinic.clinicName}</p>
-              <p className="mt-3 text-sm leading-7 text-ink">
-                El tenant ya se resuelve desde la sesion activa del usuario y mantiene
-                aislados los datos del negocio actual.
-              </p>
-            </div>
-
-            <div className="rounded-[24px] border border-line/80 bg-white p-5">
-              <p className="text-sm font-semibold text-ink">Siguiente paso tecnico</p>
-              <p className="mt-3 text-sm leading-7 text-muted">
-                Conectar queries, CRUD y permisos por rol para que cada modulo opere
-                sobre datos reales de la cuenta actual.
-              </p>
-            </div>
-          </div>
-        </div>
+        <DashboardPendingAttention
+          summary={todayOverview.pending}
+          pendingAppointmentsHref={pendingAppointmentsHref}
+          waitlistHref={pendingWaitlistHref}
+          notificationsHref={pendingNotificationsHref}
+        />
       </div>
     </PanelPage>
   );

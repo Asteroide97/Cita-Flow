@@ -8,7 +8,7 @@ import { buildPublicMetadata } from "@/lib/brand";
 export const metadata: Metadata = buildPublicMetadata({
   title: "FAQ",
   description:
-    "Resuelve dudas frecuentes sobre reservas, anticipos, profesionales, clientes y operación pública en Agenda Viva.",
+    "Resuelve dudas frecuentes sobre reservas, anticipos, profesionales, clientes y operación en Agenda Viva.",
   path: "/faq",
 });
 
@@ -19,8 +19,6 @@ export default function FaqPage() {
       <PublicCTA
         title="Cuando quieras, puedes pasar de la duda a la prueba."
         description="Explora el producto, mira el demo y decide si Agenda Viva encaja con tu operación."
-        secondaryHref="/booking/clinica-demo"
-        secondaryLabel="Ver demo"
       />
     </PublicPageShell>
   );

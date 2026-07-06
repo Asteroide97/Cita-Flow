@@ -17,13 +17,11 @@ export default function ProductPage() {
     <PublicPageShell>
       <ProductModulesSection
         title="Un producto pensado para operar reservas de principio a fin"
-        description="Cada módulo está diseñado para ayudarte a captar, organizar y dar seguimiento sin depender del caos operativo."
+        description="Módulos claros para captar, organizar y dar seguimiento sin caos operativo."
       />
       <PublicCTA
-        title="Pasa de responder mensajes a operar con un sistema claro."
-        description="Agenda Viva reúne booking público, agenda, clientes y seguimiento en una sola experiencia."
-        secondaryHref="/soluciones"
-        secondaryLabel="Ver soluciones"
+        title="Opera reservas, agenda y seguimiento desde un solo lugar."
+        description="Pasa de responder mensajes a trabajar con una base más clara y más vendible."
       />
     </PublicPageShell>
   );

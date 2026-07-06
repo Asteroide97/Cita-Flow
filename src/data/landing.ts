@@ -308,7 +308,7 @@ export const faqs: Faq[] = [
   {
     question: "¿Necesito tarjeta para empezar?",
     answer:
-      "No. Puedes probar el flujo comercial primero y decidir después cómo operar formalmente con Agenda Viva.",
+      "No. Puedes probar el flujo primero y decidir después cómo operar formalmente con Agenda Viva.",
   },
   {
     question: "¿Puedo cobrar anticipos?",
@@ -318,12 +318,12 @@ export const faqs: Faq[] = [
   {
     question: "¿Funciona con WhatsApp?",
     answer:
-      "Sí. Puedes compartir tu link por WhatsApp y el producto ya prepara notificaciones transaccionales para futuras integraciones.",
+      "Sí. Puedes compartir tu link por WhatsApp y el producto ya prepara notificaciones para una integración futura.",
   },
   {
     question: "¿Puedo usarlo con varios profesionales?",
     answer:
-      "Sí. Agenda Viva está pensado para operar con uno o varios profesionales dentro del mismo negocio.",
+      "Sí. Está pensado para operar con uno o varios profesionales dentro del mismo negocio.",
   },
   {
     question: "¿Mis clientes necesitan crear cuenta?",
@@ -333,12 +333,12 @@ export const faqs: Faq[] = [
   {
     question: "¿Puedo cancelar cuando quiera?",
     answer:
-      "Sí. El plan está planteado como una suscripción simple, sin permanencias forzosas.",
+      "Sí. El plan es simple y sin permanencias forzosas.",
   },
   {
     question: "¿Se integra con Google Calendar?",
     answer:
-      "Todavía no. Está contemplado para una fase posterior del producto.",
+      "Todavía no. Está contemplado para una fase posterior.",
   },
 ];
 

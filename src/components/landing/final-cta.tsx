@@ -2,6 +2,7 @@ import { ButtonLink } from "../ui/button-link";
 import { SectionShell } from "../ui/section-shell";
 
 type PublicCTAProps = {
+  eyebrow?: string;
   title?: string;
   description?: string;
   primaryHref?: string;
@@ -11,12 +12,13 @@ type PublicCTAProps = {
 };
 
 export function PublicCTA({
+  eyebrow = "Listo para probar",
   title = "Deja que tu agenda venda mejor por ti.",
   description = "Convierte reservas, recordatorios y horarios liberados en un sistema más claro para tu negocio.",
   primaryHref = "/registro",
-  primaryLabel = "Probar Agenda Viva",
-  secondaryHref = "/precios",
-  secondaryLabel = "Ver precios",
+  primaryLabel = "Probar gratis",
+  secondaryHref = "/booking/clinica-demo",
+  secondaryLabel = "Ver demo",
 }: PublicCTAProps) {
   return (
     <SectionShell className="pt-12">
@@ -24,7 +26,7 @@ export function PublicCTA({
         <div className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-100">
-              CTA final
+              {eyebrow}
             </p>
             <h2 className="mt-5 text-balance text-3xl font-semibold tracking-[-0.06em] text-white sm:text-4xl lg:text-5xl">
               {title}

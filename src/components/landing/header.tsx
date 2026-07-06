@@ -48,6 +48,7 @@ export function PublicHeader() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
                     active
@@ -66,7 +67,7 @@ export function PublicHeader() {
               Iniciar sesión
             </ButtonLink>
             <ButtonLink href="/registro" className="px-4 sm:px-5">
-              Probar Agenda Viva
+              Probar gratis
             </ButtonLink>
           </div>
         </div>
@@ -80,6 +81,7 @@ export function PublicHeader() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
                     active

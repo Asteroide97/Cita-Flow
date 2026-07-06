@@ -22,9 +22,7 @@ export default function SolutionsPage() {
       />
       <PublicCTA
         title="Tu negocio también puede reservar mejor."
-        description="Si vives de tu agenda, Agenda Viva te ayuda a operar con más orden y menos seguimiento manual."
-        secondaryHref="/producto"
-        secondaryLabel="Ver producto"
+        description="Si vives de tu agenda, puedes empezar con el demo y ver cómo se sentiría tu flujo público."
       />
     </PublicPageShell>
   );

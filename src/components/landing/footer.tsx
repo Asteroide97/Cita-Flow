@@ -24,7 +24,9 @@ export function PublicFooter() {
                 </p>
               </div>
 
-              <p className="mt-4 text-sm leading-7 text-slate-300">{brand.tagline}</p>
+              <p className="mt-4 text-sm leading-7 text-slate-300">
+                {brand.shortTagline}
+              </p>
             </div>
 
             <nav className="flex flex-wrap gap-4 sm:gap-6">

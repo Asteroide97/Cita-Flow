@@ -17,10 +17,9 @@ export default function PricingPage() {
     <PublicPageShell>
       <PricingSection />
       <PublicCTA
-        title="Empieza con una base simple y comercial."
-        description="Agenda Viva Pro reúne lo esencial para vender mejor y operar con menos fricción."
-        secondaryHref="/faq"
-        secondaryLabel="Ver FAQ"
+        eyebrow="Plan listo para probar"
+        title="Todo el plan gira alrededor de una agenda más ordenada."
+        description="Si quieres verlo en acción antes de registrarte, abre el demo público y recorre la experiencia."
       />
     </PublicPageShell>
   );

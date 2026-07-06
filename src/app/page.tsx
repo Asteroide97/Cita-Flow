@@ -28,8 +28,8 @@ export default function HomePage() {
         showViewAllLink
       />
       <PublicCTA
-        title="Haz que reservar sea más simple para tu negocio y para tus clientes."
-        description="Empieza con una página clara, una agenda ordenada y una operación más comercial."
+        title="Empieza a recibir reservas sin perseguir mensajes."
+        description="Lanza una página clara, ordena tu agenda y deja de coordinar todo a mano."
       />
     </PublicPageShell>
   );

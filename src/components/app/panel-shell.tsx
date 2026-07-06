@@ -65,6 +65,15 @@ export function PanelShell({ auth, children }: PanelShellProps) {
                   Ver landing
                 </Link>
 
+                {showSuperAdminLink ? (
+                  <Link
+                    href="/superadmin"
+                    className="inline-flex items-center justify-center rounded-full border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700 transition-colors hover:border-brand-300 hover:bg-brand-100"
+                  >
+                    Superadmin
+                  </Link>
+                ) : null}
+
                 <form action="/logout" method="post">
                   <Button type="submit" variant="secondary" className="w-full xl:w-auto">
                     Cerrar sesión

@@ -62,6 +62,12 @@ export const panelNavigation: PanelNavItem[] = [
     description: "Metricas del negocio.",
   },
   {
+    label: "QA",
+    href: "/app/qa",
+    shortLabel: "QA",
+    description: "Checklist de demo.",
+  },
+  {
     label: "WhatsApp",
     href: "/app/whatsapp-simulator",
     shortLabel: "WA",

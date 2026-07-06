@@ -175,6 +175,10 @@ model Clinic {
   websiteUrl            String?
   contactEmail          String?
   contactPhone          String?
+  billingStatus         String                 @default("TRIAL")
+  billingNotes          String?
+  nextFollowUpAt        DateTime?
+  lastContactedAt       DateTime?
   isActive              Boolean                @default(true)
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
@@ -198,6 +202,7 @@ model Clinic {
   waitlistOffers        WaitlistOffer[]
 
   @@index([isActive])
+  @@index([billingStatus])
 }
 
 model ClinicMember {

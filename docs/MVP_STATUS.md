@@ -4,39 +4,70 @@ Actualizado: 2026-07-06
 
 ## Resumen del producto
 
-Agenda Viva es una plataforma de reservas para negocios de servicios. El MVP actual ya permite operar un negocio real con:
+Agenda Viva es una plataforma de reservas para negocios de servicios. El MVP ya cubre la operacion base de un negocio que vive de su agenda:
 
-- Landing publica multiindustria.
-- Panel interno protegido por sesion.
+- Captacion con landing publica.
 - Booking publico por slug del negocio.
-- Motor real de disponibilidad por profesional.
-- Gestion de reservas, clientes, servicios y profesionales.
-- Lista de espera separada del flujo de reserva.
-- Outbox de notificaciones.
-- Simulador local de WhatsApp.
-- Reportes basicos.
+- Reserva interna desde panel y calendario.
+- Disponibilidad real por profesional.
+- Clientes, servicios y profesionales.
+- Lista de espera separada del booking.
+- Notificaciones en cola.
+- Dashboard operativo y reportes basicos.
 
-El producto ya es demostrable como MVP funcional, pero todavia mantiene integraciones reales pausadas o parciales.
+El producto ya es demostrable. Las integraciones externas mas sensibles siguen pausadas o parciales.
 
-## Que no se debe tocar por ahora
+## Branding actual
 
-- No cambiar `schema.prisma` salvo necesidad critica.
-- No cambiar rutas publicas ya usadas en demo.
-- No activar envio automatico real por WhatsApp.
-- No conectar Twilio.
-- No conectar Stripe todavia.
-- No conectar Google Calendar todavia.
-- No renombrar modelos internos `Doctor`, `Patient` o `Clinic`.
-- No cambiar el email demo `demo@citaflow.app` por ahora.
+- Marca visible actual: `Agenda Viva`
+- Tagline base: `Agenda Viva automatiza reservas, recordatorios y horarios liberados para negocios de servicios.`
+- La fuente central de marca sigue siendo `src/lib/brand.ts`
 
-## Modulos implementados
+## Capa publica implementada
 
-### Landing publica
+La landing larga ya fue separada en rutas publicas mas claras:
 
 - `/`
-- Branding Agenda Viva.
-- Copy multiindustria.
-- Hero, beneficios, FAQ, precios y CTA final.
+  - Home corta y comercial.
+  - Hero.
+  - Beneficios.
+  - Como funciona.
+  - Tipos de negocio resumidos.
+  - CTA final.
+
+- `/producto`
+  - Modulos del producto.
+  - Reservas online.
+  - Agenda visual.
+  - Clientes.
+  - Profesionales.
+  - Servicios.
+  - Lista de espera.
+  - Notificaciones.
+  - Reportes.
+  - Panel operativo.
+
+- `/soluciones`
+  - Soluciones por tipo de negocio.
+  - Clinicas y consultorios.
+  - Dental.
+  - Psicologia.
+  - Fisioterapia.
+  - Spa y estetica.
+  - Barberias.
+  - Salones.
+  - Veterinarias.
+  - Entrenadores y clases.
+  - Centros deportivos.
+
+- `/precios`
+  - Plan unico `Agenda Viva Pro`
+  - Precio visible: `$13 USD / mes`
+
+- `/faq`
+  - Preguntas frecuentes ordenadas.
+
+## Modulos implementados
 
 ### Auth
 
@@ -63,7 +94,8 @@ El producto ya es demostrable como MVP funcional, pero todavia mantiene integrac
 ### Booking publico
 
 - `/booking/[clinicSlug]`
-- Reserva publica con disponibilidad real.
+- Reserva publica funcional con disponibilidad real.
+- Estado inicial `PENDING`.
 - Lista de espera separada del flujo de reserva.
 
 ### Autoservicio publico por token
@@ -77,138 +109,188 @@ El producto ya es demostrable como MVP funcional, pero todavia mantiene integrac
 - `/espera/aceptar/[offerToken]`
 - `/espera/rechazar/[offerToken]`
 
-### Meta Cloud API
-
-- Cliente y webhook base implementados.
-- Integracion pausada en UI y sin envio automatico.
-
 ## Flujos funcionales
 
 ### Registro inicial
 
-- Crea `User`, `Clinic` y `ClinicMember` con rol `OWNER`.
-
-### Login y logout
-
-- Login por email y contrasena.
-- Logout revoca la sesion.
+- Crea `User`
+- Crea `Clinic`
+- Crea `ClinicMember` con rol `OWNER`
 
 ### Configuracion del negocio
 
-- Nombre del negocio.
-- Slug publico.
-- Tipo de negocio.
-- Zona horaria.
-- Moneda.
-- Color de marca.
-- Nombre y descripcion publica.
-- Sitio web, email y telefono de contacto.
+- Nombre del negocio
+- Slug publico
+- Tipo de negocio
+- Zona horaria
+- Moneda
+- Color de marca
+- Nombre publico
+- Descripcion publica
+- Sitio web
+- Email de contacto
+- Telefono de contacto
 
-### Booking publico
+### Booking publico funcional
 
-- Elegir servicio.
-- Elegir profesional.
-- Elegir fecha.
-- Ver horarios reales.
-- Capturar datos del cliente.
-- Crear reserva `PENDING`.
+- Elegir servicio publico y activo
+- Elegir profesional publico y activo
+- Elegir fecha
+- Ver horarios reales
+- Capturar datos del cliente
+- Crear reserva `PENDING`
 
-### Lista de espera publica
+### Lista de espera separada
 
-- Se crea `WaitlistEntry`.
-- No crea `Appointment`.
-- Muestra confirmacion separada dentro del booking.
+- Se crea `WaitlistEntry`
+- No crea `Appointment`
+- Muestra confirmacion separada dentro del booking
 
 ### Gestion de reservas desde panel
 
-- Crear reserva manual.
-- Confirmar.
-- Cancelar.
-- Completar.
-- Marcar no-show.
-- Reagendar.
+- Crear reserva manual
+- Confirmar
+- Cancelar
+- Completar
+- Marcar no-show
+- Reagendar
 
 ### Gestion desde agenda
 
-- Crear reserva desde hueco disponible.
-- Ver reservas por dia y semana.
-- Ver bloqueos generales.
-- Ejecutar acciones rapidas.
+- Crear reserva desde hueco disponible
+- Ver agenda por dia y semana
+- Ver bloqueos generales
+- Reagendar desde agenda
+- Ejecutar acciones rapidas
 
-### Gestion de disponibilidad
-
-- Disponibilidad semanal por profesional.
-- Ausencias por profesional.
-- Bloqueos generales del negocio.
-- Prevencion de traslapes con reservas activas.
-
-### Clientes
-
-- Listado real.
-- Filtros.
-- Detalle por cliente.
-- Edicion de datos.
-
-### Profesionales
-
-- CRUD real.
-- Visibilidad publica.
-- Orden publico.
-- Disponibilidad.
+## Catalogos publicos implementados
 
 ### Servicios
 
-- CRUD real.
-- Categoria.
-- Visibilidad publica.
-- Orden publico.
-- Reglas de anticipo a nivel de datos, sin Stripe real.
+- CRUD real
+- Categoria
+- Orden publico
+- Visibilidad publica
+- Impacta directamente `/booking/[clinicSlug]`
 
-### WhatsApp simulator
+### Profesionales
 
-- Simulacion local de conversacion.
-- Flujo de reserva deterministico.
-- Usa disponibilidad real.
+- CRUD real
+- Visibilidad publica
+- Orden publico
+- Avatar o foto
+- Disponibilidad real
+- Impacta directamente `/booking/[clinicSlug]`
 
-### Notificaciones
+## Dashboard operativo implementado
 
-- `NotificationOutbox` para WhatsApp y email.
-- Creacion de notificaciones pendientes.
-- Acciones manuales de desarrollo para marcar estados.
+El dashboard ya funciona como resumen de operacion diaria:
 
-### Reportes
+- Checklist de onboarding
+- Estado operativo
+- Operacion de hoy
+- Pendientes de atencion
+- Accesos rapidos a agenda, reservas, lista de espera y notificaciones
 
-- Metricas por rango.
-- Reservas por dia.
-- Top de servicios.
-- Top de profesionales.
-- Top de clientes.
+## Reportes basicos implementados
+
+Ruta:
+
+- `/app/reports`
+
+Incluye:
+
+- Total de reservas
+- Confirmadas
+- Pendientes
+- Canceladas
+- Completadas
+- No-show
+- Clientes nuevos
+- Tasa de cancelacion
+- Tasa de no-show
+- Reservas por dia
+- Servicios mas reservados
+- Profesionales con mas reservas
+- Clientes con mas reservas
+
+## QA checklist implementado
+
+Ruta:
+
+- `/app/qa`
+
+Uso:
+
+- Checklist interno de demo
+- Revisa landing, auth, configuracion, booking, panel y pendientes
+- Sirve para validar rapidamente si el producto esta listo para mostrarse
+
+## Panel operativo implementado
+
+Estado actual del panel:
+
+- Reservas funcionales
+- Agenda visual y operativa
+- Clientes con listado, detalle y edicion
+- Profesionales con catalogo publico
+- Servicios con catalogo publico
+- Disponibilidad real
+- Bloqueos del negocio
+- Lista de espera
+- Notificaciones en outbox
+- Reportes basicos
+
+## Meta Cloud API pausado
+
+Estado actual:
+
+- Existe cliente tecnico de Meta
+- Existe webhook base en `/api/meta/whatsapp/webhook`
+- Existen variables de entorno documentadas
+- Existen acciones manuales de desarrollo
+
+Regla actual:
+
+- No activar envio automatico todavia
+- No venderlo como WhatsApp real ya activo
+
+## Que no se debe tocar por ahora
+
+- No cambiar `schema.prisma` salvo necesidad critica
+- No cambiar rutas publicas ya usadas en demo
+- No activar envio automatico real por WhatsApp
+- No conectar Twilio
+- No conectar Stripe todavia
+- No conectar Google Calendar todavia
+- No renombrar modelos internos `Doctor`, `Patient` o `Clinic`
+- No cambiar el email demo `demo@citaflow.app` por ahora
 
 ## Infraestructura actual
 
 ### Frontend y app
 
-- Next.js 16 con App Router.
-- React 19.
-- TypeScript.
-- Tailwind CSS 4.
+- Next.js 16 con App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
 
 ### Base de datos
 
-- PostgreSQL.
-- Prisma 7.
-- `@prisma/adapter-pg`.
+- PostgreSQL
+- Prisma 7
+- `@prisma/adapter-pg`
 
 ### Auth y sesion
 
-- Tabla `Session`.
-- Token plano solo en cookie.
-- Hash del token en base de datos.
+- Tabla `Session`
+- Token plano solo en cookie
+- Hash del token en base de datos
 
 ### Multi-tenant
 
-- Aislamiento por `clinicId`.
-- Resolucion del negocio actual desde sesion.
+- Aislamiento por `clinicId`
+- Resolucion del negocio actual desde sesion
 
 ### Disponibilidad
 
@@ -219,80 +301,53 @@ El producto ya es demostrable como MVP funcional, pero todavia mantiene integrac
 ### Comunicacion interna
 
 - `NotificationOutbox`
-- Modelos de conversacion y mensajes de WhatsApp.
-- Webhook base de Meta.
-
-### Seed demo
-
-- Negocio demo.
-- Usuario demo.
-- Profesionales demo.
-- Servicios demo.
-- Clientes demo.
-- Reservas demo.
+- Modelos de conversacion y mensajes de WhatsApp
+- Webhook base de Meta
 
 ## Variables de entorno usadas
 
-- `DATABASE_URL`: conexion principal a PostgreSQL.
-- `SHADOW_DATABASE_URL`: usada para migraciones locales de Prisma.
-- `NEXT_PUBLIC_APP_URL`: base publica para enlaces absolutos.
-- `META_WHATSAPP_ACCESS_TOKEN`: token de Meta Cloud API. Hoy no debe activarse para envio automatico.
-- `META_WHATSAPP_PHONE_NUMBER_ID`: ID del numero de WhatsApp en Meta.
-- `META_WHATSAPP_API_VERSION`: version del endpoint de Meta.
-- `META_WHATSAPP_VERIFY_TOKEN`: token de verificacion del webhook.
-- `NODE_ENV`: usada internamente para banderas de desarrollo.
+- `DATABASE_URL`
+- `SHADOW_DATABASE_URL`
+- `NEXT_PUBLIC_APP_URL`
+- `META_WHATSAPP_ACCESS_TOKEN`
+- `META_WHATSAPP_PHONE_NUMBER_ID`
+- `META_WHATSAPP_API_VERSION`
+- `META_WHATSAPP_VERIFY_TOKEN`
+- `NODE_ENV`
 
-## Pendientes antes de demo
+## Pendientes antes de demo comercial
 
-- Confirmar que `npm run lint` y `npm run build` pasan en la rama actual.
-- Ejecutar seed demo si la base esta vacia.
-- Validar login demo.
-- Validar booking publico de `clinica-demo`.
-- Validar lista de espera separada del booking.
-- Validar creacion de reserva desde panel y desde agenda.
-- Revisar que `NEXT_PUBLIC_APP_URL` apunte al entorno correcto si se necesitan enlaces absolutos.
-- Revisar copy visible final si se hace otra pasada de branding.
+- Revisar el flujo publico completo en `/`, `/producto`, `/soluciones`, `/precios` y `/faq`
+- Validar login demo
+- Validar booking publico de `clinica-demo`
+- Validar lista de espera separada del booking
+- Validar creacion de reserva desde panel y desde agenda
+- Revisar que `NEXT_PUBLIC_APP_URL` apunte al entorno correcto
+- Confirmar copy comercial final
+- Confirmar que Meta siga visualmente pausado y no genere falsas expectativas
+- Revisar datos demo visibles para que se sientan coherentes con el posicionamiento multiindustria
 
 ## Pendientes post-demo
 
-- Activar integracion real con Meta Cloud API.
-- Definir templates reales de WhatsApp.
-- Conectar proveedor real de email si aplica.
-- Integrar Stripe para anticipos.
-- Revisar dominio final.
-- Cambiar el email demo visible cuando deje de ser necesario mantener compatibilidad.
-- Evaluar selector de multiples negocios por usuario.
-- Evaluar permisos mas finos por rol.
-
-## Meta Cloud API pausado
-
-### Estado actual
-
-- Existe cliente tecnico de Meta.
-- Existe webhook base en `/api/meta/whatsapp/webhook`.
-- Existen variables de entorno documentadas.
-- Existen acciones manuales desde notificaciones.
-
-### Estado deseado mas adelante
-
-- Envio real desde `NotificationOutbox`.
-- Templates aprobados.
-- Entrada real de mensajes hacia el motor conversacional.
-- Automatizacion controlada por negocio.
-
-### Regla actual
-
-- No activar envio automatico todavia.
+- Activar integracion real con Meta Cloud API
+- Definir templates reales de WhatsApp
+- Conectar proveedor real de email si aplica
+- Integrar Stripe para anticipos
+- Revisar dominio final
+- Cambiar el email demo visible cuando deje de ser necesario mantener compatibilidad
+- Evaluar selector de multiples negocios por usuario
+- Evaluar permisos mas finos por rol
+- Evaluar integracion con Google Calendar
 
 ## Riesgos conocidos
 
-- `NEXT_PUBLIC_APP_URL` puede seguir apuntando al dominio anterior si no se actualiza por entorno.
-- El usuario demo sigue siendo `demo@citaflow.app` por compatibilidad actual.
-- Los nombres internos de modelos siguen siendo medicos (`Doctor`, `Patient`, `Clinic`), aunque la UI ya habla de profesionales, clientes y negocio.
-- Meta Cloud API esta implementado solo de forma tecnica parcial; no debe venderse como envio real activo.
-- No hay Stripe ni cobro de anticipos real todavia.
-- No hay integracion con Google Calendar todavia.
-- El producto depende de seed demo o datos minimos para una demo convincente.
+- `NEXT_PUBLIC_APP_URL` puede seguir apuntando al dominio anterior si no se actualiza por entorno
+- El usuario demo sigue siendo `demo@citaflow.app` por compatibilidad actual
+- Los nombres internos de modelos siguen siendo medicos (`Doctor`, `Patient`, `Clinic`)
+- Meta Cloud API esta implementado solo de forma tecnica parcial
+- No hay Stripe real todavia
+- No hay integracion con Google Calendar todavia
+- El producto depende de seed demo o datos minimos para una demo convincente
 
 ## Comandos utiles
 
@@ -325,7 +380,7 @@ El producto ya es demostrable como MVP funcional, pero todavia mantiene integrac
 Si se necesita preparar una demo rapida:
 
 - Entrar a `/app/qa`
-- Revisar el checklist manual
 - Confirmar login demo
+- Revisar landing publica separada
 - Confirmar booking publico
-- Confirmar panel, agenda y notificaciones
+- Confirmar panel, agenda, dashboard y notificaciones

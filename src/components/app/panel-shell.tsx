@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { isSuperAdminEmail } from "@/lib/auth/superadmin";
 import type { AuthContext } from "@/lib/auth/session";
 import { getRoleLabel } from "@/lib/auth/session";
 
@@ -14,6 +15,7 @@ type PanelShellProps = {
 
 export function PanelShell({ auth, children }: PanelShellProps) {
   const roleLabel = getRoleLabel(auth.membership.role);
+  const showSuperAdminLink = isSuperAdminEmail(auth.user.email);
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,_#f4f8fc_0%,_#f8fbff_45%,_#ffffff_100%)] text-ink">
@@ -24,6 +26,7 @@ export function PanelShell({ auth, children }: PanelShellProps) {
           userName={auth.user.name}
           userEmail={auth.user.email}
           roleLabel={roleLabel}
+          showSuperAdminLink={showSuperAdminLink}
         />
 
         <div className="flex min-h-screen flex-1 flex-col">

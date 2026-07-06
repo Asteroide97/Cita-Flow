@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { panelNavigation } from "@/data/panel";
+import { panelNavigation, superAdminNavigationItem } from "@/data/panel";
 import { brand } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ type AppSidebarProps = {
   userName: string;
   userEmail: string;
   roleLabel: string;
+  showSuperAdminLink?: boolean;
 };
 
 export function AppSidebar({
@@ -21,8 +22,12 @@ export function AppSidebar({
   userName,
   userEmail,
   roleLabel,
+  showSuperAdminLink = false,
 }: AppSidebarProps) {
   const pathname = usePathname();
+  const navigationItems = showSuperAdminLink
+    ? [...panelNavigation, superAdminNavigationItem]
+    : panelNavigation;
 
   return (
     <>
@@ -69,7 +74,7 @@ export function AppSidebar({
           </div>
 
           <nav className="mt-8 flex flex-1 flex-col gap-2">
-            {panelNavigation.map((item) => {
+            {navigationItems.map((item) => {
               const isActive = pathname === item.href;
 
               return (
@@ -151,7 +156,7 @@ export function AppSidebar({
         </div>
 
         <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
-          {panelNavigation.map((item) => {
+          {navigationItems.map((item) => {
             const isActive = pathname === item.href;
 
             return (

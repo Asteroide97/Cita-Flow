@@ -93,6 +93,13 @@ export const panelNavigation: PanelNavItem[] = [
   },
 ];
 
+export const superAdminNavigationItem: PanelNavItem = {
+  label: "Superadmin",
+  href: "/superadmin",
+  shortLabel: "SA",
+  description: "Negocios y cobros.",
+};
+
 export const dashboardMetrics: DashboardMetric[] = [
   {
     label: "Reservas de hoy",
@@ -162,7 +169,7 @@ export const panelSections: Record<string, PanelSectionContent> = {
     description: "Catálogo del negocio con duración y precios.",
     highlights: [
       "Duración estándar por servicio.",
-      "Precio y anticipo opcional.",
+      "Precio opcional y orden público.",
       "Preparado para booking público.",
     ],
   },

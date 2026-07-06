@@ -73,7 +73,7 @@ export const heroMetrics: HeroMetric[] = [
   {
     value: "Menos ausencias",
     label: "más asistencia",
-    note: "con recordatorios y anticipos",
+    note: "con recordatorios y lista de espera",
   },
   {
     value: "Más ocupación",
@@ -84,7 +84,7 @@ export const heroMetrics: HeroMetric[] = [
 
 export const heroAlerts: HeroAlert[] = [
   {
-    label: "Anticipo pagado",
+    label: "Horario recuperado",
     detail: "Color premium · 11:30",
     tone: "emerald",
   },
@@ -110,8 +110,8 @@ export const heroAppointments: HeroAppointment[] = [
   {
     hour: "11:30",
     title: "Servicio completo",
-    detail: "Diego Campos · Anticipo recibido",
-    state: "Pagada",
+    detail: "Diego Campos · Espacio reasignado",
+    state: "Reagendada",
   },
   {
     hour: "16:00",
@@ -173,8 +173,8 @@ export const businessSolutions: BusinessSolution[] = [
   {
     id: "dental",
     label: "Dental",
-    summary: "Protege tratamientos con anticipos y reduce huecos costosos.",
-    highlight: "Muy útil cuando cada bloque tiene alto valor.",
+    summary: "Reduce ausencias y protege tratamientos con mejor seguimiento.",
+    highlight: "Muy útil cuando cada bloque tiene alto valor operativo.",
   },
   {
     id: "psicologia",
@@ -192,7 +192,7 @@ export const businessSolutions: BusinessSolution[] = [
     id: "spa-estetica",
     label: "Spa y estética",
     summary: "Convierte interés en reservas confirmadas con una experiencia premium.",
-    highlight: "Ayuda a proteger servicios de alto valor con anticipos.",
+    highlight: "Ayuda a recuperar espacios liberados sin fricción.",
   },
   {
     id: "barberias",
@@ -245,7 +245,7 @@ export const productModules: ProductModule[] = [
   },
   {
     title: "Servicios",
-    description: "Define duración, precio, anticipo y orden del catálogo público.",
+    description: "Define duración, precio y orden del catálogo público.",
   },
   {
     title: "Lista de espera",
@@ -284,7 +284,7 @@ export const pricingFeatures: PricingFeature[] = [
   },
   {
     title: "Servicios",
-    description: "Ordena tu catálogo con duración, precio y anticipo opcional.",
+    description: "Ordena tu catálogo con duración, precio y visibilidad.",
   },
   {
     title: "Lista de espera",
@@ -306,14 +306,14 @@ export const pricingFeatures: PricingFeature[] = [
 
 export const faqs: Faq[] = [
   {
-    question: "¿Necesito tarjeta para empezar?",
+    question: "¿Cómo se activa el plan?",
     answer:
-      "No. Puedes probar el flujo primero y decidir después cómo operar formalmente con Agenda Viva.",
+      "El cobro del plan se gestiona manualmente por transferencia bancaria, sin checkout automático por ahora.",
   },
   {
-    question: "¿Puedo cobrar anticipos?",
+    question: "¿Agenda Viva cobra automáticamente?",
     answer:
-      `${brand.name} ya contempla anticipos por servicio para proteger horarios de mayor valor.`,
+      "No. Por ahora la gestión comercial del SaaS se lleva de forma manual desde el equipo interno.",
   },
   {
     question: "¿Funciona con WhatsApp?",
@@ -332,13 +332,11 @@ export const faqs: Faq[] = [
   },
   {
     question: "¿Puedo cancelar cuando quiera?",
-    answer:
-      "Sí. El plan es simple y sin permanencias forzosas.",
+    answer: "Sí. El plan es simple y sin permanencias forzosas.",
   },
   {
     question: "¿Se integra con Google Calendar?",
-    answer:
-      "Todavía no. Está contemplado para una fase posterior.",
+    answer: "Todavía no. Está contemplado para una fase posterior.",
   },
 ];
 

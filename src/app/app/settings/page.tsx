@@ -28,7 +28,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "business-not-found":
         return {
           tone: "error" as const,
-          message: "No encontre el negocio actual para guardar la configuracion.",
+          message: "No encontré el negocio activo para guardar la configuración.",
         };
       case "business-name-required":
         return {
@@ -38,7 +38,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "business-slug-required":
         return {
           tone: "error" as const,
-          message: "El slug publico del negocio es obligatorio.",
+          message: "El slug público del negocio es obligatorio.",
         };
       case "business-slug-invalid":
         return {
@@ -78,12 +78,12 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "business-email-invalid":
         return {
           tone: "error" as const,
-          message: "El email de contacto no tiene un formato valido.",
+          message: "El email de contacto no tiene un formato válido.",
         };
       default:
         return {
           tone: "error" as const,
-          message: "No pude guardar la configuracion del negocio.",
+          message: "No pude guardar la configuración del negocio.",
         };
     }
   }
@@ -92,7 +92,7 @@ function resolveFlashMessage(status?: string, error?: string) {
     case "business-settings-updated":
       return {
         tone: "success" as const,
-        message: "Configuracion del negocio actualizada correctamente.",
+        message: "Configuración del negocio actualizada correctamente.",
       };
     case "business-settings-unchanged":
       return {
@@ -130,7 +130,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
   });
 
   if (!clinic) {
-    throw new Error("No se pudo cargar el negocio actual.");
+    throw new Error("No se pudo cargar el negocio activo.");
   }
 
   const flash = resolveFlashMessage(query.status, query.error);
@@ -142,9 +142,9 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
 
   return (
     <PanelPage
-      eyebrow="Configuracion"
-      title="Configuracion del negocio"
-      description={`Ajusta la identidad publica de tu negocio, el slug de booking y los datos base que usara ${brand.name} en el panel y en la experiencia publica.`}
+      eyebrow="Configuración"
+      title="Configuración del negocio"
+      description={`Ajusta la identidad pública de tu negocio, el slug de booking y los datos base que usará ${brand.name} en el panel y en la experiencia pública.`}
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.38fr)]">
         <div className="grid gap-6">
@@ -156,12 +156,12 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
             <div className="mt-5 grid gap-3">
               <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                  Nombre publico
+                  Nombre público
                 </p>
                 <p className="mt-2 text-lg font-semibold text-ink">{displayName}</p>
                 <p className="mt-1 text-sm text-muted">
                   {clinic.publicDescription ??
-                    "Sin descripcion publica corta por ahora."}
+                    "Sin descripción pública corta por ahora."}
                 </p>
               </div>
 
@@ -184,7 +184,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
 
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                  Contacto publico
+                  Contacto público
                 </p>
                 {hasPublicContact ? (
                   <div className="mt-3 grid gap-2 text-sm text-ink">
@@ -200,7 +200,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                   </div>
                 ) : (
                   <p className="mt-2 text-sm text-muted">
-                    Agrega sitio, email o telefono para mostrarlos en el booking.
+                    Agrega sitio, email o teléfono para mostrarlos en el booking.
                   </p>
                 )}
               </div>
@@ -244,12 +244,12 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                 compartido.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                El nombre publico y la descripcion corta se reflejan en el booking sin
+                El nombre público y la descripción corta se reflejan en el booking sin
                 cambiar la arquitectura interna del panel.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                El color de marca se aplica al booking publico para que la experiencia
-                sea mas consistente con tu negocio.
+                El color de marca se aplica al booking público para que la experiencia
+                sea más consistente con tu negocio.
               </div>
             </div>
           </article>
@@ -275,7 +275,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
               </p>
               <p className="mt-2 text-sm leading-7 text-muted">
                 Estos datos alimentan el panel actual y dejan lista la cuenta para una
-                operacion multiindustria sin depender todavia de WhatsApp real.
+                operación multiindustria sin depender todavía de WhatsApp real.
               </p>
             </div>
 
@@ -293,7 +293,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                 </label>
 
                 <label className="text-sm font-semibold text-ink">
-                  Slug publico
+                  Slug público
                   <input
                     name="slug"
                     required
@@ -302,7 +302,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                     placeholder="clinica-demo"
                   />
                   <span className="mt-2 block text-xs text-muted">
-                    Solo minusculas, numeros y guiones.
+                    Solo minúsculas, números y guiones.
                   </span>
                 </label>
               </div>
@@ -359,7 +359,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                 </label>
 
                 <label className="text-sm font-semibold text-ink">
-                  Nombre publico para booking
+                  Nombre público para booking
                   <input
                     name="publicName"
                     defaultValue={clinic.publicName ?? ""}
@@ -370,13 +370,13 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
               </div>
 
               <label className="text-sm font-semibold text-ink">
-                Descripcion publica corta
+                Descripción pública corta
                 <textarea
                   name="publicDescription"
                   rows={3}
                   defaultValue={clinic.publicDescription ?? ""}
                   className={formFieldClassName()}
-                  placeholder="Reservas online para servicios, clases o atencion personalizada."
+                  placeholder="Reservas online para servicios, clases o atención personalizada."
                 />
               </label>
 
@@ -404,7 +404,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
               </div>
 
               <label className="text-sm font-semibold text-ink">
-                Telefono de contacto opcional
+                Teléfono de contacto opcional
                 <input
                   name="contactPhone"
                   defaultValue={clinic.contactPhone ?? ""}
@@ -417,7 +417,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                 type="submit"
                 className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
               >
-                Guardar configuracion
+                Guardar configuración
               </button>
             </form>
           </article>

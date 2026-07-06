@@ -53,13 +53,13 @@ export const panelNavigation: PanelNavItem[] = [
     label: "Servicios",
     href: "/app/services",
     shortLabel: "SV",
-    description: "Catalogo y duraciones.",
+    description: "Catálogo y duraciones.",
   },
   {
     label: "Reportes",
     href: "/app/reports",
     shortLabel: "RP",
-    description: "Metricas del negocio.",
+    description: "Métricas del negocio.",
   },
   {
     label: "QA",
@@ -86,7 +86,7 @@ export const panelNavigation: PanelNavItem[] = [
     description: "Solicitudes y ofertas.",
   },
   {
-    label: "Configuracion",
+    label: "Configuración",
     href: "/app/settings",
     shortLabel: "CF",
     description: "Cuenta y marca.",
@@ -109,7 +109,7 @@ export const dashboardMetrics: DashboardMetric[] = [
   {
     label: "No-shows",
     value: "3",
-    note: "Ultimos 30 dias",
+    note: "Últimos 30 días",
     tone: "amber",
   },
   {
@@ -143,36 +143,36 @@ export const panelSections: Record<string, PanelSectionContent> = {
     title: "Clientes",
     description: "Base de clientes con contacto e historial.",
     highlights: [
-      "Buscador por nombre, telefono y email.",
+      "Buscador por nombre, teléfono y email.",
       "Historial de reservas por cliente.",
       "Notas privadas para el equipo.",
     ],
   },
   doctors: {
     title: "Profesionales",
-    description: "Catalogo del equipo de atencion.",
+    description: "Catálogo del equipo de atención.",
     highlights: [
-      "Relacion opcional con user del sistema.",
+      "Relación opcional con user del sistema.",
       "Rol o especialidad y estado activo.",
       "Preparado para agenda multi-profesional.",
     ],
   },
   services: {
     title: "Servicios",
-    description: "Catalogo del negocio con duracion y precios.",
+    description: "Catálogo del negocio con duración y precios.",
     highlights: [
-      "Duracion estandar por servicio.",
+      "Duración estándar por servicio.",
       "Precio y anticipo opcional.",
-      "Preparado para booking publico.",
+      "Preparado para booking público.",
     ],
   },
   reports: {
     title: "Reportes",
-    description: "Vista compacta de volumen, estados y desempeno.",
+    description: "Vista compacta de volumen, estados y desempeño.",
     highlights: [
-      "Metricas de reservas, cancelaciones y no-show.",
+      "Métricas de reservas, cancelaciones y no-show.",
       "Top de servicios, profesionales y clientes.",
-      "Base lista para crecer a analitica avanzada.",
+      "Base lista para crecer a analítica avanzada.",
     ],
   },
   notifications: {
@@ -189,15 +189,15 @@ export const panelSections: Record<string, PanelSectionContent> = {
     description: "Solicitudes para horarios liberados.",
     highlights: [
       "Entradas activas, ofertadas o expiradas.",
-      "Ofertas publicas con expiracion.",
+      "Ofertas públicas con expiración.",
       "Lista para conectar recordatorios reales.",
     ],
   },
   settings: {
-    title: "Configuracion",
+    title: "Configuración",
     description: "Marca y datos generales del negocio.",
     highlights: [
-      "Slug unico, zona horaria y moneda.",
+      "Slug único, zona horaria y moneda.",
       "Color de marca y estado del negocio.",
       "Lista para permisos y selector de cuenta.",
     ],

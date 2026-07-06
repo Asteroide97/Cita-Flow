@@ -39,22 +39,22 @@ export const demoChecklistGroups: DemoChecklistGroup[] = [
   },
   {
     id: "settings",
-    title: "Configuracion",
-    description: "Confirma identidad publica del negocio.",
+    title: "Configuración",
+    description: "Confirma identidad pública del negocio.",
     actionHref: "/app/settings",
-    actionLabel: "Ir a configuracion",
+    actionLabel: "Ir a configuración",
     items: [
-      { id: "settings-public-name", label: "Nombre publico" },
+      { id: "settings-public-name", label: "Nombre público" },
       { id: "settings-slug", label: "Slug" },
       { id: "settings-color", label: "Color" },
       { id: "settings-contact", label: "Contacto" },
-      { id: "settings-public-link", label: "Link publico" },
+      { id: "settings-public-link", label: "Link público" },
     ],
   },
   {
     id: "booking",
-    title: "Booking publico",
-    description: "Verifica la experiencia publica y la separacion de flujos.",
+    title: "Booking público",
+    description: "Verifica la experiencia pública y la separación de flujos.",
     actionHref: "/booking/clinica-demo",
     actionLabel: "Abrir booking",
     items: [
@@ -68,7 +68,7 @@ export const demoChecklistGroups: DemoChecklistGroup[] = [
   {
     id: "panel",
     title: "Panel",
-    description: "Recorre los modulos principales del panel.",
+    description: "Recorre los módulos principales del panel.",
     actionHref: "/app/dashboard",
     actionLabel: "Ir al panel",
     items: [
@@ -85,7 +85,7 @@ export const demoChecklistGroups: DemoChecklistGroup[] = [
   },
   {
     id: "operations",
-    title: "Operacion",
+    title: "Operación",
     description: "Prueba acciones operativas sobre reservas y disponibilidad.",
     actionHref: "/app/calendar",
     actionLabel: "Abrir agenda",
@@ -110,7 +110,7 @@ export const demoChecklistGroups: DemoChecklistGroup[] = [
       { id: "pending-stripe", label: "Stripe anticipos" },
       { id: "pending-domain", label: "Dominio final" },
       { id: "pending-demo-email", label: "Cambio de correo demo" },
-      { id: "pending-legal", label: "Revision legal de marca" },
+      { id: "pending-legal", label: "Revisión legal de marca" },
     ],
   },
 ];

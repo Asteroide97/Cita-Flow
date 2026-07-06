@@ -162,7 +162,7 @@ function getAppointmentSourceLabel(source: AppointmentSource) {
     case AppointmentSource.ADMIN:
       return "Panel";
     case AppointmentSource.PUBLIC_BOOKING:
-      return "Booking publico";
+      return "Booking público";
     case AppointmentSource.WHATSAPP:
       return "WhatsApp";
     case AppointmentSource.IMPORT:

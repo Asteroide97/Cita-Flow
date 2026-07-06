@@ -155,9 +155,9 @@ export async function getOperationalStatus(clinicId: string): Promise<Operationa
   const checks: OperationalStatusCheck[] = [
     {
       id: "public-page",
-      label: "Pagina publica activa",
+      label: "Página pública activa",
       isComplete: publicPageActive,
-      note: publicPageActive ? `/${clinic.slug}` : "Activa el negocio o define un slug publico.",
+      note: publicPageActive ? `/${clinic.slug}` : "Activa el negocio o define un slug público.",
     },
     {
       id: "services",
@@ -165,7 +165,7 @@ export async function getOperationalStatus(clinicId: string): Promise<Operationa
       isComplete: hasActiveServices,
       note: hasActiveServices
         ? `${services.length} servicio${services.length === 1 ? "" : "s"} activo${services.length === 1 ? "" : "s"}`
-        : "Todavia no hay servicios activos.",
+        : "Todavía no hay servicios activos.",
     },
     {
       id: "professionals",
@@ -173,7 +173,7 @@ export async function getOperationalStatus(clinicId: string): Promise<Operationa
       isComplete: hasActiveProfessionals,
       note: hasActiveProfessionals
         ? `${doctors.length} profesional${doctors.length === 1 ? "" : "es"} activo${doctors.length === 1 ? "" : "s"}`
-        : "Todavia no hay profesionales activos.",
+        : "Todavía no hay profesionales activos.",
     },
     {
       id: "availability",
@@ -206,9 +206,9 @@ export async function getOperationalStatus(clinicId: string): Promise<Operationa
       headline: "Tu agenda puede recibir reservas.",
       description:
         firstAvailableSlotLabel ??
-        "La pagina publica ya tiene servicios, profesionales y horarios disponibles.",
+        "La página pública ya tiene servicios, profesionales y horarios disponibles.",
       actionHref: bookingPath,
-      actionLabel: "Abrir pagina publica",
+      actionLabel: "Abrir página pública",
       actionTarget: "_blank",
       checks,
     };
@@ -237,9 +237,9 @@ export async function getOperationalStatus(clinicId: string): Promise<Operationa
     return {
       level: "ATTENTION",
       label: "Requiere atencion",
-      headline: "La pagina publica aun no esta lista.",
+      headline: "La página pública aún no está lista.",
       description:
-        "Activa el negocio y revisa el slug publico para habilitar el enlace de reservas.",
+        "Activa el negocio y revisa el slug público para habilitar el enlace de reservas.",
       actionHref: "/app/settings",
       actionLabel: "Ir a configuracion",
       checks,
@@ -265,7 +265,7 @@ export async function getOperationalStatus(clinicId: string): Promise<Operationa
       label: "Requiere atencion",
       headline: "Faltan profesionales activos para atender reservas.",
       description:
-        "Crea al menos un profesional activo antes de compartir la pagina publica.",
+        "Crea al menos un profesional activo antes de compartir la página pública.",
       actionHref: "/app/doctors",
       actionLabel: "Crear profesional",
       checks,

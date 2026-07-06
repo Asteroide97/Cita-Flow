@@ -55,7 +55,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "doctor-public-order-invalid":
         return {
           tone: "error" as const,
-          message: "El orden publico debe ser un numero entero igual o mayor a 0.",
+          message: "El orden público debe ser un número entero igual o mayor a 0.",
         };
       case "doctor-photo-url-invalid":
         return {
@@ -99,12 +99,12 @@ function resolveFlashMessage(status?: string, error?: string) {
     case "doctor-public":
       return {
         tone: "success" as const,
-        message: "Profesional visible nuevamente en el booking publico.",
+        message: "Profesional visible nuevamente en el booking público.",
       };
     case "doctor-hidden":
       return {
         tone: "success" as const,
-        message: "Profesional ocultado del booking publico.",
+        message: "Profesional ocultado del booking público.",
       };
     default:
       return null;
@@ -201,8 +201,8 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
   return (
     <PanelPage
       eyebrow="Profesionales"
-      title="Catalogo publico de profesionales"
-      description="Gestiona a las personas que atienden reservas en tu negocio. Controla visibilidad, orden publico, descripcion y disponibilidad sin tocar el historial operativo."
+      title="Catálogo público de profesionales"
+      description="Gestiona a las personas que atienden reservas en tu negocio. Controla visibilidad, orden público, descripción y disponibilidad sin tocar el historial operativo."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.4fr)]">
         <div className="grid gap-6">
@@ -252,10 +252,10 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
             <div className="mt-5 grid gap-3 text-sm text-muted">
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                 Solo los profesionales activos y visibles aparecen en el booking
-                publico.
+                público.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                El orden publico controla el catalogo del booking; primero se usa
+                El orden público controla el catálogo del booking; primero se usa
                 `publicOrder` y despues el nombre.
               </div>
             </div>
@@ -281,7 +281,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
                   {editingDoctor
-                    ? "Actualiza perfil publico, foto, visibilidad y datos operativos sin salir del panel."
+                    ? "Actualiza perfil público, foto, visibilidad y datos operativos sin salir del panel."
                     : "Agrega un profesional nuevo y decide si debe publicarse de inmediato en el booking."}
                 </p>
               </div>
@@ -328,7 +328,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                 </label>
 
                 <label className="text-sm font-semibold text-ink">
-                  Foto publica opcional
+                  Foto pública opcional
                   <input
                     name="photoUrl"
                     type="url"
@@ -352,7 +352,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <label className="text-sm font-semibold text-ink">
-                  Orden publico
+                  Orden público
                   <input
                     name="publicOrder"
                     type="number"
@@ -406,7 +406,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   Profesionales del catalogo
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
-                  Filtra activos, inactivos, publicos u ocultos y ajusta el booking
+                  Filtra activos, inactivos, públicos u ocultos y ajusta el booking
                   sin salir del listado.
                 </p>
               </div>
@@ -422,7 +422,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                     <option value="all">Todos</option>
                     <option value="active">Solo activos</option>
                     <option value="inactive">Solo inactivos</option>
-                    <option value="public">Solo publicos</option>
+                    <option value="public">Solo públicos</option>
                     <option value="hidden">Solo ocultos</option>
                   </select>
                 </label>
@@ -470,7 +470,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                         <span
                           className={getDoctorVisibilityBadgeClassName(doctor.isPublic)}
                         >
-                          {doctor.isPublic ? "Publico" : "Oculto"}
+                        {doctor.isPublic ? "Público" : "Oculto"}
                         </span>
                       </div>
 
@@ -479,7 +479,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                       </p>
                       <p className="mt-2 text-sm leading-7 text-muted">
                         {doctor.bio ??
-                          "Sin descripcion registrada para este profesional."}
+                          "Sin descripción registrada para este profesional."}
                       </p>
                     </div>
                   </div>
@@ -517,7 +517,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
 
                   <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                      Orden publico
+                      Orden público
                     </p>
                     <p className="mt-3 text-lg font-semibold text-ink">
                       {doctor.publicOrder}
@@ -592,7 +592,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
               <p className="mt-3 text-sm leading-7 text-muted">
                 {doctors.length
                   ? "Ajusta el filtro o cambia la visibilidad de un profesional existente."
-                  : "Crea el primer profesional para empezar a construir el catalogo publico del negocio."}
+                  : "Crea el primer profesional para empezar a construir el catálogo público del negocio."}
               </p>
             </article>
           )}

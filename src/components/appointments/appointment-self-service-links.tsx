@@ -47,7 +47,7 @@ export function AppointmentSelfServiceLinks({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Autoservicio publico
+            Autoservicio público
           </p>
           <p className="mt-2 text-sm text-muted">
             Enlaces para confirmar, cancelar o reagendar.

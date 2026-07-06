@@ -440,7 +440,7 @@ export default async function WaitlistPage({
           ) : (
             <EmptyState
               title="Aun no hay solicitudes en lista de espera."
-              description='Usa el booking publico y selecciona "Prefiero otro horario" para poblar esta bandeja.'
+              description='Usa el booking público y selecciona "Prefiero otro horario" para poblar esta bandeja.'
               className="mt-6"
             />
           )}

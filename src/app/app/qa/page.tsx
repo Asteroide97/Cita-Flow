@@ -15,7 +15,7 @@ export default function DemoChecklistPage() {
     <PanelPage
       eyebrow="QA"
       title="Checklist de demo"
-      description="Revision interna para validar que Agenda Viva esta lista para mostrarse."
+      description="Revisión interna para validar que Agenda Viva está lista para mostrarse."
     >
       <DemoChecklistBoard groups={demoChecklistGroups} />
     </PanelPage>

@@ -170,7 +170,7 @@ export function resolveBookingFlashMessage(
       case "service-unavailable":
         return {
           tone: "error",
-          message: "Ese servicio ya no esta disponible para reservas publicas.",
+          message: "Ese servicio ya no está disponible para reservas públicas.",
         };
       case "doctor-unavailable":
         return {

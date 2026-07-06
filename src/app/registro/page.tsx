@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { AuthShell } from "@/components/auth/auth-shell";
 import { RegisterForm } from "@/components/auth/register-form";
-import { brand, withBrandTitle } from "@/lib/brand";
+import { AuthShell } from "@/components/auth/auth-shell";
 import { getCurrentAuthContext } from "@/lib/auth/session";
+import { brand, withBrandTitle } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: withBrandTitle("Registro inicial"),
@@ -24,12 +24,12 @@ const registerHighlights = [
   },
   {
     label: "Negocio",
-    value: "Slug unico",
+    value: "Slug único",
     note: "Validamos disponibilidad antes de crear.",
   },
   {
     label: "Entrada",
-    value: "Automatica",
+    value: "Automática",
     note: "Se abre una sesión válida al terminar.",
   },
 ];

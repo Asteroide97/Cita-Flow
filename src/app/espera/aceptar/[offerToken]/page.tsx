@@ -26,7 +26,7 @@ type AcceptWaitlistOfferPageProps = {
 
 export const metadata: Metadata = {
   title: withBrandTitle("Aceptar oferta"),
-  description: "Acepta un horario liberado desde la lista de espera publica.",
+  description: "Acepta un horario liberado desde la lista de espera pública.",
 };
 
 export default async function AcceptWaitlistOfferPage({
@@ -139,7 +139,7 @@ export default async function AcceptWaitlistOfferPage({
       clinicSlug={validation.context.clinic.slug}
       brandColor={normalizeBookingBrandColor(validation.context.clinic.brandColor)}
       title="Acepta este horario liberado"
-      description="Si el espacio sigue libre, registraremos tu reserva sin que tengas que iniciar sesion."
+      description="Si el espacio sigue libre, registraremos tu reserva sin que tengas que iniciar sesión."
     >
       <WaitlistOfferSummary
         clinicName={validation.context.clinic.name}

@@ -28,7 +28,7 @@ type CancelAppointmentPageProps = {
 
 export const metadata: Metadata = {
   title: withBrandTitle("Cancelar reserva"),
-  description: "Cancela tu reserva desde un enlace publico seguro.",
+  description: "Cancela tu reserva desde un enlace público seguro.",
 };
 
 export default async function CancelAppointmentPage({
@@ -123,10 +123,10 @@ export default async function CancelAppointmentPage({
           validation.context.appointment.clinic.brandColor,
         )}
         title="Esta reserva ya no puede cancelarse"
-        description="El estado actual de la reserva ya no permite una cancelacion publica."
+        description="El estado actual de la reserva ya no permite una cancelación pública."
       >
         <TokenErrorState
-          title="La reserva ya no admite cancelacion"
+          title="La reserva ya no admite cancelación"
           description="El negocio ya la marco como cancelada, completada o no-show."
         />
       </PublicAppointmentShell>

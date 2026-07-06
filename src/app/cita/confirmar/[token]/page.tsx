@@ -28,7 +28,7 @@ type ConfirmAppointmentPageProps = {
 
 export const metadata: Metadata = {
   title: withBrandTitle("Confirmar reserva"),
-  description: "Confirma tu reserva desde un enlace publico seguro.",
+  description: "Confirma tu reserva desde un enlace público seguro.",
 };
 
 export default async function ConfirmAppointmentPage({
@@ -123,10 +123,10 @@ export default async function ConfirmAppointmentPage({
           validation.context.appointment.clinic.brandColor,
         )}
         title="Esta reserva ya no puede confirmarse"
-        description="El estado actual de la reserva ya no permite una confirmacion publica."
+        description="El estado actual de la reserva ya no permite una confirmación pública."
       >
         <TokenErrorState
-          title="La reserva ya no admite confirmacion"
+          title="La reserva ya no admite confirmación"
           description="El horario fue cancelado, completado o marcado como no-show por el negocio."
         />
       </PublicAppointmentShell>

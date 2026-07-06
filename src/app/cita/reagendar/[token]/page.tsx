@@ -42,7 +42,7 @@ type RescheduleAppointmentPageProps = {
 
 export const metadata: Metadata = {
   title: withBrandTitle("Reagendar reserva"),
-  description: "Reagenda tu reserva desde un enlace publico seguro.",
+  description: "Reagenda tu reserva desde un enlace público seguro.",
 };
 
 export default async function RescheduleAppointmentPage({
@@ -137,10 +137,10 @@ export default async function RescheduleAppointmentPage({
           validation.context.appointment.clinic.brandColor,
         )}
         title="Esta reserva ya no puede reagendarse"
-        description="El estado actual de la reserva ya no permite una reagendacion publica."
+        description="El estado actual de la reserva ya no permite una reagendación pública."
       >
         <TokenErrorState
-          title="La reserva ya no admite reagendacion"
+          title="La reserva ya no admite reagendación"
           description="El negocio ya la cerro, la cancelo o la marco como no-show."
         />
       </PublicAppointmentShell>

@@ -66,7 +66,7 @@ export function DemoChecklistBoard({ groups }: DemoChecklistBoardProps) {
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="min-w-0">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Revision manual
+              Revisión manual
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
               Estado de demo
@@ -88,7 +88,7 @@ export function DemoChecklistBoard({ groups }: DemoChecklistBoardProps) {
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <article className="rounded-[22px] border border-line/80 bg-white/92 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-              Items listos
+              Ítems listos
             </p>
             <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-brand-700">
               {completedItems}/{totalItems}
@@ -97,7 +97,7 @@ export function DemoChecklistBoard({ groups }: DemoChecklistBoardProps) {
 
           <article className="rounded-[22px] border border-line/80 bg-white/92 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-              Modulos listos
+              Módulos listos
             </p>
             <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-emerald-700">
               {completedGroups}/{groups.length}

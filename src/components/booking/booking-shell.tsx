@@ -118,7 +118,7 @@ export function BookingShell({
                     href={`tel:${clinicContactPhone}`}
                     className="font-medium text-ink transition hover:text-brand-700"
                   >
-                    Telefono: {clinicContactPhone}
+                    Teléfono: {clinicContactPhone}
                   </a>
                 ) : null}
               </div>

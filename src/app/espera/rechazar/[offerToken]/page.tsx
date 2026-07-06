@@ -20,7 +20,7 @@ type RejectWaitlistOfferPageProps = {
 
 export const metadata: Metadata = {
   title: withBrandTitle("Rechazar oferta"),
-  description: "Rechaza un horario liberado desde la lista de espera publica.",
+  description: "Rechaza un horario liberado desde la lista de espera pública.",
 };
 
 export default async function RejectWaitlistOfferPage({

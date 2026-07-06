@@ -59,22 +59,22 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "service-category-invalid":
         return {
           tone: "error" as const,
-          message: "Selecciona una categoria valida para el servicio.",
+          message: "Selecciona una categoría válida para el servicio.",
         };
       case "service-duration-min":
         return {
           tone: "error" as const,
-          message: "La duracion minima es de 15 minutos.",
+          message: "La duración mínima es de 15 minutos.",
         };
       case "service-duration-step":
         return {
           tone: "error" as const,
-          message: "La duracion debe ser multiplo de 15 minutos.",
+          message: "La duración debe ser múltiplo de 15 minutos.",
         };
       case "service-price-invalid":
         return {
           tone: "error" as const,
-          message: "El precio no puede ser negativo y debe ser un monto valido.",
+          message: "El precio no puede ser negativo y debe ser un monto válido.",
         };
       case "service-deposit-required":
         return {
@@ -89,7 +89,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "service-public-order-invalid":
         return {
           tone: "error" as const,
-          message: "El orden publico debe ser un numero entero igual o mayor a 0.",
+          message: "El orden público debe ser un número entero igual o mayor a 0.",
         };
       case "service-name-duplicate":
         return {
@@ -133,12 +133,12 @@ function resolveFlashMessage(status?: string, error?: string) {
     case "service-public":
       return {
         tone: "success" as const,
-        message: "Servicio visible nuevamente en el booking publico.",
+        message: "Servicio visible nuevamente en el booking público.",
       };
     case "service-hidden":
       return {
         tone: "success" as const,
-        message: "Servicio ocultado del booking publico.",
+        message: "Servicio ocultado del booking público.",
       };
     default:
       return null;
@@ -228,14 +228,14 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
   return (
     <PanelPage
       eyebrow="Servicios"
-      title="Catalogo publico de servicios"
-      description="Administra el catalogo que alimenta el booking publico del negocio. Define categoria, visibilidad, orden y reglas operativas sin tocar el historial de reservas."
+      title="Catálogo público de servicios"
+      description="Administra el catálogo que alimenta el booking público del negocio. Define categoría, visibilidad, orden y reglas operativas sin tocar el historial de reservas."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.4fr)]">
         <div className="grid gap-6">
           <article className="surface-card p-6 sm:p-7">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Resumen del catalogo
+              Resumen del catálogo
             </p>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -259,7 +259,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                  Publicos
+                  Públicos
                 </p>
                 <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
                   {publicCount}
@@ -278,10 +278,10 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
             <div className="mt-5 grid gap-3 text-sm text-muted">
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                Solo los servicios activos y visibles aparecen en el booking publico.
+                Solo los servicios activos y visibles aparecen en el booking público.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                El orden publico controla como se presenta el catalogo; primero se usa
+                El orden público controla cómo se presenta el catálogo; primero se usa
                 `publicOrder` y despues el nombre.
               </div>
             </div>
@@ -307,7 +307,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
                   {editingService
-                    ? "Actualiza categoria, visibilidad, orden publico, precio y reglas del servicio."
+                    ? "Actualiza categoría, visibilidad, orden público, precio y reglas del servicio."
                     : "Carga un servicio nuevo y decide si debe publicarse inmediatamente en el booking."}
                 </p>
               </div>
@@ -344,7 +344,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-semibold text-ink">
-                  Categoria
+                  Categoría
                   <select
                     name="category"
                     defaultValue={editingService?.category ?? "general"}
@@ -359,7 +359,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 </label>
 
                 <label className="text-sm font-semibold text-ink">
-                  Orden publico
+                  Orden público
                   <input
                     name="publicOrder"
                     type="number"
@@ -373,7 +373,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
               </div>
 
               <label className="text-sm font-semibold text-ink">
-                Descripcion opcional
+                Descripción opcional
                 <textarea
                   name="description"
                   rows={3}
@@ -385,7 +385,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-semibold text-ink">
-                  Duracion (minutos)
+                  Duración (minutos)
                   <input
                     name="durationMinutes"
                     type="number"
@@ -420,7 +420,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                     className={formFieldClassName()}
                   >
                     <option value="false">No</option>
-                    <option value="true">Si</option>
+                    <option value="true">Sí</option>
                   </select>
                 </label>
 
@@ -452,7 +452,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 </label>
 
                 <label className="text-sm font-semibold text-ink">
-                  Visibilidad publica
+                  Visibilidad pública
                   <select
                     name="isPublic"
                     defaultValue={editingService?.isPublic === false ? "false" : "true"}
@@ -479,10 +479,10 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                  Servicios del catalogo
+                  Servicios del catálogo
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
-                  Filtra activos, inactivos, publicos u ocultos y ajusta la visibilidad
+                  Filtra activos, inactivos, públicos u ocultos y ajusta la visibilidad
                   sin salir del listado.
                 </p>
               </div>
@@ -498,7 +498,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                     <option value="all">Todos</option>
                     <option value="active">Solo activos</option>
                     <option value="inactive">Solo inactivos</option>
-                    <option value="public">Solo publicos</option>
+                    <option value="public">Solo públicos</option>
                     <option value="hidden">Solo ocultos</option>
                   </select>
                 </label>
@@ -537,12 +537,12 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                         {service.isActive ? "Activo" : "Inactivo"}
                       </span>
                       <span className={getServiceVisibilityBadgeClassName(service.isPublic)}>
-                        {service.isPublic ? "Publico" : "Oculto"}
+                        {service.isPublic ? "Público" : "Oculto"}
                       </span>
                     </div>
 
                     <p className="mt-3 text-sm leading-7 text-muted">
-                      {service.description ?? "Sin descripcion registrada para este servicio."}
+                      {service.description ?? "Sin descripción registrada para este servicio."}
                     </p>
                   </div>
 
@@ -561,7 +561,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                   <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                      Categoria
+                      Categoría
                     </p>
                     <p className="mt-3 text-lg font-semibold text-ink">
                       {getServiceCategoryLabel(service.category)}
@@ -570,7 +570,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
                   <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                      Duracion
+                      Duración
                     </p>
                     <p className="mt-3 text-lg font-semibold text-ink">
                       {service.durationMinutes} min
@@ -605,7 +605,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
                   <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                      Orden publico
+                      Orden público
                     </p>
                     <p className="mt-3 text-lg font-semibold text-ink">
                       {service.publicOrder}
@@ -670,7 +670,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
               <p className="mt-3 text-sm leading-7 text-muted">
                 {services.length
                   ? "Ajusta el filtro o cambia la visibilidad de un servicio existente."
-                  : "Crea el primer servicio para empezar a construir el catalogo publico del negocio."}
+                  : "Crea el primer servicio para empezar a construir el catálogo público del negocio."}
               </p>
             </article>
           )}

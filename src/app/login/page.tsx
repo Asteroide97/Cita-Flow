@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { AuthShell } from "@/components/auth/auth-shell";
 import { LoginForm } from "@/components/auth/login-form";
-import { brand, withBrandTitle } from "@/lib/brand";
+import { AuthShell } from "@/components/auth/auth-shell";
 import { getCurrentAuthContext } from "@/lib/auth/session";
+import { brand, withBrandTitle } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: withBrandTitle("Iniciar sesion"),
+  title: withBrandTitle("Iniciar sesión"),
   description: `Acceso al panel SaaS de ${brand.name}.`,
 };
 
 const loginHighlights = [
   {
-    label: "Proteccion",
+    label: "Protección",
     value: "httpOnly",
     note: "La cookie no expone datos sensibles.",
   },
@@ -23,7 +23,7 @@ const loginHighlights = [
     note: "Cada usuario entra solo a sus negocios activos.",
   },
   {
-    label: "Auditoria",
+    label: "Auditoría",
     value: "Activa",
     note: "Guardamos login, error y cierre de sesión.",
   },
@@ -35,9 +35,9 @@ const loginHighlights = [
 ];
 
 const loginChecklist = [
-  "El negocio actual se resuelve desde la sesión.",
+  "El negocio activo se resuelve desde la sesión.",
   "Si la sesión expira, el panel vuelve a login.",
-  "El rate limiting basico bloquea intentos repetidos.",
+  "El rate limiting básico bloquea intentos repetidos.",
 ];
 
 export default async function LoginPage() {

@@ -1,14 +1,14 @@
 import { brand, brandSupportMailto } from "@/lib/brand";
 
-export type NavLink = {
+export type PublicNavLink = {
   label: string;
   href: string;
 };
 
-export type Metric = {
+export type HeroMetric = {
   value: string;
   label: string;
-  note?: string;
+  note: string;
 };
 
 export type HeroAlert = {
@@ -24,57 +24,26 @@ export type HeroAppointment = {
   state: string;
 };
 
-export type Problem = {
+export type BenefitItem = {
   title: string;
   description: string;
 };
 
-export type HowStep = {
-  number: string;
+export type StepItem = {
   title: string;
   description: string;
 };
 
-export type ClinicType = {
+export type BusinessSolution = {
   id: string;
   label: string;
-  tagline: string;
-  description: string;
-  benefits: string[];
+  summary: string;
   highlight: string;
-  support: string;
-  useCaseTitle: string;
-  useCaseSummary: string;
-  useCaseSteps: string[];
-  useCaseMetrics: Metric[];
 };
 
-export type PatientFlowStep = {
-  step: string;
+export type ProductModule = {
   title: string;
   description: string;
-};
-
-export type PatientBookingSummary = {
-  service: string;
-  doctor: string;
-  date: string;
-  advance: string;
-  buttonLabel: string;
-};
-
-export type ResultMetric = {
-  value: string;
-  label: string;
-  description: string;
-  note: string;
-};
-
-export type Testimonial = {
-  quote: string;
-  name: string;
-  role: string;
-  impact: string;
 };
 
 export type PricingFeature = {
@@ -87,18 +56,19 @@ export type Faq = {
   answer: string;
 };
 
-export const navigationLinks: NavLink[] = [
-  { label: "Beneficios", href: "#beneficios" },
-  { label: "Cómo funciona", href: "#como-funciona" },
-  { label: "Precios", href: "#precios" },
-  { label: "FAQ", href: "#faq" },
+export const publicNavigationLinks: PublicNavLink[] = [
+  { label: "Inicio", href: "/" },
+  { label: "Producto", href: "/producto" },
+  { label: "Soluciones", href: "/soluciones" },
+  { label: "Precios", href: "/precios" },
+  { label: "FAQ", href: "/faq" },
 ];
 
-export const heroMetrics: Metric[] = [
+export const heroMetrics: HeroMetric[] = [
   {
     value: "24/7",
-    label: "reservas abiertas",
-    note: "aunque no respondas mensajes",
+    label: "reservas activas",
+    note: "aunque no estés respondiendo mensajes",
   },
   {
     value: "Menos ausencias",
@@ -106,9 +76,9 @@ export const heroMetrics: Metric[] = [
     note: "con recordatorios y anticipos",
   },
   {
-    value: "+ ocupación",
-    label: "más horarios útiles",
-    note: "menos huecos por cancelación",
+    value: "Más ocupación",
+    label: "menos huecos perdidos",
+    note: "con lista de espera y reagendado",
   },
 ];
 
@@ -139,7 +109,7 @@ export const heroAppointments: HeroAppointment[] = [
   },
   {
     hour: "11:30",
-    title: "Valoración inicial",
+    title: "Servicio completo",
     detail: "Diego Campos · Anticipo recibido",
     state: "Pagada",
   },
@@ -151,478 +121,182 @@ export const heroAppointments: HeroAppointment[] = [
   },
 ];
 
-export const problemCards: Problem[] = [
+export const homeBenefits: BenefitItem[] = [
   {
-    title: "Agenda llena de mensajes manuales",
-    description:
-      "Tu equipo termina respondiendo horarios, cambios y recordatorios durante todo el día.",
+    title: "Reservas 24/7",
+    description: "Recibe solicitudes aunque tu equipo no esté contestando.",
   },
   {
-    title: "Clientes que no confirman",
-    description:
-      "Las reservas quedan en el aire y tu agenda se vuelve incierta hasta el último momento.",
+    title: "Recordatorios automáticos",
+    description: "Reduce ausencias sin perseguir confirmaciones por chat.",
   },
   {
-    title: "Horarios vacíos por cancelaciones",
-    description:
-      "Cuando alguien cancela tarde, cuesta mucho volver a llenar ese espacio disponible.",
+    title: "Lista de espera",
+    description: "Recupera horarios liberados con un flujo más ordenado.",
   },
   {
-    title: "Reagendar consume demasiado tiempo",
-    description:
-      "Mover una reserva implica mensajes, llamadas y cruces entre servicios y profesionales.",
+    title: "Agenda por profesional",
+    description: "Controla disponibilidad real por persona y servicio.",
   },
   {
-    title: "Anticipos difíciles de controlar",
-    description:
-      "Cobrar apartados y saber quién ya pagó suele hacerse de forma manual y dispersa.",
+    title: "Clientes organizados",
+    description: "Centraliza historial, contacto y próximas reservas.",
   },
   {
-    title: "Poca visibilidad del negocio",
-    description:
-      "Sin métricas claras es difícil saber qué horarios se pierden y qué servicios se llenan mejor.",
+    title: "Reportes básicos",
+    description: "Detecta ocupación, cancelaciones y servicios con más demanda.",
   },
 ];
 
-export const howItWorksSteps: HowStep[] = [
+export const homeSteps: StepItem[] = [
   {
-    number: "01",
     title: "Configura tu negocio",
-    description:
-      "Carga servicios, duración, profesionales, horarios y reglas básicas de anticipo.",
+    description: "Carga servicios, profesionales y horarios disponibles.",
   },
   {
-    number: "02",
-    title: "Comparte tu enlace de reservas",
-    description:
-      "Envíalo por WhatsApp, Instagram, Google Business o tu página web.",
+    title: "Comparte tu link",
+    description: "Publícalo en WhatsApp, Instagram, Google o tu sitio web.",
   },
   {
-    number: "03",
-    title: "El cliente reserva",
-    description:
-      "Elige servicio, profesional y horario en pocos pasos, sin llamadas ni ida y vuelta.",
-  },
-  {
-    number: "04",
-    title: `${brand.name} automatiza el seguimiento`,
-    description:
-      "Envía recordatorios, registra anticipos y recupera horarios liberados con lista de espera.",
+    title: "Recibe reservas",
+    description: "Tus clientes eligen servicio, horario y confirman sus datos.",
   },
 ];
 
-export const clinicTypes: ClinicType[] = [
+export const businessSolutions: BusinessSolution[] = [
   {
     id: "clinicas-consultorios",
     label: "Clínicas y consultorios",
-    tagline: "Reservas ordenadas para equipos que viven de una agenda activa y bien coordinada.",
-    description:
-      "Centraliza servicios, profesionales y confirmaciones sin depender del chat para cada espacio.",
-    benefits: [
-      "Reservas online 24/7",
-      "Recordatorios por WhatsApp",
-      "Anticipos para reducir ausencias",
-      "Agenda por profesional",
-      "Clientes organizados",
-    ],
-    highlight: "Ideal para negocios con varios servicios, horarios y atención continua.",
-    support: "Reduce coordinación manual y mejora la ocupación de la agenda.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Un negocio de salud o atención presencial puede publicar reservas por servicio y atender mejor sin saturar recepción.",
-    useCaseSteps: [
-      "Configura servicios y duraciones",
-      "Comparte un solo enlace de reservas",
-      "Confirma y recupera horarios liberados",
-    ],
-    useCaseMetrics: [
-      { value: "24/7", label: "reservas abiertas" },
-      { value: "Multi", label: "servicio y profesional" },
-      { value: "1 enlace", label: "captación directa" },
-    ],
+    summary: "Ordena servicios, confirmaciones y horarios sin depender del chat.",
+    highlight: "Ideal para equipos con varios servicios y atención continua.",
   },
   {
     id: "dental",
     label: "Dental",
-    tagline: "Limpiezas, valoraciones y tratamientos protegidos con menos huecos entre clientes.",
-    description:
-      "Organiza servicios por duración y anticipo sin perder seguimiento ni tiempo en recepción.",
-    benefits: [
-      "Reservas online 24/7",
-      "Anticipos para procedimientos de alto valor",
-      "Recordatorios automáticos",
-      "Lista de espera inteligente",
-      "Agenda por profesional",
-    ],
-    highlight: "Muy útil para tratamientos con tiempos distintos y alta demanda.",
-    support: "Ayuda a proteger espacios que cuesta mucho recuperar.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Una clínica dental puede separar valoración, limpieza y seguimiento con reglas simples de confirmación.",
-    useCaseSteps: [
-      "Publica servicios por duración",
-      "Pide anticipo cuando convenga",
-      "Rellena huecos con lista de espera",
-    ],
-    useCaseMetrics: [
-      { value: "3", label: "servicios base" },
-      { value: "2", label: "tipos de anticipo" },
-      { value: "Más orden", label: "menos seguimiento manual" },
-    ],
+    summary: "Protege tratamientos con anticipos y reduce huecos costosos.",
+    highlight: "Muy útil cuando cada bloque tiene alto valor.",
   },
   {
     id: "psicologia",
     label: "Psicología",
-    tagline: "Sesiones recurrentes con una agenda más estable y menos fricción para reservar.",
-    description:
-      "Asegura continuidad semanal con recordatorios discretos y horarios claros para tus clientes.",
-    benefits: [
-      "Reservas online 24/7",
-      "Recordatorios por WhatsApp",
-      "Agenda por profesional",
-      "Clientes organizados",
-      "Notificaciones automáticas",
-    ],
-    highlight: "Favorece la constancia en negocios donde la continuidad es clave.",
-    support: "Reduce cancelaciones silenciosas y mejora la estabilidad de la semana.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Un centro terapéutico puede proteger sesiones recurrentes sin volver compleja la experiencia de reserva.",
-    useCaseSteps: [
-      "Abre horarios recurrentes",
-      "Confirma automáticamente",
-      "Reagenda más rápido cuando cambia un bloque",
-    ],
-    useCaseMetrics: [
-      { value: "Semanal", label: "ritmo de reserva" },
-      { value: "1 clic", label: "confirmación simple" },
-      { value: "Multi", label: "terapeuta opcional" },
-    ],
+    summary: "Sostén sesiones recurrentes con una agenda más estable.",
+    highlight: "Mejora continuidad y reduce cancelaciones silenciosas.",
   },
   {
     id: "fisioterapia",
     label: "Fisioterapia",
-    tagline: "Sesiones seriadas, bloques largos y mejor control del tiempo productivo.",
-    description:
-      "Coordina valoraciones y seguimientos sin perder disponibilidad ni saturar al equipo.",
-    benefits: [
-      "Agenda por profesional",
-      "Reservas online 24/7",
-      "Recordatorios automáticos",
-      "Lista de espera inteligente",
-      "Clientes organizados",
-    ],
-    highlight: "Protege mejor horarios largos que se desperdician si alguien falta.",
-    support: "Ayuda a sostener continuidad y uso eficiente del espacio.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Un centro de fisioterapia puede ordenar valoraciones y seguimientos en una sola agenda visible.",
-    useCaseSteps: [
-      "Separa valoraciones y seguimientos",
-      "Carga bloques largos por sesión",
-      "Recupera cancelaciones con espera",
-    ],
-    useCaseMetrics: [
-      { value: "45-60 min", label: "bloques frecuentes" },
-      { value: "Serie", label: "continuidad" },
-      { value: "Más ocupación", label: "menos huecos" },
-    ],
+    summary: "Coordina valoraciones y seguimientos con disponibilidad real.",
+    highlight: "Funciona bien para sesiones largas y seriadas.",
   },
   {
     id: "spa-estetica",
     label: "Spa y estética",
-    tagline: "Experiencia premium desde la reserva hasta el anticipo del servicio.",
-    description:
-      "Convierte interés en reservas confirmadas con una experiencia clara y más comercial.",
-    benefits: [
-      "Anticipos para reducir ausencias",
-      "Reservas online 24/7",
-      "Recordatorios por WhatsApp",
-      "Agenda por profesional",
-      "Notificaciones automáticas",
-    ],
-    highlight: "Ideal para servicios de alto valor o alta demanda.",
-    support: "Funciona muy bien para captar desde Instagram y WhatsApp.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Un spa puede publicar faciales, masajes o valoraciones con una experiencia más ordenada desde el primer clic.",
-    useCaseSteps: [
-      "Publica servicios con duración clara",
-      "Protege espacios con anticipos",
-      "Envía recordatorios antes del servicio",
-    ],
-    useCaseMetrics: [
-      { value: "Premium", label: "servicios protegidos" },
-      { value: "1 enlace", label: "captación directa" },
-      { value: "Más asistencia", label: "menos ausencias" },
-    ],
+    summary: "Convierte interés en reservas confirmadas con una experiencia premium.",
+    highlight: "Ayuda a proteger servicios de alto valor con anticipos.",
   },
   {
     id: "barberias",
     label: "Barberías",
-    tagline: "Cortes más organizados, menos interrupciones y mejor ritmo diario.",
-    description:
-      "Abre reservas por profesional y evita perder tiempo respondiendo horarios uno por uno.",
-    benefits: [
-      "Agenda por profesional",
-      "Reservas online 24/7",
-      "Recordatorios por WhatsApp",
-      "Clientes organizados",
-      "Lista de espera inteligente",
-    ],
-    highlight: "Muy útil cuando el negocio depende de velocidad, rotación y puntualidad.",
-    support: "Reduce chat repetitivo y ayuda a mantener la silla ocupada.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Una barbería puede distribuir reservas entre varios profesionales y ordenar mejor sus bloques del día.",
-    useCaseSteps: [
-      "Muestra profesionales disponibles",
-      "Deja que el cliente reserve solo",
-      "Rellena cancelaciones con lista de espera",
-    ],
-    useCaseMetrics: [
-      { value: "Rápido", label: "flujo de reserva" },
-      { value: "Multi", label: "barbero activo" },
-      { value: "Menos chat", label: "más foco en atención" },
-    ],
+    summary: "Mantén la silla ocupada con reservas rápidas por profesional.",
+    highlight: "Reduce mensajes repetitivos y mejora el ritmo diario.",
   },
   {
     id: "salones",
     label: "Salones de belleza",
-    tagline: "Más control sobre color, corte y agenda por profesional sin caos operativo.",
-    description:
-      "Coordina reservas por duración, profesional y tipo de servicio en una sola experiencia.",
-    benefits: [
-      "Agenda por profesional",
-      "Reservas online 24/7",
-      "Recordatorios por WhatsApp",
-      "Anticipos para citas largas",
-      "Clientes organizados",
-    ],
-    highlight: "Perfecto para servicios que mezclan duración, preparación y alta ocupación.",
-    support: "Ayuda a ordenar días intensos y a reducir cambios de último minuto.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Un salón puede separar corte, color, peinado o maquillaje con tiempos distintos y más control comercial.",
-    useCaseSteps: [
-      "Define servicios por duración",
-      "Asigna agenda por profesional",
-      "Protege citas largas con anticipos",
-    ],
-    useCaseMetrics: [
-      { value: "Flexible", label: "duración por servicio" },
-      { value: "Más orden", label: "menos cruces manuales" },
-      { value: "Alta demanda", label: "agenda mejor cuidada" },
-    ],
+    summary: "Organiza corte, color y peinado en una sola agenda comercial.",
+    highlight: "Perfecto para servicios con duraciones distintas.",
   },
   {
     id: "veterinarias",
     label: "Veterinarias",
-    tagline: "Consultas, controles y valoraciones con una agenda más clara para el equipo.",
-    description:
-      "Ordena servicios, horarios y recordatorios para atender mejor sin depender del teléfono.",
-    benefits: [
-      "Reservas online 24/7",
-      "Agenda por profesional",
-      "Recordatorios por WhatsApp",
-      "Clientes organizados",
-      "Notificaciones automáticas",
-    ],
-    highlight: "Mejora la coordinación diaria cuando llegan consultas, controles y urgencias leves.",
-    support: "Reduce llamadas repetitivas y mejora la experiencia del cliente.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Una veterinaria puede ordenar revisiones, vacunas o seguimientos con una agenda más predecible.",
-    useCaseSteps: [
-      "Configura servicios frecuentes",
-      "Activa recordatorios automáticos",
-      "Consulta disponibilidad real por profesional",
-    ],
-    useCaseMetrics: [
-      { value: "24/7", label: "captación" },
-      { value: "Más claridad", label: "menos llamadas" },
-      { value: "Mejor servicio", label: "cliente informado" },
-    ],
+    summary: "Da claridad a consultas, controles y revisiones frecuentes.",
+    highlight: "Mejora la experiencia del cliente sin depender del teléfono.",
   },
   {
     id: "entrenadores-clases",
     label: "Entrenadores y clases",
-    tagline: "Sesiones más ordenadas, grupos mejor coordinados y menos tiempo cerrando por chat.",
-    description:
-      "Permite reservar por profesional, sesión o clase con una agenda más visible y fácil de mantener.",
-    benefits: [
-      "Reservas online 24/7",
-      "Agenda por profesional",
-      "Recordatorios automáticos",
-      "Lista de espera inteligente",
-      "Clientes organizados",
-    ],
-    highlight: "Ideal para sesiones individuales o grupos donde la puntualidad importa mucho.",
-    support: "Ayuda a sostener ocupación y continuidad sin perseguir confirmaciones.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Un entrenador puede abrir bloques por sesión y reacomodar mejor los horarios que se liberan.",
-    useCaseSteps: [
-      "Define horarios por sesión",
-      "Abre agenda por profesional",
-      "Envía recordatorios automáticos",
-    ],
-    useCaseMetrics: [
-      { value: "Individual o grupo", label: "múltiples formatos" },
-      { value: "Más asistencia", label: "mejor seguimiento" },
-      { value: "Menos chat", label: "menos coordinación manual" },
-    ],
+    summary: "Abre sesiones individuales o grupales con mejor control del horario.",
+    highlight: "Ayuda a sostener asistencia y continuidad semanal.",
   },
   {
     id: "centros-deportivos",
     label: "Centros deportivos",
-    tagline: "Agenda más clara para servicios, clases y atención por profesional o área.",
-    description:
-      "Centraliza reservas de entrenamiento, evaluación o atención especializada en un mismo flujo.",
-    benefits: [
-      "Reservas online 24/7",
-      "Agenda por profesional",
-      "Lista de espera inteligente",
-      "Recordatorios por WhatsApp",
-      "Notificaciones automáticas",
-    ],
-    highlight: "Funciona bien cuando hay varios espacios, entrenadores o servicios simultáneos.",
-    support: "Hace más simple distribuir horarios y mantener mejor ocupación.",
-    useCaseTitle: "Caso de uso sugerido",
-    useCaseSummary:
-      "Un centro deportivo puede combinar clases, sesiones y valoraciones con una agenda más operable.",
-    useCaseSteps: [
-      "Publica servicios y clases",
-      "Filtra por profesional o área",
-      "Recupera huecos con espera",
-    ],
-    useCaseMetrics: [
-      { value: "Multi", label: "servicio y espacio" },
-      { value: "24/7", label: "reservas abiertas" },
-      { value: "Más ocupación", label: "menos huecos" },
-    ],
+    summary: "Centraliza clases, servicios y profesionales en un solo flujo.",
+    highlight: "Muy útil cuando operas varios espacios o áreas al mismo tiempo.",
   },
 ];
 
-export const patientFlowSteps: PatientFlowStep[] = [
+export const productModules: ProductModule[] = [
   {
-    step: "01",
-    title: "Elige servicio",
-    description: "Tu cliente entiende qué necesita desde la primera pantalla.",
+    title: "Reservas online",
+    description: "Comparte un link y deja que el cliente reserve sin fricción.",
   },
   {
-    step: "02",
-    title: "Selecciona profesional",
-    description: "Ve quién atiende y en qué horario, sin mensajes de ida y vuelta.",
+    title: "Agenda visual",
+    description: "Consulta el día o la semana con horarios reales por profesional.",
   },
   {
-    step: "03",
-    title: "Escoge horario",
-    description: "Solo aparecen espacios reales y disponibles.",
+    title: "Clientes",
+    description: "Mantén cada contacto con historial, próximas reservas y notas.",
   },
   {
-    step: "04",
-    title: "Confirma datos",
-    description: "Comparte nombre y contacto en un flujo simple y rápido.",
+    title: "Profesionales",
+    description: "Controla visibilidad pública, orden y disponibilidad semanal.",
   },
   {
-    step: "05",
-    title: "Paga anticipo si aplica",
-    description: "Confirma su lugar con un pago rápido antes de cerrar la reserva.",
-  },
-];
-
-export const patientBookingSummary: PatientBookingSummary = {
-  service: "Color y peinado",
-  doctor: "Sofía Herrera",
-  date: "Jueves 18 de julio · 4:30 PM",
-  advance: "$200 MXN",
-  buttonLabel: "Confirmar reserva",
-};
-
-export const resultMetrics: ResultMetric[] = [
-  {
-    value: "Hasta 67%",
-    label: "menos ausencias",
-    description:
-      "Recordatorios y anticipos ayudan a que más clientes sí lleguen a su reserva.",
-    note: "según el tipo de servicio y el flujo de confirmación",
+    title: "Servicios",
+    description: "Define duración, precio, anticipo y orden del catálogo público.",
   },
   {
-    value: "24/7",
-    label: "reservas disponibles",
-    description:
-      "Tus clientes pueden reservar fuera del horario de atención y sin esperar respuesta.",
-    note: "ideal para captar demanda fuera de horario",
+    title: "Lista de espera",
+    description: "Recupera horarios liberados sin volver al caos de los mensajes.",
   },
   {
-    value: "Más ocupación",
-    label: "menos huecos perdidos",
-    description:
-      "Lista de espera y reagendado rápido reducen espacios desperdiciados por cambios de último momento.",
-    note: "muy útil en agendas de alta demanda",
+    title: "Notificaciones",
+    description: "Prepara recordatorios y mensajes transaccionales desde una cola segura.",
   },
   {
-    value: "Menos seguimiento",
-    label: "menos tiempo en chat",
-    description:
-      "Tu equipo se enfoca en atender mejor, no en perseguir confirmaciones todo el día.",
-    note: "menos coordinación manual por WhatsApp",
-  },
-];
-
-export const testimonials: Testimonial[] = [
-  {
-    quote:
-      "Antes cerrábamos casi todo por mensajes. Con un enlace de reservas y recordatorios, el equipo recuperó tiempo y la agenda se volvió mucho más estable.",
-    name: "Carla Mendoza",
-    role: "Directora de spa · Monterrey",
-    impact: "Menos seguimiento manual y mejor ocupación",
+    title: "Reportes",
+    description: "Mide reservas, cancelaciones, no-show y demanda por servicio.",
   },
   {
-    quote:
-      "Nos ayudó mucho en servicios donde perder un espacio cuesta caro. El anticipo y la lista de espera le dieron más orden a la operación.",
-    name: "Javier Rosales",
-    role: "Dueño de barbería · Guadalajara",
-    impact: "Más control sobre horarios liberados",
-  },
-  {
-    quote:
-      "Lo que más valoramos fue lo claro que se siente para el cliente. La reserva se ve mucho más profesional desde el primer contacto.",
-    name: "Mariana Solís",
-    role: "Coordinadora de fisioterapia · CDMX",
-    impact: "Experiencia más consistente para el cliente",
+    title: "Panel operativo",
+    description: "Administra reservas, agenda y operación diaria desde un solo lugar.",
   },
 ];
 
 export const pricingFeatures: PricingFeature[] = [
   {
-    title: "Página pública de reservas",
-    description: "Tu negocio recibe reservas sin depender de mensajes manuales.",
+    title: "Reservas online",
+    description: "Un link público para recibir reservas sin coordinar por chat.",
   },
   {
-    title: "Agenda centralizada",
-    description: "Horarios, servicios y disponibilidad en un solo flujo.",
+    title: "Agenda",
+    description: "Vista diaria y semanal con horarios reales por profesional.",
   },
   {
-    title: "Recordatorios automáticos",
-    description: "Confirmaciones y avisos previos sin seguimiento manual.",
+    title: "Clientes",
+    description: "Base organizada con historial, próximas reservas y contacto.",
   },
   {
-    title: "Gestión de clientes",
-    description: "Base de contactos organizada para seguir creciendo el producto.",
+    title: "Profesionales",
+    description: "Configura perfiles, visibilidad pública y disponibilidad.",
   },
   {
-    title: "Servicios y profesionales",
-    description: "Diferencia roles, duraciones y disponibilidad.",
+    title: "Servicios",
+    description: "Ordena tu catálogo con duración, precio y anticipo opcional.",
   },
   {
-    title: "Anticipos con Stripe",
-    description: "Protege horarios de alto valor con cobros de apartado.",
+    title: "Lista de espera",
+    description: "Recupera espacios que se liberan sin seguimiento manual.",
   },
   {
-    title: "Lista de espera inteligente",
-    description: "Recupera huecos por cancelación de forma más ordenada.",
+    title: "Notificaciones",
+    description: "Mensajes preparados para WhatsApp y email desde la cola interna.",
+  },
+  {
+    title: "Reportes básicos",
+    description: "Métricas simples para entender ocupación, cancelaciones y demanda.",
   },
   {
     title: "Soporte básico",
@@ -634,44 +308,44 @@ export const faqs: Faq[] = [
   {
     question: "¿Necesito tarjeta para empezar?",
     answer:
-      `No necesariamente. Puedes evaluar el flujo comercial primero y activar cobros o suscripción cuando decidas operar formalmente con ${brand.name}.`,
+      "No. Puedes probar el flujo comercial primero y decidir después cómo operar formalmente con Agenda Viva.",
   },
   {
     question: "¿Puedo cobrar anticipos?",
     answer:
-      `Sí. ${brand.name} está pensado para permitir anticipos por servicio o tipo de reserva cuando quieras proteger espacios de alto valor.`,
+      `${brand.name} ya contempla anticipos por servicio para proteger horarios de mayor valor.`,
   },
   {
     question: "¿Funciona con WhatsApp?",
     answer:
-      "Sí. La idea es que compartas tu enlace de reservas por WhatsApp y que tu cliente reserve sin coordinación manual.",
+      "Sí. Puedes compartir tu link por WhatsApp y el producto ya prepara notificaciones transaccionales para futuras integraciones.",
   },
   {
     question: "¿Puedo usarlo con varios profesionales?",
     answer:
-      "Sí. El flujo está planteado para operar con uno o varios profesionales dentro del mismo negocio.",
+      "Sí. Agenda Viva está pensado para operar con uno o varios profesionales dentro del mismo negocio.",
   },
   {
     question: "¿Mis clientes necesitan crear cuenta?",
     answer:
-      "No. La experiencia está diseñada para reservar en pocos pasos y sin fricción innecesaria.",
+      "No. La experiencia pública está pensada para reservar en pocos pasos y sin crear usuario.",
   },
   {
     question: "¿Puedo cancelar cuando quiera?",
     answer:
-      "Sí. El plan está pensado como una suscripción simple, sin permanencias forzosas y con control total desde tu lado.",
+      "Sí. El plan está planteado como una suscripción simple, sin permanencias forzosas.",
   },
   {
     question: "¿Se integra con Google Calendar?",
     answer:
-      "Sí, está considerado en el roadmap de producto para sincronizar disponibilidad y eventos sin duplicar trabajo.",
+      "Todavía no. Está contemplado para una fase posterior del producto.",
   },
 ];
 
 export const footerLinks = [
-  { label: "Producto", href: "#beneficios" },
-  { label: "Precios", href: "#precios" },
+  { label: "Producto", href: "/producto" },
+  { label: "Soluciones", href: "/soluciones" },
+  { label: "Precios", href: "/precios" },
+  { label: "FAQ", href: "/faq" },
   { label: "Soporte", href: brandSupportMailto },
-  { label: "Privacidad", href: "#footer" },
-  { label: "Términos", href: "#footer" },
 ];

@@ -1,36 +1,31 @@
-import { howItWorksSteps } from "@/data/landing";
-import { brand } from "@/lib/brand";
+import { homeSteps } from "@/data/landing";
 
 import { SectionHeading } from "../ui/section-heading";
 import { SectionShell } from "../ui/section-shell";
 
-export function HowItWorks() {
+export function HowItWorksSection() {
   return (
-    <SectionShell id="como-funciona">
+    <SectionShell>
       <SectionHeading
         eyebrow="Cómo funciona"
-        title="Funciona en 4 pasos"
-        description={`${brand.name} simplifica la operación desde la configuración inicial hasta el seguimiento automático de cada reserva.`}
+        title="Empieza en 3 pasos"
+        description="Configura lo esencial, comparte tu página y deja que la agenda haga el resto."
         align="center"
       />
 
-      <div className="relative mt-16">
-        <div className="absolute left-1/2 top-16 hidden h-px w-[74%] -translate-x-1/2 bg-gradient-to-r from-transparent via-brand-200 to-transparent lg:block" />
+      <div className="mt-16 grid gap-6 lg:grid-cols-3">
+        {homeSteps.map((step, index) => (
+          <article key={step.title} className="surface-card p-7">
+            <span className="inline-flex rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+              Paso {index + 1}
+            </span>
 
-        <div className="grid gap-6 lg:grid-cols-4">
-          {howItWorksSteps.map((step) => (
-            <article key={step.number} className="surface-card p-7">
-              <span className="inline-flex rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Paso {step.number}
-              </span>
-
-              <h3 className="mt-6 text-xl font-semibold tracking-[-0.04em] text-ink">
-                {step.title}
-              </h3>
-              <p className="mt-4 text-base leading-8 text-muted">{step.description}</p>
-            </article>
-          ))}
-        </div>
+            <h3 className="mt-6 text-xl font-semibold tracking-[-0.04em] text-ink">
+              {step.title}
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-muted">{step.description}</p>
+          </article>
+        ))}
       </div>
     </SectionShell>
   );

@@ -3,9 +3,9 @@ import Link from "next/link";
 import { footerLinks } from "@/data/landing";
 import { brand } from "@/lib/brand";
 
-export function Footer() {
+export function PublicFooter() {
   return (
-    <footer id="footer" className="pb-10 pt-10">
+    <footer className="pb-10 pt-8">
       <div className="container-shell">
         <div className="rounded-[34px] bg-slate-950 px-6 py-8 shadow-float sm:px-8 sm:py-10">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -14,8 +14,8 @@ export function Footer() {
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,_#1d4ed8_0%,_#60a5fa_100%)]">
                   <span className="grid h-5 w-5 grid-cols-2 gap-1">
                     <span className="rounded-full bg-white" />
-                    <span className="rounded-full bg-white/65" />
-                    <span className="rounded-full bg-white/65" />
+                    <span className="rounded-full bg-white/70" />
+                    <span className="rounded-full bg-white/70" />
                     <span className="rounded-full bg-white" />
                   </span>
                 </span>
@@ -24,9 +24,7 @@ export function Footer() {
                 </p>
               </div>
 
-              <p className="mt-4 text-sm leading-7 text-slate-300">
-                {brand.shortTagline}
-              </p>
+              <p className="mt-4 text-sm leading-7 text-slate-300">{brand.tagline}</p>
             </div>
 
             <nav className="flex flex-wrap gap-4 sm:gap-6">

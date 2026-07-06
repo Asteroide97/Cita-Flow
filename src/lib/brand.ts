@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 const fallbackAppUrl = "https://cita-flow-tau.vercel.app";
 
 export const brand = {
@@ -24,4 +26,31 @@ export const brandSupportMailto = `mailto:${brand.supportEmail}`;
 
 export function withBrandTitle(prefix: string) {
   return `${prefix} | ${brand.name}`;
+}
+
+export function buildPublicMetadata({
+  title,
+  description,
+  path = "/",
+}: {
+  title?: string;
+  description?: string;
+  path?: string;
+} = {}): Metadata {
+  const resolvedTitle = title ? withBrandTitle(title) : brand.metaTitle;
+  const resolvedDescription = description ?? brand.metaDescription;
+  const resolvedUrl = new URL(path, brand.appUrl).toString();
+
+  return {
+    title: resolvedTitle,
+    description: resolvedDescription,
+    openGraph: {
+      title: resolvedTitle,
+      description: resolvedDescription,
+      siteName: brand.name,
+      url: resolvedUrl,
+      locale: "es_MX",
+      type: "website",
+    },
+  };
 }

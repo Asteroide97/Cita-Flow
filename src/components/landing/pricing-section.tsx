@@ -7,11 +7,11 @@ import { SectionShell } from "../ui/section-shell";
 
 export function PricingSection() {
   return (
-    <SectionShell id="precios" className="bg-white/60">
+    <SectionShell>
       <SectionHeading
         eyebrow="Precios"
         title="Un solo plan. Sin sorpresas."
-        description="Empieza con la base que necesita un negocio de servicios para reservar, confirmar, cobrar anticipos y mantener la agenda funcionando."
+        description="Todo lo necesario para recibir reservas y operar mejor desde un solo lugar."
         align="center"
       />
 
@@ -35,15 +35,15 @@ export function PricingSection() {
               </div>
 
               <p className="mt-5 text-base leading-8 text-muted">
-                Ideal para negocios de servicios que quieren ordenar reservas sin
-                agregar complejidad ni costos ocultos.
+                Una base clara para ordenar reservas, agenda y seguimiento sin sumar
+                complejidad.
               </p>
 
               <div className="mt-8 space-y-3">
                 {[
-                  "Página pública de reservas lista para vender mejor.",
-                  "Anticipos, recordatorios y agenda en una sola experiencia.",
-                  "Base limpia para crecer al SaaS en siguientes fases.",
+                  "Booking público listo para compartir.",
+                  "Agenda y operación en un solo panel.",
+                  "Lista de espera y notificaciones desde la misma base.",
                 ].map((point) => (
                   <div key={point} className="flex items-start gap-3">
                     <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">
@@ -54,9 +54,18 @@ export function PricingSection() {
                 ))}
               </div>
 
-              <ButtonLink href="#cta" className="mt-8 w-full sm:w-auto">
-                Empezar ahora
-              </ButtonLink>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <ButtonLink href="/registro" className="sm:min-w-[180px]">
+                  Empezar ahora
+                </ButtonLink>
+                <ButtonLink
+                  href="/booking/clinica-demo"
+                  variant="secondary"
+                  className="sm:min-w-[180px]"
+                >
+                  Ver demo
+                </ButtonLink>
+              </div>
 
               <p className="mt-4 text-sm text-muted">
                 Puedes cambiar o cancelar cuando quieras.

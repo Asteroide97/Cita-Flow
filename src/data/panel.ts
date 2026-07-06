@@ -56,6 +56,12 @@ export const panelNavigation: PanelNavItem[] = [
     description: "Catálogo base de servicios y duraciones.",
   },
   {
+    label: "Reportes",
+    href: "/app/reports",
+    shortLabel: "RP",
+    description: "Desempeno de reservas, clientes y servicios.",
+  },
+  {
     label: "WhatsApp",
     href: "/app/whatsapp-simulator",
     shortLabel: "WA",
@@ -157,6 +163,16 @@ export const panelSections: Record<string, PanelSectionContent> = {
       "Duración estándar por servicio.",
       "Precio y anticipo opcional por reserva.",
       "Preparado para reservas y página pública.",
+    ],
+  },
+  reports: {
+    title: "Reportes",
+    description:
+      "Vista compacta para entender volumen, estados y desempeno del negocio usando reservas reales filtradas por rango, profesional y servicio.",
+    highlights: [
+      "Metricas clave de reservas, cancelaciones y no-show.",
+      "Top de servicios, profesionales y clientes.",
+      "Base lista para crecer hacia exportaciones y analitica mas avanzada.",
     ],
   },
   notifications: {

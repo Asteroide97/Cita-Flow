@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
-type MetricCardProps = {
+type ReportMetricCardProps = {
   label: string;
   value: string;
   note: string;
-  tone: "brand" | "emerald" | "amber" | "slate";
+  tone?: "brand" | "emerald" | "amber" | "slate";
 };
 
 const toneClasses = {
@@ -14,22 +14,26 @@ const toneClasses = {
   slate: "border-slate-200 bg-slate-100 text-slate-700",
 };
 
-export function MetricCard({ label, value, note, tone }: MetricCardProps) {
+export function ReportMetricCard({
+  label,
+  value,
+  note,
+  tone = "slate",
+}: ReportMetricCardProps) {
   return (
-    <article className="surface-card p-5">
-      <div
+    <article className="surface-card p-5 sm:p-6">
+      <span
         className={cn(
           "inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]",
           toneClasses[tone],
         )}
       >
         {label}
-      </div>
-
-      <p className="mt-4 text-3xl font-semibold tracking-[-0.06em] text-ink">{value}</p>
-      <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-        {note}
+      </span>
+      <p className="mt-4 text-3xl font-semibold tracking-[-0.06em] text-ink">
+        {value}
       </p>
+      <p className="mt-2 text-sm leading-6 text-muted">{note}</p>
     </article>
   );
 }

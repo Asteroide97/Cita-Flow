@@ -1,5 +1,6 @@
 import type { AppointmentListItem } from "@/types/appointments";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import { AppointmentCard } from "./appointment-card";
 
 type AppointmentListProps = {
@@ -18,12 +19,10 @@ export function AppointmentList({
   if (!appointments.length) {
     return (
       <article className="surface-card p-7">
-        <p className="text-lg font-semibold text-ink">
-          No hay reservas para los filtros seleccionados.
-        </p>
-        <p className="mt-3 text-sm leading-7 text-muted">
-          Ajusta los filtros o crea una reserva nueva desde el panel izquierdo.
-        </p>
+        <EmptyState
+          title="No hay reservas para los filtros seleccionados."
+          description="Ajusta los filtros o crea una reserva nueva."
+        />
       </article>
     );
   }

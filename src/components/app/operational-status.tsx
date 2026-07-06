@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CollapsibleDetails } from "@/components/ui/collapsible-details";
 import { cn } from "@/lib/utils";
 import type {
   OperationalStatusCheck,
@@ -46,7 +47,7 @@ function CheckItem({ check }: { check: OperationalStatusCheck }) {
   return (
     <div
       className={cn(
-        "rounded-[24px] border p-4",
+        "rounded-[20px] border p-4",
         check.isComplete
           ? "border-emerald-100 bg-emerald-50/50"
           : "border-line/80 bg-white",
@@ -64,9 +65,7 @@ function CheckItem({ check }: { check: OperationalStatusCheck }) {
 
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink">{check.label}</p>
-          {check.note ? (
-            <p className="mt-2 text-sm leading-6 text-muted">{check.note}</p>
-          ) : null}
+          {check.note ? <p className="mt-2 text-sm leading-6 text-muted">{check.note}</p> : null}
         </div>
       </div>
     </div>
@@ -107,9 +106,7 @@ export function OperationalStatus({
           <h2 className="mt-4 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
             {headline}
           </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-muted sm:text-base">
-            {description}
-          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">{description}</p>
         </div>
 
         <div className={cn("rounded-[28px] border p-5 sm:p-6 xl:max-w-sm", classes.panel)}>
@@ -125,13 +122,7 @@ export function OperationalStatus({
 
             <div className="min-w-0">
               <p className="text-sm font-semibold text-ink">Accion recomendada</p>
-              <p className="mt-2 text-sm leading-7 text-muted">
-                {level === "READY"
-                  ? "Revisa la experiencia publica y comparte el enlace de reservas."
-                  : level === "NO_AVAILABILITY"
-                    ? "Ajusta disponibilidad o ausencias para recuperar horarios esta semana."
-                    : "Resuelve el siguiente punto pendiente para habilitar reservas reales."}
-              </p>
+              <p className="mt-2 text-sm leading-6 text-muted">{actionLabel}</p>
             </div>
           </div>
 
@@ -146,11 +137,13 @@ export function OperationalStatus({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        {checks.map((check) => (
-          <CheckItem key={check.id} check={check} />
-        ))}
-      </div>
+      <CollapsibleDetails summary="Ver detalles" className="mt-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          {checks.map((check) => (
+            <CheckItem key={check.id} check={check} />
+          ))}
+        </div>
+      </CollapsibleDetails>
     </section>
   );
 }

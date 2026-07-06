@@ -117,9 +117,8 @@ export function OnboardingChecklist({
               <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
                 Tu negocio ya puede recibir reservas.
               </h2>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-muted sm:text-base">
-                {businessName} ya tiene identidad publica, servicios, profesionales
-                y disponibilidad suficiente para compartir su booking.
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-muted sm:text-base">
+                {businessName} ya tiene lo minimo listo para compartir su booking.
               </p>
             </div>
 
@@ -135,9 +134,8 @@ export function OnboardingChecklist({
               <p className="text-sm font-semibold text-brand-700">
                 Tu pagina publica ya esta lista para compartirse.
               </p>
-              <p className="mt-2 text-sm leading-7 text-muted">
-                Puedes abrir el booking publico o revisar el checklist completo
-                cuando quieras.
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Abrela o revisa el checklist cuando quieras.
               </p>
             </div>
 
@@ -167,9 +165,8 @@ export function OnboardingChecklist({
           <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
             Deja lista tu pagina de reservas
           </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-muted sm:text-base">
-            Completa estos pasos para que el negocio pueda recibir reservas sin
-            tener que recorrer todo el panel.
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-muted sm:text-base">
+            Completa lo esencial para empezar a recibir reservas.
           </p>
         </div>
 

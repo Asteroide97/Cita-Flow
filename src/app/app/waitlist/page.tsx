@@ -4,6 +4,10 @@ import {
 } from "@prisma/client";
 
 import { PanelPage } from "@/components/app/panel-page";
+import { CollapsibleDetails } from "@/components/ui/collapsible-details";
+import { CompactStatCard } from "@/components/ui/compact-stat-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatusPill } from "@/components/ui/status-pill";
 import {
   formatDateInTimeZone,
   formatDateTimeInTimeZone,
@@ -30,7 +34,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "waitlist-entry-not-found":
         return {
           tone: "error" as const,
-          message: "No encontré esa entrada de lista de espera dentro del negocio actual.",
+          message: "No encontre esa entrada de lista de espera dentro del negocio actual.",
         };
       case "waitlist-entry-action-invalid":
         return {
@@ -140,6 +144,23 @@ function getPreferredRangeLabel(
   return `${preferredStartTime ?? "00:00"} - ${preferredEndTime ?? "23:59"}`;
 }
 
+function CompactField({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+        {label}
+      </p>
+      <p className="mt-2 text-sm font-semibold text-ink">{value}</p>
+    </div>
+  );
+}
+
 export default async function WaitlistPage({
   searchParams,
 }: WaitlistPageProps) {
@@ -208,58 +229,15 @@ export default async function WaitlistPage({
   return (
     <PanelPage
       eyebrow="Lista de espera"
-      title="Solicitudes y ofertas de horarios liberados"
-      description="Aquí puedes revisar clientes en espera, ofertas pendientes y conversiones a reservas reales cuando alguien libera un espacio."
+      title="Lista de espera"
+      description="Solicitudes y ofertas para horarios liberados."
     >
       <div className="grid gap-6">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <article className="surface-card p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Activas
-            </p>
-            <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
-              {activeCount}
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Entradas esperando una coincidencia compatible.
-            </p>
-          </article>
-
-          <article className="surface-card p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Ofertadas
-            </p>
-            <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
-              {offeredCount}
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Clientes con un horario liberado pendiente de respuesta.
-            </p>
-          </article>
-
-          <article className="surface-card p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Convertidas
-            </p>
-            <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
-              {convertedCount}
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Entradas que ya terminaron en una reserva creada.
-            </p>
-          </article>
-
-          <article className="surface-card p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Cerradas
-            </p>
-            <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
-              {closedCount}
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Canceladas o vencidas por el negocio.
-            </p>
-          </article>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <CompactStatCard label="Activas" value={activeCount} tone="emerald" />
+          <CompactStatCard label="Ofertadas" value={offeredCount} tone="amber" />
+          <CompactStatCard label="Convertidas" value={convertedCount} tone="brand" />
+          <CompactStatCard label="Cerradas" value={closedCount} tone="slate" />
         </div>
 
         {flash ? (
@@ -275,25 +253,19 @@ export default async function WaitlistPage({
         ) : null}
 
         <article className="surface-card p-6 sm:p-7">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Entradas del negocio actual
+                Entradas
               </p>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-muted">
-                Cada entrada guarda la preferencia de servicio, profesional, fecha y
-                rango horario. Las ofertas asociadas quedan visibles para depurar
-                el motor antes de conectar WhatsApp real.
+              <p className="mt-2 text-sm text-muted">
+                {entries.length} solicitud{entries.length === 1 ? "" : "es"} visibles.
               </p>
-            </div>
-
-            <div className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-muted">
-              {entries.length} entradas
             </div>
           </div>
 
           {entries.length ? (
-            <div className="mt-6 grid gap-4">
+            <div className="mt-6 grid gap-3">
               {entries.map((entry) => {
                 const canClose =
                   entry.status === WaitlistStatus.ACTIVE ||
@@ -302,109 +274,129 @@ export default async function WaitlistPage({
                 return (
                   <article
                     key={entry.id}
-                    className="rounded-[28px] border border-line/80 bg-white p-5 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
+                    className="rounded-[24px] border border-line/80 bg-white p-4"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex flex-wrap gap-2">
-                        <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${getEntryStatusClassName(entry.status)}`}
-                        >
-                          {getEntryStatusLabel(entry.status)}
-                        </span>
-                        <span className="inline-flex rounded-full border border-line/80 bg-surface-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                          {entry.autoAccept ? "Auto aceptar" : "Confirmacion manual"}
-                        </span>
-                      </div>
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap gap-2">
+                          <StatusPill className={getEntryStatusClassName(entry.status)}>
+                            {getEntryStatusLabel(entry.status)}
+                          </StatusPill>
+                          <StatusPill className="border-line/80 bg-surface-soft text-muted">
+                            {entry.autoAccept ? "Auto aceptar" : "Manual"}
+                          </StatusPill>
+                        </div>
 
-                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
-                        Creada {formatDateTimeInTimeZone(entry.createdAt, authContext.clinic.timezone)}
-                      </p>
+                        <h2 className="mt-3 text-base font-semibold tracking-[-0.03em] text-ink">
+                          {entry.patient.name}
+                        </h2>
+                        <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted">
+                          {formatDateTimeInTimeZone(
+                            entry.createdAt,
+                            authContext.clinic.timezone,
+                          )}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
+                    <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                      <CompactField label="Servicio" value={entry.service.name} />
+                      <CompactField
+                        label="Profesional preferido"
+                        value={entry.doctor?.name ?? "Cualquier profesional"}
+                      />
+                      <CompactField
+                        label="Fecha preferida"
+                        value={
+                          entry.preferredDate
+                            ? formatDateInTimeZone(
+                                entry.preferredDate,
+                                authContext.clinic.timezone,
+                              )
+                            : "Sin fecha fija"
+                        }
+                      />
+                      <CompactField
+                        label="Rango preferido"
+                        value={getPreferredRangeLabel(
+                          entry.preferredStartTime,
+                          entry.preferredEndTime,
+                        )}
+                      />
+                    </div>
+
+                    <CollapsibleDetails summary="Ver detalles" className="mt-4">
                       <div className="grid gap-4">
-                        <div>
-                          <h2 className="text-lg font-semibold tracking-[-0.03em] text-ink">
-                            {entry.patient.name}
-                          </h2>
-                          <p className="mt-2 text-sm leading-7 text-muted">
-                            {entry.patient.phoneE164}
-                            {entry.patient.email ? ` - ${entry.patient.email}` : ""}
-                          </p>
-                        </div>
-
                         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                          <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                              Servicio
-                            </p>
-                            <p className="mt-3 text-base font-semibold text-ink">
-                              {entry.service.name}
-                            </p>
-                          </div>
-
-                          <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                              Profesional preferido
-                            </p>
-                            <p className="mt-3 text-base font-semibold text-ink">
-                              {entry.doctor?.name ?? "Cualquier profesional"}
-                            </p>
-                            <p className="mt-1 text-sm text-muted">
-                              {entry.doctor?.specialty ?? "Sin restricción"}
-                            </p>
-                          </div>
-
-                          <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                              Fecha preferida
-                            </p>
-                            <p className="mt-3 text-base font-semibold text-ink">
-                              {entry.preferredDate
-                                ? formatDateInTimeZone(
-                                    entry.preferredDate,
-                                    authContext.clinic.timezone,
-                                  )
-                                : "Sin fecha fija"}
-                            </p>
-                          </div>
-
-                          <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                              Rango preferido
-                            </p>
-                            <p className="mt-3 text-base font-semibold text-ink">
-                              {getPreferredRangeLabel(
-                                entry.preferredStartTime,
-                                entry.preferredEndTime,
-                              )}
-                            </p>
-                          </div>
+                          <CompactField
+                            label="Cliente"
+                            value={`${entry.patient.phoneE164}${entry.patient.email ? ` - ${entry.patient.email}` : ""}`}
+                          />
+                          <CompactField
+                            label="Especialidad"
+                            value={entry.doctor?.specialty ?? "Sin restriccion"}
+                          />
+                          <CompactField
+                            label="Ofertas"
+                            value={String(entry.offers.length)}
+                          />
+                          <CompactField
+                            label="Estado"
+                            value={getEntryStatusLabel(entry.status)}
+                          />
                         </div>
 
-                        <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4 text-sm leading-7 text-muted">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+                        <div className="rounded-[18px] border border-line/80 bg-white px-4 py-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
                             Notas
                           </p>
-                          <p className="mt-3">
-                            {entry.notes ?? "Sin notas adicionales para esta solicitud."}
+                          <p className="mt-2 text-sm leading-6 text-muted">
+                            {entry.notes ?? "Sin notas adicionales."}
                           </p>
                         </div>
-                      </div>
 
-                      <div className="grid gap-4 self-start rounded-[24px] border border-line/80 bg-white px-4 py-4">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                            Acciones
-                          </p>
-                          <p className="mt-3 text-sm leading-7 text-muted">
-                            Cancela o expira manualmente la entrada mientras el motor
-                            sigue madurando.
-                          </p>
+                        <div className="grid gap-3">
+                          {entry.offers.length ? (
+                            entry.offers.map((offer) => (
+                              <div
+                                key={offer.id}
+                                className="rounded-[18px] border border-line/80 bg-white px-4 py-4"
+                              >
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <StatusPill className={getOfferStatusClassName(offer.status)}>
+                                    {getOfferStatusLabel(offer.status)}
+                                  </StatusPill>
+                                </div>
+                                <p className="mt-3 text-sm font-semibold text-ink">
+                                  {formatDateTimeInTimeZone(
+                                    offer.offeredStartAt,
+                                    authContext.clinic.timezone,
+                                  )}
+                                </p>
+                                <p className="mt-1 text-sm text-muted">
+                                  Vence{" "}
+                                  {formatDateTimeInTimeZone(
+                                    offer.expiresAt,
+                                    authContext.clinic.timezone,
+                                  )}
+                                </p>
+                                <p className="mt-2 text-sm text-muted">
+                                  {offer.appointment
+                                    ? `Reserva asociada: ${offer.appointment.id} - ${offer.appointment.status}`
+                                    : "Sin reserva final asociada."}
+                                </p>
+                              </div>
+                            ))
+                          ) : (
+                            <EmptyState
+                              title="Sin ofertas asociadas."
+                              className="border-line/80 bg-white"
+                            />
+                          )}
                         </div>
 
                         {canClose ? (
-                          <div className="grid gap-2">
+                          <div className="flex flex-wrap gap-2">
                             <form action={cancelWaitlistEntryAction}>
                               <input
                                 type="hidden"
@@ -434,72 +426,23 @@ export default async function WaitlistPage({
                             </form>
                           </div>
                         ) : (
-                          <div className="rounded-[20px] border border-line/80 bg-surface-soft px-4 py-4 text-sm text-muted">
-                            Esta entrada ya no admite cambios manuales.
-                          </div>
+                          <EmptyState
+                            title="Esta entrada ya no admite cambios manuales."
+                            className="border-line/80 bg-white"
+                          />
                         )}
-
-                        <details className="rounded-[20px] border border-line/80 bg-surface-soft px-4 py-4">
-                          <summary className="cursor-pointer text-sm font-semibold text-ink">
-                            Ver ofertas ({entry.offers.length})
-                          </summary>
-                          <div className="mt-4 grid gap-3">
-                            {entry.offers.length ? (
-                              entry.offers.map((offer) => (
-                                <div
-                                  key={offer.id}
-                                  className="rounded-[18px] border border-line/80 bg-white px-4 py-4"
-                                >
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <span
-                                      className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${getOfferStatusClassName(offer.status)}`}
-                                    >
-                                      {getOfferStatusLabel(offer.status)}
-                                    </span>
-                                  </div>
-                                  <p className="mt-3 text-sm font-semibold text-ink">
-                                    {formatDateTimeInTimeZone(
-                                      offer.offeredStartAt,
-                                      authContext.clinic.timezone,
-                                    )}
-                                  </p>
-                                  <p className="mt-1 text-sm text-muted">
-                                    Vence{" "}
-                                    {formatDateTimeInTimeZone(
-                                      offer.expiresAt,
-                                      authContext.clinic.timezone,
-                                    )}
-                                  </p>
-                                  <p className="mt-2 text-sm text-muted">
-                                    {offer.appointment
-                                      ? `Reserva asociada: ${offer.appointment.id} - ${offer.appointment.status}`
-                                      : "Sin reserva final asociada todavía."}
-                                  </p>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-sm leading-7 text-muted">
-                                Esta entrada aun no tiene ofertas asociadas.
-                              </p>
-                            )}
-                          </div>
-                        </details>
                       </div>
-                    </div>
+                    </CollapsibleDetails>
                   </article>
                 );
               })}
             </div>
           ) : (
-            <div className="mt-6 rounded-[28px] border border-dashed border-line bg-surface-soft px-6 py-10 text-center">
-              <p className="text-lg font-semibold tracking-[-0.03em] text-ink">
-                Aun no hay solicitudes en lista de espera
-              </p>
-              <p className="mt-3 text-sm leading-7 text-muted">
-                Usa el booking público y selecciona &quot;Prefiero otro horario&quot;
-                para empezar a poblar esta bandeja.
-              </p>
-            </div>
+            <EmptyState
+              title="Aun no hay solicitudes en lista de espera."
+              description='Usa el booking publico y selecciona "Prefiero otro horario" para poblar esta bandeja.'
+              className="mt-6"
+            />
           )}
         </article>
       </div>

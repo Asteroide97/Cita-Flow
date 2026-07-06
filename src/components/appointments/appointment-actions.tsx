@@ -6,12 +6,14 @@ type AppointmentActionsProps = {
   appointmentId: string;
   status: AppointmentStatus;
   action: (formData: FormData) => void | Promise<void>;
+  visibleActions?: Array<"confirm" | "cancel" | "complete" | "no-show">;
 };
 
 export function AppointmentActions({
   appointmentId,
   status,
   action,
+  visibleActions = ["confirm", "cancel", "complete", "no-show"],
 }: AppointmentActionsProps) {
   const { canConfirm, canCancel, canComplete, canNoShow } =
     getAppointmentActionAvailability(status);
@@ -22,7 +24,7 @@ export function AppointmentActions({
 
   return (
     <div className="mt-6 flex flex-wrap gap-3">
-      {canConfirm ? (
+      {canConfirm && visibleActions.includes("confirm") ? (
         <form action={action}>
           <input type="hidden" name="appointmentId" value={appointmentId} />
           <input type="hidden" name="intent" value="confirm" />
@@ -35,7 +37,7 @@ export function AppointmentActions({
         </form>
       ) : null}
 
-      {canCancel ? (
+      {canCancel && visibleActions.includes("cancel") ? (
         <form action={action}>
           <input type="hidden" name="appointmentId" value={appointmentId} />
           <input type="hidden" name="intent" value="cancel" />
@@ -48,7 +50,7 @@ export function AppointmentActions({
         </form>
       ) : null}
 
-      {canComplete ? (
+      {canComplete && visibleActions.includes("complete") ? (
         <form action={action}>
           <input type="hidden" name="appointmentId" value={appointmentId} />
           <input type="hidden" name="intent" value="complete" />
@@ -61,7 +63,7 @@ export function AppointmentActions({
         </form>
       ) : null}
 
-      {canNoShow ? (
+      {canNoShow && visibleActions.includes("no-show") ? (
         <form action={action}>
           <input type="hidden" name="appointmentId" value={appointmentId} />
           <input type="hidden" name="intent" value="no-show" />

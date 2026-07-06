@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { CollapsibleDetails } from "@/components/ui/collapsible-details";
+import { CompactStatCard } from "@/components/ui/compact-stat-card";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { DashboardPendingAttentionSummary } from "@/lib/dashboard/today-operations";
 
 type DashboardPendingAttentionProps = {
@@ -8,26 +11,6 @@ type DashboardPendingAttentionProps = {
   waitlistHref: string;
   notificationsHref: string;
 };
-
-type PendingCardProps = {
-  label: string;
-  value: number;
-  helper: string;
-};
-
-function PendingCard({ label, value, helper }: PendingCardProps) {
-  return (
-    <article className="rounded-[24px] border border-line/80 bg-white/92 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-        {label}
-      </p>
-      <p className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-        {value}
-      </p>
-      <p className="mt-2 text-sm leading-6 text-muted">{helper}</p>
-    </article>
-  );
-}
 
 function ActionLink({ href, label }: { href: string; label: string }) {
   return (
@@ -54,48 +37,31 @@ export function DashboardPendingAttention({
             Pendientes de atencion
           </p>
           <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-            Cola operativa del negocio
+            Pendientes
           </h2>
-          <p className="mt-3 text-sm leading-7 text-muted">
-            Elementos que todavia requieren seguimiento manual desde reservas,
-            lista de espera y notificaciones.
-          </p>
         </div>
 
         {summary.totalPendingCount === 0 ? (
-          <div className="rounded-[24px] border border-dashed border-line bg-surface-soft px-5 py-4 text-sm text-muted">
-            No hay pendientes por atender.
-          </div>
+          <EmptyState title="No hay pendientes por atender." />
         ) : (
-          <div className="rounded-[24px] border border-amber-100 bg-amber-50/55 px-5 py-4 text-sm text-amber-800">
-            Hay {summary.totalPendingCount} elemento
-            {summary.totalPendingCount === 1 ? "" : "s"} pendiente
-            {summary.totalPendingCount === 1 ? "" : "s"} por revisar hoy.
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <CompactStatCard
+              label="Reservas"
+              value={summary.pendingAppointmentsCount}
+              tone="amber"
+            />
+            <CompactStatCard
+              label="Lista de espera"
+              value={summary.activeWaitlistEntriesCount}
+              tone="brand"
+            />
+            <CompactStatCard
+              label="Notificaciones"
+              value={summary.pendingNotificationsCount}
+              tone="slate"
+            />
           </div>
         )}
-      </div>
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <PendingCard
-          label="Reservas pendientes"
-          value={summary.pendingAppointmentsCount}
-          helper="Reservas en estado PENDING listas para confirmar o revisar."
-        />
-        <PendingCard
-          label="Lista de espera activa"
-          value={summary.activeWaitlistEntriesCount}
-          helper="Entradas ACTIVE u OFFERED esperando seguimiento."
-        />
-        <PendingCard
-          label="Notificaciones pendientes"
-          value={summary.pendingNotificationsCount}
-          helper="Mensajes en cola que aun no cambian de estado."
-        />
-        <PendingCard
-          label="Ofertas de lista de espera"
-          value={summary.pendingWaitlistOffersCount}
-          helper="Ofertas PENDING que aun no han sido aceptadas o rechazadas."
-        />
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
@@ -103,6 +69,31 @@ export function DashboardPendingAttention({
         <ActionLink href={waitlistHref} label="Ver lista de espera" />
         <ActionLink href={notificationsHref} label="Ver notificaciones" />
       </div>
+
+      <CollapsibleDetails summary="Ver detalles" className="mt-6">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <CompactStatCard
+            label="Reservas pendientes"
+            value={summary.pendingAppointmentsCount}
+            tone="amber"
+          />
+          <CompactStatCard
+            label="Lista de espera activa"
+            value={summary.activeWaitlistEntriesCount}
+            tone="brand"
+          />
+          <CompactStatCard
+            label="Notificaciones pendientes"
+            value={summary.pendingNotificationsCount}
+            tone="slate"
+          />
+          <CompactStatCard
+            label="Ofertas pendientes"
+            value={summary.pendingWaitlistOffersCount}
+            tone="emerald"
+          />
+        </div>
+      </CollapsibleDetails>
     </section>
   );
 }

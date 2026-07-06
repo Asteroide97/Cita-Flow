@@ -223,8 +223,8 @@ export default async function AppointmentsPage({
   return (
     <PanelPage
       eyebrow="Reservas"
-      title="Gestión de reservas"
-      description="Crea reservas manuales desde el panel, filtra la agenda del negocio actual y ejecuta acciones seguras sobre cada reserva usando la disponibilidad real del profesional."
+      title="Gestion de reservas"
+      description="Crea, filtra y actualiza reservas desde una sola vista."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(340px,0.96fr)_minmax(0,1.44fr)]">
         <div className="grid gap-6">

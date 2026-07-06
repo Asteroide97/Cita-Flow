@@ -90,7 +90,7 @@ export default async function DashboardPage() {
     {
       label: "Reservas de hoy",
       value: String(todayOverview.today.totalReservations),
-      note: `${todayOverview.today.confirmedCount} confirmadas - ${todayOverview.today.pendingCount} pendientes`,
+      note: `${todayOverview.today.confirmedCount} confirmadas / ${todayOverview.today.pendingCount} pendientes`,
       tone: "brand" as const,
     },
     {
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
       value: todayOverview.today.nextAppointment?.timeLabel ?? "Sin proximas",
       note:
         todayOverview.today.nextAppointment?.summary ??
-        "No hay mas reservas activas pendientes para el resto del dia.",
+        "Sin reservas pendientes hoy.",
       tone: "emerald" as const,
     },
     {
@@ -107,13 +107,16 @@ export default async function DashboardPage() {
         todayOverview.today.remainingSlotsTodayCount === null
           ? "--"
           : String(todayOverview.today.remainingSlotsTodayCount),
-      note: todayOverview.today.remainingSlotsTodayNote,
+      note:
+        todayOverview.today.remainingSlotsTodayCount === null
+          ? "No calculado"
+          : "Slots reales disponibles",
       tone: "amber" as const,
     },
     {
       label: "Pendientes por atender",
       value: String(todayOverview.pending.totalPendingCount),
-      note: `${todayOverview.pending.pendingAppointmentsCount} reservas - ${todayOverview.pending.activeWaitlistEntriesCount} lista de espera - ${todayOverview.pending.pendingNotificationsCount} notificaciones`,
+      note: `${todayOverview.pending.pendingAppointmentsCount} reservas / ${todayOverview.pending.activeWaitlistEntriesCount} espera / ${todayOverview.pending.pendingNotificationsCount} notificaciones`,
       tone: "slate" as const,
     },
   ];
@@ -122,10 +125,9 @@ export default async function DashboardPage() {
     {
       id: "business-identity",
       title: "Configurar identidad del negocio",
-      description:
-        "Define el nombre visible, el slug publico, la zona horaria y la moneda para tu pagina de reservas.",
+      description: "Nombre visible, slug publico, zona horaria y moneda.",
       helperText: hasBusinessIdentity
-        ? `${displayName} · ${clinicRecord.timezone} · ${clinicRecord.currency}`
+        ? `${displayName} - ${clinicRecord.timezone} - ${clinicRecord.currency}`
         : "Completa los datos base del negocio antes de compartir el booking.",
       isComplete: hasBusinessIdentity,
       actionHref: "/app/settings",
@@ -134,8 +136,7 @@ export default async function DashboardPage() {
     {
       id: "services",
       title: "Crear al menos un servicio activo",
-      description:
-        "Agrega los servicios que podra reservar tu cliente desde la pagina publica.",
+      description: "Define lo que el cliente puede reservar.",
       helperText:
         activeServicesCount > 0
           ? `${activeServicesCount} servicio${activeServicesCount === 1 ? "" : "s"} activo${activeServicesCount === 1 ? "" : "s"}`
@@ -147,8 +148,7 @@ export default async function DashboardPage() {
     {
       id: "professionals",
       title: "Crear al menos un profesional activo",
-      description:
-        "Registra a las personas que atenderan reservas dentro del negocio.",
+      description: "Registra a quienes atienden reservas.",
       helperText:
         activeDoctorsCount > 0
           ? `${activeDoctorsCount} profesional${activeDoctorsCount === 1 ? "" : "es"} activo${activeDoctorsCount === 1 ? "" : "s"}`
@@ -160,8 +160,7 @@ export default async function DashboardPage() {
     {
       id: "availability",
       title: "Configurar disponibilidad de al menos un profesional",
-      description:
-        "Define horarios semanales para que Agenda Viva muestre slots reales en el booking.",
+      description: "Activa horarios reales para el booking.",
       helperText:
         activeAvailabilityCount > 0
           ? `${activeAvailabilityCount} bloque${activeAvailabilityCount === 1 ? "" : "s"} activo${activeAvailabilityCount === 1 ? "" : "s"} de disponibilidad`
@@ -177,8 +176,7 @@ export default async function DashboardPage() {
     {
       id: "booking-link",
       title: "Copiar o abrir link de booking publico",
-      description:
-        "Revisa la pagina publica y confirma que el flujo de reservas este listo para compartirse.",
+      description: "Verifica la pagina publica antes de compartirla.",
       helperText: clinicRecord.slug.trim()
         ? publicBookingUrl
         : "Necesitas un slug publico para generar el link del booking.",
@@ -193,7 +191,7 @@ export default async function DashboardPage() {
     <PanelPage
       eyebrow="Dashboard"
       title="Resumen del negocio"
-      description="Revisa el estado operativo, la actividad de hoy y los pendientes principales del negocio actual sin salir del panel."
+      description="Operacion diaria del negocio."
     >
       <OnboardingChecklist
         businessName={displayName}

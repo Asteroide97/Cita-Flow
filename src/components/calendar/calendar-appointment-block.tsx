@@ -36,7 +36,7 @@ export function CalendarAppointmentBlock({
     appointment.endAt,
     timezone,
   );
-  const title = `${timeLabel} · ${appointment.patient.name} · ${appointment.service.name}`;
+  const title = `${timeLabel} - ${appointment.patient.name} - ${appointment.service.name}`;
 
   if (variant === "list") {
     return (
@@ -69,8 +69,6 @@ export function CalendarAppointmentBlock({
           </span>
         </div>
 
-        <p className="mt-3 text-sm font-medium">{appointment.service.name}</p>
-        <p className="mt-1 text-sm opacity-80">{appointment.doctor.name}</p>
         <p className="mt-3 text-xs uppercase tracking-[0.18em] opacity-70">
           Ver detalle y acciones
         </p>
@@ -116,16 +114,8 @@ export function CalendarAppointmentBlock({
       <p className="mt-2 truncate text-sm font-semibold tracking-[-0.02em]">
         {appointment.patient.name}
       </p>
-      <p className="mt-1 truncate text-xs font-medium opacity-85">
-        {appointment.service.name}
-      </p>
-      <p
-        className={cn(
-          "mt-1 truncate text-xs opacity-75",
-          variant === "week" ? "hidden lg:block" : "",
-        )}
-      >
-        {appointment.doctor.name}
+      <p className="mt-1 text-[10px] uppercase tracking-[0.16em] opacity-75">
+        {statusLabel}
       </p>
       <p className="mt-2 text-[10px] uppercase tracking-[0.16em] opacity-65">
         Ver detalle

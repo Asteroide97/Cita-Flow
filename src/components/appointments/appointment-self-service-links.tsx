@@ -40,19 +40,17 @@ export function AppointmentSelfServiceLinks({
       links: initialLinks,
     },
   );
-
   const links = state.links;
 
   return (
-    <div className="mt-6 rounded-[24px] border border-dashed border-brand-200/70 bg-brand-50/50 px-4 py-4">
+    <div className="rounded-[20px] border border-dashed border-brand-200/70 bg-brand-50/50 px-4 py-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Autoservicio público
+            Autoservicio publico
           </p>
-          <p className="mt-2 text-sm leading-7 text-muted">
-            En desarrollo puedes abrir enlaces reales para confirmar, cancelar o
-            reagendar esta reserva sin iniciar sesión.
+          <p className="mt-2 text-sm text-muted">
+            Enlaces para confirmar, cancelar o reagendar.
           </p>
         </div>
 

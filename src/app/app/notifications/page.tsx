@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   AppointmentSource,
   AppointmentStatus,
@@ -6,6 +8,10 @@ import {
 } from "@prisma/client";
 
 import { PanelPage } from "@/components/app/panel-page";
+import { CollapsibleDetails } from "@/components/ui/collapsible-details";
+import { CompactStatCard } from "@/components/ui/compact-stat-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatusPill } from "@/components/ui/status-pill";
 import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
 import { requireAuthContext } from "@/lib/auth/session";
 import { getMetaWhatsAppConfigStatus } from "@/lib/meta/whatsapp-client";
@@ -26,6 +32,8 @@ type NotificationsPageProps = {
   searchParams: Promise<{
     status?: string;
     error?: string;
+    filterStatus?: string;
+    filterChannel?: string;
   }>;
 };
 
@@ -175,6 +183,14 @@ function actionButtonClassName(tone: "sent" | "failed" | "cancel" | "whatsapp") 
   }
 }
 
+function isNotificationStatus(value: string): value is NotificationStatus {
+  return Object.values(NotificationStatus).includes(value as NotificationStatus);
+}
+
+function isNotificationChannel(value: string): value is NotificationChannel {
+  return Object.values(NotificationChannel).includes(value as NotificationChannel);
+}
+
 export default async function NotificationsPage({
   searchParams,
 }: NotificationsPageProps) {
@@ -182,11 +198,28 @@ export default async function NotificationsPage({
     requireAuthContext(),
     searchParams,
   ]);
-  const notifications = await listNotificationOutbox({
+  const allNotifications = await listNotificationOutbox({
     clinicId: authContext.clinic.id,
   });
   const metaConfig = getMetaWhatsAppConfigStatus();
   const flash = resolveFlashMessage(query.status, query.error);
+  const filterStatus = isNotificationStatus(query.filterStatus?.trim() ?? "")
+    ? (query.filterStatus?.trim() as NotificationStatus)
+    : "";
+  const filterChannel = isNotificationChannel(query.filterChannel?.trim() ?? "")
+    ? (query.filterChannel?.trim() as NotificationChannel)
+    : "";
+  const notifications = allNotifications.filter((notification) => {
+    if (filterStatus && notification.status !== filterStatus) {
+      return false;
+    }
+
+    if (filterChannel && notification.channel !== filterChannel) {
+      return false;
+    }
+
+    return true;
+  });
 
   const pendingCount = notifications.filter(
     (notification) => notification.status === NotificationStatus.PENDING,
@@ -201,37 +234,24 @@ export default async function NotificationsPage({
     (notification) => notification.status === NotificationStatus.CANCELLED,
   ).length;
 
-  const stats = [
-    { label: "Pendientes", value: pendingCount },
-    { label: "Enviadas", value: sentCount },
-    { label: "Fallidas", value: failedCount },
-    { label: "Canceladas", value: cancelledCount },
-  ];
-
   return (
     <PanelPage
       eyebrow="Notificaciones"
       title="Notificaciones"
-      description="Mensajes pendientes para WhatsApp y email."
+      description="Mensajes preparados para WhatsApp y email."
     >
       <div className="grid gap-6">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {stats.map((stat) => (
-            <article key={stat.label} className="surface-card p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                {stat.label}
-              </p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-ink">
-                {stat.value}
-              </p>
-            </article>
-          ))}
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <CompactStatCard label="Pendientes" value={pendingCount} tone="amber" />
+          <CompactStatCard label="Enviadas" value={sentCount} tone="emerald" />
+          <CompactStatCard label="Fallidas" value={failedCount} tone="slate" />
+          <CompactStatCard label="Canceladas" value={cancelledCount} tone="slate" />
         </div>
 
-        <article className="surface-card px-5 py-4 text-sm text-muted">
+        <article className="rounded-[22px] border border-line/80 bg-white px-4 py-3 text-sm text-muted">
           {metaConfig.isConfigured
-            ? "Meta Cloud API ya esta configurada, pero el envio automatico sigue en pausa. Usa esta cola solo para disparos manuales de prueba."
-            : "WhatsApp real esta pendiente de configuracion. Las notificaciones se preparan en la cola, pero no se envian automaticamente."}
+            ? "Meta Cloud API esta lista, pero el envio automatico sigue en pausa."
+            : "WhatsApp real esta pendiente de configuracion. La cola sigue en modo manual."}
         </article>
 
         {flash ? (
@@ -247,144 +267,108 @@ export default async function NotificationsPage({
         ) : null}
 
         <article className="surface-card p-6 sm:p-7">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Cola de salida
+                Cola
               </p>
               <p className="mt-2 text-sm text-muted">
-                {notifications.length} mensajes preparados.
+                {notifications.length} mensaje{notifications.length === 1 ? "" : "s"} visibles.
               </p>
             </div>
 
-            <div className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-muted">
-              Negocio ID: {authContext.clinic.id}
-            </div>
+            <form className="grid gap-3 sm:grid-cols-[180px_180px_auto_auto]">
+              <label className="text-sm font-semibold text-ink">
+                Estado
+                <select
+                  name="filterStatus"
+                  defaultValue={filterStatus}
+                  className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
+                >
+                  <option value="">Todos</option>
+                  {Object.values(NotificationStatus).map((status) => (
+                    <option key={status} value={status}>
+                      {getStatusLabel(status)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-sm font-semibold text-ink">
+                Canal
+                <select
+                  name="filterChannel"
+                  defaultValue={filterChannel}
+                  className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
+                >
+                  <option value="">Todos</option>
+                  {Object.values(NotificationChannel).map((channel) => (
+                    <option key={channel} value={channel}>
+                      {getChannelLabel(channel)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+              >
+                Filtrar
+              </button>
+
+              <Link
+                href="/app/notifications"
+                className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+              >
+                Limpiar
+              </Link>
+            </form>
           </div>
 
           {notifications.length ? (
-            <div className="mt-6 grid gap-4">
+            <div className="mt-6 grid gap-3">
               {notifications.map((notification) => {
+                const canSendWhatsApp =
+                  notification.channel === NotificationChannel.WHATSAPP &&
+                  notification.status === NotificationStatus.PENDING;
+                const canTransition =
+                  notification.status !== NotificationStatus.SENT &&
+                  notification.status !== NotificationStatus.CANCELLED;
                 const appointmentSummary = notification.appointment
-                  ? `${formatDateTimeInTimeZone(notification.appointment.startAt, authContext.clinic.timezone)} - ${notification.appointment.patient.name} - ${notification.appointment.service.name}`
+                  ? `${formatDateTimeInTimeZone(notification.appointment.startAt, authContext.clinic.timezone)} - ${notification.appointment.patient.name}`
                   : "Sin reserva relacionada";
 
                 return (
                   <article
                     key={notification.id}
-                    className="rounded-[26px] border border-line/80 bg-white p-5 shadow-[0_16px_50px_rgba(15,23,42,0.05)]"
+                    className="rounded-[24px] border border-line/80 bg-white p-4"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex flex-wrap gap-2">
-                        <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${getChannelClassName(notification.channel)}`}
-                        >
-                          {getChannelLabel(notification.channel)}
-                        </span>
-                        <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${getStatusClassName(notification.status)}`}
-                        >
-                          {getStatusLabel(notification.status)}
-                        </span>
-                      </div>
-
-                      <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
-                        {formatDateTimeInTimeZone(
-                          notification.createdAt,
-                          authContext.clinic.timezone,
-                        )}
-                      </p>
-                    </div>
-
-                    <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
-                      <div className="grid gap-4">
-                        <div>
-                          <h2 className="text-lg font-semibold tracking-[-0.03em] text-ink">
-                            {resolveTemplateLabel(notification.templateKey)}
-                          </h2>
-                          <p className="mt-2 text-sm text-muted">
-                            {notification.recipient}
-                            {notification.subject ? ` - ${notification.subject}` : ""}
-                          </p>
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap gap-2">
+                          <StatusPill className={getChannelClassName(notification.channel)}>
+                            {getChannelLabel(notification.channel)}
+                          </StatusPill>
+                          <StatusPill className={getStatusClassName(notification.status)}>
+                            {getStatusLabel(notification.status)}
+                          </StatusPill>
                         </div>
 
-                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                          <div className="rounded-[20px] border border-line/80 bg-surface-soft px-4 py-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                              Reserva
-                            </p>
-                            <p className="mt-2 text-sm font-medium text-ink">
-                              {appointmentSummary}
-                            </p>
-                          </div>
-
-                          <div className="rounded-[20px] border border-line/80 bg-white px-4 py-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                              Estado reserva
-                            </p>
-                            <p className="mt-2 text-sm font-medium text-ink">
-                              {notification.appointment
-                                ? getAppointmentStatusLabel(notification.appointment.status)
-                                : "Sin reserva"}
-                            </p>
-                            <p className="mt-1 text-xs text-muted">
-                              {notification.appointment
-                                ? getAppointmentSourceLabel(notification.appointment.source)
-                                : "Sin origen"}
-                            </p>
-                          </div>
-
-                          <div className="rounded-[20px] border border-line/80 bg-white px-4 py-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                              Programada
-                            </p>
-                            <p className="mt-2 text-sm font-medium text-ink">
-                              {notification.scheduledFor
-                                ? formatDateTimeInTimeZone(
-                                    notification.scheduledFor,
-                                    authContext.clinic.timezone,
-                                  )
-                                : "Inmediata"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {notification.patient ? (
-                          <div className="rounded-[20px] border border-line/80 bg-white px-4 py-3 text-sm text-muted">
-                            Cliente:{" "}
-                            <span className="font-medium text-ink">
-                              {notification.patient.name}
-                            </span>
-                            {" - "}
-                            <span className="font-medium text-ink">
-                              {notification.patient.phoneE164}
-                            </span>
-                            {notification.patient.email
-                              ? ` - ${notification.patient.email}`
-                              : ""}
-                          </div>
-                        ) : null}
-
-                        <details className="rounded-[20px] border border-line/80 bg-slate-950 px-4 py-4 text-slate-100">
-                          <summary className="cursor-pointer list-none text-sm font-semibold text-slate-100 [&::-webkit-details-marker]:hidden">
-                            Ver mensaje
-                          </summary>
-                          <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-7 text-slate-100">
-                            {notification.body}
-                          </pre>
-                        </details>
-
-                        {notification.errorMessage ? (
-                          <div className="rounded-[20px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                            <span className="font-semibold">Error:</span>{" "}
-                            {notification.errorMessage}
-                          </div>
-                        ) : null}
+                        <h2 className="mt-3 text-base font-semibold tracking-[-0.03em] text-ink">
+                          {resolveTemplateLabel(notification.templateKey)}
+                        </h2>
+                        <p className="mt-1 text-sm text-muted">{notification.recipient}</p>
+                        <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted">
+                          {formatDateTimeInTimeZone(
+                            notification.createdAt,
+                            authContext.clinic.timezone,
+                          )}
+                        </p>
                       </div>
 
-                      <div className="grid gap-2 lg:min-w-[220px]">
-                        {notification.channel === NotificationChannel.WHATSAPP &&
-                        notification.status === NotificationStatus.PENDING ? (
+                      <div className="flex flex-col items-start gap-2 xl:items-end">
+                        {canSendWhatsApp ? (
                           metaConfig.isConfigured ? (
                             <form action={sendWhatsAppNotificationAction}>
                               <input
@@ -400,7 +384,7 @@ export default async function NotificationsPage({
                               </button>
                             </form>
                           ) : (
-                            <div className="grid gap-2">
+                            <>
                               <button
                                 type="button"
                                 disabled
@@ -408,15 +392,12 @@ export default async function NotificationsPage({
                               >
                                 Enviar WhatsApp
                               </button>
-                              <p className="text-xs leading-6 text-muted">
+                              <p className="text-xs text-muted">
                                 Configura Meta Cloud API para enviar.
                               </p>
-                            </div>
+                            </>
                           )
-                        ) : null}
-
-                        {notification.status !== NotificationStatus.SENT &&
-                        notification.status !== NotificationStatus.CANCELLED ? (
+                        ) : canTransition ? (
                           <form action={markNotificationSentAction}>
                             <input
                               type="hidden"
@@ -431,59 +412,163 @@ export default async function NotificationsPage({
                             </button>
                           </form>
                         ) : null}
-
-                        {notification.status !== NotificationStatus.SENT &&
-                        notification.status !== NotificationStatus.CANCELLED ? (
-                          <form action={markNotificationFailedAction}>
-                            <input
-                              type="hidden"
-                              name="notificationId"
-                              value={notification.id}
-                            />
-                            <input
-                              type="hidden"
-                              name="errorMessage"
-                              value="Marcada manualmente como fallida desde el panel de desarrollo."
-                            />
-                            <button
-                              type="submit"
-                              className={actionButtonClassName("failed")}
-                            >
-                              Marcar como fallida
-                            </button>
-                          </form>
-                        ) : null}
-
-                        {notification.status === NotificationStatus.PENDING ? (
-                          <form action={cancelNotificationAction}>
-                            <input
-                              type="hidden"
-                              name="notificationId"
-                              value={notification.id}
-                            />
-                            <button
-                              type="submit"
-                              className={actionButtonClassName("cancel")}
-                            >
-                              Cancelar pendiente
-                            </button>
-                          </form>
-                        ) : null}
                       </div>
                     </div>
+
+                    <CollapsibleDetails summary="Ver detalles" className="mt-4">
+                      <div className="grid gap-4">
+                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                          <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+                              Reserva
+                            </p>
+                            <p className="mt-2 text-sm font-semibold text-ink">
+                              {appointmentSummary}
+                            </p>
+                          </div>
+
+                          <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+                              Estado reserva
+                            </p>
+                            <p className="mt-2 text-sm font-semibold text-ink">
+                              {notification.appointment
+                                ? getAppointmentStatusLabel(notification.appointment.status)
+                                : "Sin reserva"}
+                            </p>
+                          </div>
+
+                          <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+                              Origen
+                            </p>
+                            <p className="mt-2 text-sm font-semibold text-ink">
+                              {notification.appointment
+                                ? getAppointmentSourceLabel(notification.appointment.source)
+                                : "Sin origen"}
+                            </p>
+                          </div>
+
+                          <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+                              Cliente
+                            </p>
+                            <p className="mt-2 text-sm font-semibold text-ink">
+                              {notification.patient
+                                ? `${notification.patient.name} - ${notification.patient.phoneE164}`
+                                : "Sin cliente relacionado"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-[18px] border border-line/80 bg-slate-950 px-4 py-4 text-slate-100">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                            Mensaje completo
+                          </p>
+                          <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6 text-slate-100">
+                            {notification.body}
+                          </pre>
+                        </div>
+
+                        {notification.errorMessage ? (
+                          <div className="rounded-[18px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                            <span className="font-semibold">Error:</span>{" "}
+                            {notification.errorMessage}
+                          </div>
+                        ) : null}
+
+                        <div className="flex flex-wrap gap-2">
+                          {canSendWhatsApp ? (
+                            metaConfig.isConfigured ? (
+                              <form action={sendWhatsAppNotificationAction}>
+                                <input
+                                  type="hidden"
+                                  name="notificationId"
+                                  value={notification.id}
+                                />
+                                <button
+                                  type="submit"
+                                  className={actionButtonClassName("whatsapp")}
+                                >
+                                  Enviar WhatsApp
+                                </button>
+                              </form>
+                            ) : (
+                              <button
+                                type="button"
+                                disabled
+                                className={actionButtonClassName("whatsapp")}
+                              >
+                                Enviar WhatsApp
+                              </button>
+                            )
+                          ) : null}
+
+                          {canTransition ? (
+                            <form action={markNotificationSentAction}>
+                              <input
+                                type="hidden"
+                                name="notificationId"
+                                value={notification.id}
+                              />
+                              <button
+                                type="submit"
+                                className={actionButtonClassName("sent")}
+                              >
+                                Marcar como enviada
+                              </button>
+                            </form>
+                          ) : null}
+
+                          {canTransition ? (
+                            <form action={markNotificationFailedAction}>
+                              <input
+                                type="hidden"
+                                name="notificationId"
+                                value={notification.id}
+                              />
+                              <input
+                                type="hidden"
+                                name="errorMessage"
+                                value="Marcada manualmente como fallida desde el panel."
+                              />
+                              <button
+                                type="submit"
+                                className={actionButtonClassName("failed")}
+                              >
+                                Marcar como fallida
+                              </button>
+                            </form>
+                          ) : null}
+
+                          {notification.status === NotificationStatus.PENDING ? (
+                            <form action={cancelNotificationAction}>
+                              <input
+                                type="hidden"
+                                name="notificationId"
+                                value={notification.id}
+                              />
+                              <button
+                                type="submit"
+                                className={actionButtonClassName("cancel")}
+                              >
+                                Cancelar pendiente
+                              </button>
+                            </form>
+                          ) : null}
+                        </div>
+                      </div>
+                    </CollapsibleDetails>
                   </article>
                 );
               })}
             </div>
           ) : (
-            <div className="mt-6 rounded-[28px] border border-dashed border-line bg-surface-soft px-6 py-10 text-center">
-              <p className="text-lg font-semibold tracking-[-0.03em] text-ink">
-                Aun no hay notificaciones
-              </p>
-              <p className="mt-3 text-sm leading-7 text-muted">
-                Crea una reserva o usa el booking publico para poblar esta cola.
-              </p>
-            </div>
+            <EmptyState
+              title="Aun no hay notificaciones."
+              description="Crea una reserva o usa el booking para poblar esta cola."
+              className="mt-6"
+            />
           )}
         </article>
       </div>

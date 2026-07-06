@@ -593,27 +593,27 @@ export function getCalendarStatusLegend() {
     {
       status: AppointmentStatus.PENDING,
       label: "Pendiente",
-      note: "Aún requiere confirmación o acción del negocio.",
+      note: "Pendiente de acción.",
     },
     {
       status: AppointmentStatus.CONFIRMED,
       label: "Confirmada",
-      note: "Bloque activo dentro de la agenda del profesional.",
+      note: "Horario confirmado.",
     },
     {
       status: AppointmentStatus.CANCELLED,
       label: "Cancelada",
-      note: "Se conserva en historial, pero ya no bloquea horario.",
+      note: "Ya no bloquea horario.",
     },
     {
       status: AppointmentStatus.COMPLETED,
       label: "Completada",
-      note: "Reserva atendida y cerrada operativamente.",
+      note: "Reserva cerrada.",
     },
     {
       status: AppointmentStatus.NO_SHOW,
       label: "No-show",
-      note: "El cliente no asistió al horario reservado.",
+      note: "Cliente ausente.",
     },
   ].map((item) => ({
     ...item,
@@ -626,37 +626,37 @@ export function getCalendarAgendaLegend() {
     {
       key: "pending",
       label: "Pendiente",
-      note: "Aun requiere confirmacion o accion del negocio.",
+      note: "Pendiente de acción.",
       tone: getCalendarStatusTone(AppointmentStatus.PENDING),
     },
     {
       key: "confirmed",
       label: "Confirmada",
-      note: "Bloque activo dentro de la agenda del profesional.",
+      note: "Horario confirmado.",
       tone: getCalendarStatusTone(AppointmentStatus.CONFIRMED),
     },
     {
       key: "cancelled",
       label: "Cancelada",
-      note: "Se conserva en historial, pero ya no bloquea horario.",
+      note: "Ya no bloquea horario.",
       tone: getCalendarStatusTone(AppointmentStatus.CANCELLED),
     },
     {
       key: "completed",
       label: "Completada",
-      note: "Reserva atendida y cerrada operativamente.",
+      note: "Reserva cerrada.",
       tone: getCalendarStatusTone(AppointmentStatus.COMPLETED),
     },
     {
       key: "no-show",
       label: "No-show",
-      note: "El cliente no asistio al horario reservado.",
+      note: "Cliente ausente.",
       tone: getCalendarStatusTone(AppointmentStatus.NO_SHOW),
     },
     {
       key: "blocked",
       label: "Bloqueado",
-      note: "Horario bloqueado para todo el negocio. No genera reservas nuevas.",
+      note: "No admite reservas nuevas.",
       tone: getCalendarBlockedTone(),
     },
   ];

@@ -142,7 +142,7 @@ export function BookingShell({
                   color: brandColor,
                 }}
               >
-                Reserva sin llamadas ni mensajes manuales
+                Reserva simple y rápida
               </span>
 
               <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-0.07em] text-ink sm:text-5xl">

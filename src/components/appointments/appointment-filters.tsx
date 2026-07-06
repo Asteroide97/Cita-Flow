@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type {
   AppointmentDoctorOption,
   AppointmentFilterValues,
@@ -28,9 +30,8 @@ export function AppointmentFilters({
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
             Filtros
           </p>
-          <p className="mt-2 text-sm leading-7 text-muted">
-            Refina la lista por fecha, profesional, estado o servicio dentro del
-            negocio actual.
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Filtra por fecha, profesional, estado o servicio.
           </p>
         </div>
       </div>
@@ -101,12 +102,12 @@ export function AppointmentFilters({
           >
             Aplicar filtros
           </button>
-          <a
+          <Link
             href="/app/appointments"
             className="rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
           >
             Limpiar
-          </a>
+          </Link>
         </div>
       </form>
     </article>

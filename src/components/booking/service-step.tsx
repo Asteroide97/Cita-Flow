@@ -26,9 +26,9 @@ export function ServiceStep({
       <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
         Elige el servicio
       </h2>
-      <p className="mt-3 text-sm leading-7 text-muted">
+      <p className="mt-3 text-sm leading-6 text-muted">
         Selecciona el servicio que quieres reservar. Solo se muestran servicios
-        activos y publicos del negocio.
+        activos y públicos del negocio.
       </p>
 
       {!services.length ? (

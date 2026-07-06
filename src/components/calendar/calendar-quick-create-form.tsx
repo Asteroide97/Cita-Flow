@@ -67,9 +67,9 @@ export function CalendarQuickCreateForm({
       <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
         Crear reserva desde agenda
       </h2>
-      <p className="mt-3 text-sm leading-7 text-muted">
-        Usa un horario disponible del día o prepara la reserva manualmente. Se crea
-        como <strong>CONFIRMED</strong> con origen <strong>ADMIN</strong>.
+      <p className="mt-3 text-sm leading-6 text-muted">
+        Usa un horario disponible del día o prepárala manualmente. Se crea como{" "}
+        <strong>CONFIRMED</strong> con origen <strong>ADMIN</strong>.
       </p>
 
       {activeDoctors.length && activeServices.length ? (

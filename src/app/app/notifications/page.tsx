@@ -277,7 +277,7 @@ export default async function NotificationsPage({
               </p>
             </div>
 
-            <form className="grid gap-3 sm:grid-cols-[180px_180px_auto_auto]">
+            <form className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[180px_180px_auto_auto]">
               <label className="text-sm font-semibold text-ink">
                 Estado
                 <select

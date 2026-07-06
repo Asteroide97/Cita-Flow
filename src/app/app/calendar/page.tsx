@@ -410,7 +410,7 @@ export default async function CalendarPage({
     <PanelPage
       eyebrow="Agenda"
       title="Agenda visual"
-      description="Consulta la agenda diaria o semanal del negocio actual, crea reservas rápidas desde huecos disponibles, bloquea horarios generales y ejecuta acciones operativas sin salir de la vista."
+      description="Consulta la agenda, crea reservas rápidas y bloquea horarios desde una sola vista."
     >
       <div className="grid gap-6">
         {flash ? (
@@ -502,9 +502,8 @@ export default async function CalendarPage({
               <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
                 Bloqueos del negocio
               </h2>
-              <p className="mt-3 text-sm leading-7 text-muted">
-                Bloquea rangos completos del negocio para que no aparezcan como
-                disponibles en booking público ni en la creación interna.
+              <p className="mt-3 text-sm leading-6 text-muted">
+                Oculta horarios en booking y panel.
               </p>
 
               <form action={createCalendarBusinessBlockAction} className="mt-6 grid gap-4">
@@ -548,7 +547,7 @@ export default async function CalendarPage({
                     name="reason"
                     rows={3}
                     className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
-                    placeholder="Capacitacion, mantenimiento, cierre administrativo..."
+                    placeholder="Capacitación, mantenimiento, cierre..."
                   />
                 </label>
 

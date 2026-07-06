@@ -15,29 +15,29 @@ const registerHighlights = [
   {
     label: "Alta inicial",
     value: "3 registros",
-    note: "El formulario crea User, Clinic y ClinicMember con rol OWNER.",
+    note: "Crea user, clinic y membership OWNER.",
   },
   {
     label: "Password",
     value: "Hash",
-    note: "La contrasena nunca se guarda en texto plano dentro de la base.",
+    note: "La contraseña no se guarda en texto plano.",
   },
   {
     label: "Negocio",
     value: "Slug unico",
-    note: "Validamos disponibilidad del slug antes de crear el negocio.",
+    note: "Validamos disponibilidad antes de crear.",
   },
   {
     label: "Entrada",
     value: "Automatica",
-    note: "Al terminar, se abre una sesion valida y se entra directo al panel.",
+    note: "Se abre una sesión válida al terminar.",
   },
 ];
 
 const registerChecklist = [
-  "El owner queda vinculado a su negocio desde la primera sesion.",
-  "La cookie solo guarda un token aleatorio y la base persiste su hash.",
-  "La estructura queda lista para selector de cuenta y permisos mas finos.",
+  "El owner queda vinculado al negocio desde el inicio.",
+  "La cookie guarda solo un token aleatorio.",
+  "La base queda lista para permisos y múltiples cuentas.",
 ];
 
 export default async function RegisterPage() {
@@ -50,10 +50,10 @@ export default async function RegisterPage() {
   return (
     <AuthShell
       eyebrow="Registro inicial"
-      title="Crea tu cuenta owner y deja listo el panel base de tu negocio."
-      description={`Este registro inicial activa el primer negocio dentro de ${brand.name} y te da acceso inmediato al panel protegido para seguir creciendo el SaaS.`}
-      asideTitle="Onboarding base sin romper la landing"
-      asideDescription="El alta crea la estructura minima del tenant, mantiene la UI en espanol y deja el proyecto listo para evolucionar a permisos, billing y flujos operativos reales."
+      title="Crea tu cuenta y deja listo tu negocio."
+      description={`Este registro crea tu primer negocio en ${brand.name} y te da acceso inmediato al panel.`}
+      asideTitle="Alta inicial"
+      asideDescription="Se crean la cuenta owner, el negocio y la membresía base para empezar a configurar reservas."
       highlights={registerHighlights}
       checklist={registerChecklist}
     >

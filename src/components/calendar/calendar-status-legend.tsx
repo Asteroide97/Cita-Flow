@@ -20,16 +20,16 @@ export function CalendarStatusLegend({
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
         Estado de agenda
       </p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+      <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-ink">
         {totalAppointments} reservas y {totalBlockedTimes} bloqueos en {rangeLabel}
       </h2>
-      <p className="mt-3 text-sm leading-7 text-muted">
+      <p className="mt-2 text-sm leading-6 text-muted">
         {doctorLabel
           ? `Mostrando solo la agenda de ${doctorLabel}.`
-          : "Mostrando reservas de todos los profesionales del negocio actual."}
+          : "Mostrando todos los profesionales."}
       </p>
 
-      <div className="mt-6 grid gap-3">
+      <div className="mt-5 grid gap-3">
         {items.map((item) => (
           <div
             key={item.key}
@@ -46,7 +46,7 @@ export function CalendarStatusLegend({
                 {item.label}
               </span>
             </div>
-            <p className="mt-3 text-sm leading-6 text-muted">{item.note}</p>
+            <p className="mt-2 text-xs leading-5 text-muted">{item.note}</p>
           </div>
         ))}
       </div>

@@ -69,8 +69,8 @@ function ChecklistStep({
               <StepStatusBadge isComplete={step.isComplete} />
             </div>
 
-            <p className="mt-3 text-sm leading-7 text-ink">{step.description}</p>
-            <p className="mt-2 text-sm leading-7 text-muted">{step.helperText}</p>
+            <p className="mt-3 text-sm leading-6 text-ink">{step.description}</p>
+            <p className="mt-2 text-sm leading-6 text-muted">{step.helperText}</p>
           </div>
         </div>
 
@@ -118,7 +118,7 @@ export function OnboardingChecklist({
                 Tu negocio ya puede recibir reservas.
               </h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-muted sm:text-base">
-                {businessName} ya tiene lo minimo listo para compartir su booking.
+                {businessName} ya tiene lo mínimo listo para compartir su booking.
               </p>
             </div>
 
@@ -132,10 +132,10 @@ export function OnboardingChecklist({
           <div className="flex flex-col gap-4 rounded-[26px] border border-brand-100 bg-brand-50/70 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
               <p className="text-sm font-semibold text-brand-700">
-                Tu pagina publica ya esta lista para compartirse.
+                Tu página pública ya está lista para compartirse.
               </p>
               <p className="mt-2 text-sm leading-6 text-muted">
-                Abrela o revisa el checklist cuando quieras.
+                Ábrela o revisa el checklist cuando quieras.
               </p>
             </div>
 
@@ -145,7 +145,7 @@ export function OnboardingChecklist({
               rel="noreferrer"
               className="inline-flex shrink-0 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
             >
-              Abrir booking publico
+              Abrir booking público
             </Link>
           </div>
 
@@ -163,7 +163,7 @@ export function OnboardingChecklist({
             Checklist inicial
           </p>
           <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
-            Deja lista tu pagina de reservas
+            Deja lista tu página de reservas
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-muted sm:text-base">
             Completa lo esencial para empezar a recibir reservas.

@@ -95,7 +95,7 @@ export default async function DashboardPage() {
     },
     {
       label: "Proxima reserva",
-      value: todayOverview.today.nextAppointment?.timeLabel ?? "Sin proximas",
+        value: todayOverview.today.nextAppointment?.timeLabel ?? "Sin próximas",
       note:
         todayOverview.today.nextAppointment?.summary ??
         "Sin reservas pendientes hoy.",
@@ -125,13 +125,13 @@ export default async function DashboardPage() {
     {
       id: "business-identity",
       title: "Configurar identidad del negocio",
-      description: "Nombre visible, slug publico, zona horaria y moneda.",
+      description: "Nombre visible, slug público, zona horaria y moneda.",
       helperText: hasBusinessIdentity
         ? `${displayName} - ${clinicRecord.timezone} - ${clinicRecord.currency}`
-        : "Completa los datos base del negocio antes de compartir el booking.",
+        : "Completa los datos base antes de compartir el booking.",
       isComplete: hasBusinessIdentity,
       actionHref: "/app/settings",
-      actionLabel: "Ir a configuracion",
+      actionLabel: "Ir a configuración",
     },
     {
       id: "services",
@@ -140,7 +140,7 @@ export default async function DashboardPage() {
       helperText:
         activeServicesCount > 0
           ? `${activeServicesCount} servicio${activeServicesCount === 1 ? "" : "s"} activo${activeServicesCount === 1 ? "" : "s"}`
-          : "Todavia no hay servicios activos para ofrecer en el booking.",
+          : "Todavía no hay servicios activos para ofrecer en el booking.",
       isComplete: activeServicesCount > 0,
       actionHref: "/app/services",
       actionLabel: "Crear servicio",
@@ -152,7 +152,7 @@ export default async function DashboardPage() {
       helperText:
         activeDoctorsCount > 0
           ? `${activeDoctorsCount} profesional${activeDoctorsCount === 1 ? "" : "es"} activo${activeDoctorsCount === 1 ? "" : "s"}`
-          : "Todavia no hay profesionales activos listos para atender reservas.",
+          : "Todavía no hay profesionales activos listos para atender reservas.",
       isComplete: activeDoctorsCount > 0,
       actionHref: "/app/doctors",
       actionLabel: "Crear profesional",
@@ -175,14 +175,14 @@ export default async function DashboardPage() {
     },
     {
       id: "booking-link",
-      title: "Copiar o abrir link de booking publico",
-      description: "Verifica la pagina publica antes de compartirla.",
+      title: "Copiar o abrir link de booking público",
+      description: "Verifica la página pública antes de compartirla.",
       helperText: clinicRecord.slug.trim()
         ? publicBookingUrl
-        : "Necesitas un slug publico para generar el link del booking.",
+        : "Necesitas un slug público para generar el link del booking.",
       isComplete: Boolean(clinicRecord.slug.trim()),
       actionHref: bookingPath,
-      actionLabel: "Abrir booking publico",
+      actionLabel: "Abrir booking público",
       actionTarget: "_blank" as const,
     },
   ];
@@ -191,7 +191,7 @@ export default async function DashboardPage() {
     <PanelPage
       eyebrow="Dashboard"
       title="Resumen del negocio"
-      description="Operacion diaria del negocio."
+      description="Operación diaria."
     >
       <OnboardingChecklist
         businessName={displayName}

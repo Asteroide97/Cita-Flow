@@ -40,7 +40,7 @@ export function AppSidebar({
 
             <div>
               <p className="text-lg font-extrabold tracking-[-0.05em]">{brand.name}</p>
-              <p className="text-sm text-slate-400">Panel SaaS protegido</p>
+              <p className="text-sm text-slate-400">Panel protegido</p>
             </div>
           </Link>
 
@@ -56,7 +56,7 @@ export function AppSidebar({
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Sesión activa
+                  Acceso
                 </p>
                 <p className="mt-3 text-base font-semibold text-white">{userName}</p>
                 <p className="mt-1 text-sm text-slate-400">{userEmail}</p>
@@ -117,8 +117,7 @@ export function AppSidebar({
               Cuenta actual
             </p>
             <p className="mt-3 text-sm leading-6 text-slate-200">
-              El negocio se resuelve desde la sesión del usuario. Si existen varias
-              membresías, por ahora se usa la primera cuenta activa.
+              Si tienes varias cuentas, usamos la primera activa.
             </p>
           </div>
         </div>
@@ -140,7 +139,7 @@ export function AppSidebar({
                 {brand.name}
               </p>
               <p className="text-xs text-muted">
-                {clinicName} · {roleLabel}
+                {clinicName} - {roleLabel}
               </p>
             </div>
           </Link>

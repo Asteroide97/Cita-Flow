@@ -30,7 +30,9 @@ export function CompactStatCard({
       <p className={cn("mt-3 text-2xl font-semibold tracking-[-0.05em]", toneClasses[tone])}>
         {value}
       </p>
-      {note ? <p className="mt-2 text-sm leading-6 text-muted">{note}</p> : null}
+      {note ? (
+        <p className="mt-2 text-xs font-medium leading-5 text-muted">{note}</p>
+      ) : null}
     </article>
   );
 }

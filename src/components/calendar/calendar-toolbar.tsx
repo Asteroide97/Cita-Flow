@@ -46,9 +46,8 @@ export function CalendarToolbar({
           <h2 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-ink">
             {rangeLabel}
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-            Vista {view === "day" ? "diaria" : "semanal"} de las reservas reales del
-            negocio actual. Se cargan solo datos del tenant en la zona horaria{" "}
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
+            Vista {view === "day" ? "diaria" : "semanal"} con datos reales en{" "}
             <span className="font-semibold text-ink">{timezone}</span>.
           </p>
         </div>
@@ -110,9 +109,7 @@ export function CalendarToolbar({
           <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-ink">
             {totalAppointments}
           </p>
-          <p className="mt-1 text-sm text-muted">
-            Incluye pendientes, confirmadas, canceladas y cerradas.
-          </p>
+          <p className="mt-1 text-xs text-muted">Todos los estados.</p>
         </div>
 
         <div className="rounded-[24px] border border-line/80 bg-white px-4 py-4">
@@ -124,9 +121,7 @@ export function CalendarToolbar({
               ? doctors.find((doctor) => doctor.id === doctorId)?.name ?? "Profesional filtrado"
               : "Todos los profesionales"}
           </p>
-          <p className="mt-1 text-sm text-muted">
-            Cambia la fecha o el profesional para navegar la agenda.
-          </p>
+          <p className="mt-1 text-xs text-muted">Ajusta fecha o profesional.</p>
         </div>
 
         <div className="rounded-[24px] border border-line/80 bg-white px-4 py-4">
@@ -134,13 +129,15 @@ export function CalendarToolbar({
             Horario visible
           </p>
           <p className="mt-3 text-base font-semibold text-ink">08:00 - 20:00</p>
-          <p className="mt-1 text-sm text-muted">
-            La grilla muestra el tramo operativo principal del día.
-          </p>
+          <p className="mt-1 text-xs text-muted">Tramo principal del día.</p>
         </div>
       </div>
 
-      <form action="/app/calendar" method="get" className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,240px)_minmax(0,280px)_auto]">
+      <form
+        action="/app/calendar"
+        method="get"
+        className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,240px)_minmax(0,280px)_auto]"
+      >
         <input type="hidden" name="view" value={view} />
 
         <label className="text-sm font-medium text-ink">

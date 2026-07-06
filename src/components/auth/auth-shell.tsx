@@ -47,7 +47,7 @@ export function AuthShell({
             <p className="text-lg font-extrabold tracking-[-0.05em] text-ink">
               {brand.name}
             </p>
-            <p className="text-sm text-muted">Acceso al panel SaaS</p>
+            <p className="text-sm text-muted">Acceso al panel</p>
           </div>
         </Link>
 
@@ -65,7 +65,7 @@ export function AuthShell({
           <h1 className="mt-6 max-w-xl text-4xl font-semibold tracking-[-0.06em] text-ink sm:text-5xl">
             {title}
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-muted sm:text-lg">
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-muted sm:text-base">
             {description}
           </p>
 
@@ -80,7 +80,7 @@ export function AuthShell({
             <h2 className="mt-6 text-4xl font-semibold tracking-[-0.05em] text-white">
               {asideTitle}
             </h2>
-            <p className="mt-5 max-w-xl text-base leading-8 text-slate-300">
+            <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
               {asideDescription}
             </p>
 
@@ -96,7 +96,7 @@ export function AuthShell({
                   <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-white">
                     {highlight.value}
                   </p>
-                  <p className="mt-3 text-sm leading-7 text-slate-300">{highlight.note}</p>
+                  <p className="mt-2 text-xs leading-6 text-slate-300">{highlight.note}</p>
                 </article>
               ))}
             </div>
@@ -115,7 +115,7 @@ export function AuthShell({
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-white">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <p className="text-sm leading-7 text-slate-200">{item}</p>
+                  <p className="text-sm leading-6 text-slate-200">{item}</p>
                 </div>
               ))}
             </div>

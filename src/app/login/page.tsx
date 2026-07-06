@@ -15,29 +15,29 @@ const loginHighlights = [
   {
     label: "Proteccion",
     value: "httpOnly",
-    note: "La cookie de sesion no expone credenciales ni datos sensibles.",
+    note: "La cookie no expone datos sensibles.",
   },
   {
-    label: "Tenant",
-    value: "Aislado",
-    note: "Cada usuario entra solo a los negocios activos de su membresia.",
+    label: "Cuentas",
+    value: "Aisladas",
+    note: "Cada usuario entra solo a sus negocios activos.",
   },
   {
     label: "Auditoria",
     value: "Activa",
-    note: "Registramos login exitoso, fallido y cierre de sesion.",
+    note: "Guardamos login, error y cierre de sesión.",
   },
   {
     label: "Acceso",
     value: "/app/*",
-    note: "Todo el panel requiere una sesion valida antes de mostrar contenido.",
+    note: "Todo el panel requiere una sesión válida.",
   },
 ];
 
 const loginChecklist = [
-  "El panel resuelve el negocio actual desde la sesion del usuario.",
-  "Si la sesion expira, el acceso protegido redirige de vuelta a login.",
-  "El rate limiting basico bloquea intentos repetidos por IP.",
+  "El negocio actual se resuelve desde la sesión.",
+  "Si la sesión expira, el panel vuelve a login.",
+  "El rate limiting basico bloquea intentos repetidos.",
 ];
 
 export default async function LoginPage() {
@@ -50,10 +50,10 @@ export default async function LoginPage() {
   return (
     <AuthShell
       eyebrow="Acceso seguro"
-      title="Entra al panel y opera tu negocio desde una sola sesion."
-      description="Inicia sesion con tu email y contrasena para administrar reservas, clientes, profesionales y servicios sin tocar la landing publica."
-      asideTitle="Sesion real sobre la base multi-tenant"
-      asideDescription="La autenticacion ya vive sobre Prisma y PostgreSQL, con sesiones persistidas, cookies seguras y tenant resuelto desde membresias activas."
+      title="Entra al panel y opera tu negocio."
+      description="Inicia sesión con tu email y contraseña para administrar reservas, clientes, profesionales y servicios."
+      asideTitle="Acceso protegido"
+      asideDescription="Sesiones seguras, cuentas aisladas y auditoría básica lista desde el primer acceso."
       highlights={loginHighlights}
       checklist={loginChecklist}
     >

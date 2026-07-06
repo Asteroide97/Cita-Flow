@@ -21,11 +21,11 @@ export function PanelPage({
       <h1 className="mt-4 text-4xl font-semibold tracking-[-0.06em] text-ink sm:text-5xl">
         {title}
       </h1>
-      <p className="mt-5 max-w-3xl text-base leading-8 text-muted sm:text-lg">
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-muted sm:text-base">
         {description}
       </p>
 
-      {children ? <div className="mt-10">{children}</div> : null}
+      {children ? <div className="mt-8">{children}</div> : null}
     </section>
   );
 }

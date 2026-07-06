@@ -38,7 +38,7 @@ export function PatientDetailsStep({
         Tu reserva quedará pendiente de confirmación.
       </p>
       <p className="mt-2 text-sm leading-7 text-muted">
-        Solicitarás una reserva para {selectedService.name} con {selectedDoctor.name}.
+        Reservarás {selectedService.name} con {selectedDoctor.name}.
       </p>
 
       <form action={action} className="mt-6 grid gap-4">

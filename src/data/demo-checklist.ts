@@ -107,7 +107,7 @@ export const demoChecklistGroups: DemoChecklistGroup[] = [
     items: [
       { id: "pending-meta", label: "Meta Cloud API" },
       { id: "pending-templates", label: "WhatsApp templates" },
-      { id: "pending-stripe", label: "Stripe anticipos" },
+      { id: "pending-stripe", label: "Cobro manual del plan" },
       { id: "pending-domain", label: "Dominio final" },
       { id: "pending-demo-email", label: "Cambio de correo demo" },
       { id: "pending-legal", label: "Revisión legal de marca" },

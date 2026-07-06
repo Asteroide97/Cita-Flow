@@ -98,11 +98,6 @@ export function ServiceStep({
                     </p>
                     <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted">
                       <span>{formatAppointmentMoney(service.priceCents, currency)}</span>
-                      <span>
-                        {service.depositRequired && service.depositCents
-                          ? `Anticipo futuro: ${formatAppointmentMoney(service.depositCents, currency)}`
-                          : "Sin anticipo por ahora"}
-                      </span>
                     </div>
                   </div>
                 </div>

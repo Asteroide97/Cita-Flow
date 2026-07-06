@@ -94,8 +94,6 @@ function normalizeServiceData(formData: FormData) {
   const description = normalizeOptionalText(formData.get("description"));
   const durationMinutes = parseInteger(formData.get("durationMinutes"));
   const priceCents = parseCurrencyToCents(formData.get("price"));
-  const depositRequired = parseBooleanValue(formData.get("depositRequired"));
-  const depositCents = parseCurrencyToCents(formData.get("deposit"));
   const publicOrder = parseInteger(formData.get("publicOrder"));
   const isPublic = parseBooleanValue(formData.get("isPublic"));
   const isActive = parseBooleanValue(formData.get("isActive"));
@@ -106,8 +104,6 @@ function normalizeServiceData(formData: FormData) {
     description,
     durationMinutes,
     priceCents,
-    depositRequired,
-    depositCents,
     publicOrder,
     isPublic,
     isActive,
@@ -150,16 +146,12 @@ function validateServicePayload({
   category,
   durationMinutes,
   priceCents,
-  depositRequired,
-  depositCents,
   publicOrder,
 }: {
   name: string;
   category: string | null;
   durationMinutes: number | null;
   priceCents: number | null;
-  depositRequired: boolean;
-  depositCents: number | null;
   publicOrder: number | null;
 }) {
   if (!name) {
@@ -182,41 +174,11 @@ function validateServicePayload({
     return "service-price-invalid";
   }
 
-  if (depositRequired) {
-    if (depositCents === null || Number.isNaN(depositCents) || depositCents <= 0) {
-      return "service-deposit-required";
-    }
-  } else if (typeof depositCents === "number" && depositCents < 0) {
-    return "service-deposit-invalid";
-  }
-
-  if (
-    publicOrder === null ||
-    Number.isNaN(publicOrder) ||
-    publicOrder < 0
-  ) {
+  if (publicOrder === null || Number.isNaN(publicOrder) || publicOrder < 0) {
     return "service-public-order-invalid";
   }
 
   return null;
-}
-
-function resolvePersistedDeposit({
-  depositRequired,
-  depositCents,
-}: {
-  depositRequired: boolean;
-  depositCents: number | null;
-}) {
-  if (depositRequired) {
-    return depositCents;
-  }
-
-  if (depositCents === null || Number.isNaN(depositCents)) {
-    return null;
-  }
-
-  return depositCents;
 }
 
 export async function createServiceAction(formData: FormData) {
@@ -240,8 +202,8 @@ export async function createServiceAction(formData: FormData) {
           durationMinutes: serviceData.durationMinutes ?? 15,
           priceCents:
             typeof serviceData.priceCents === "number" ? serviceData.priceCents : null,
-          depositRequired: serviceData.depositRequired,
-          depositCents: resolvePersistedDeposit(serviceData),
+          depositRequired: false,
+          depositCents: null,
           publicOrder: serviceData.publicOrder ?? 0,
           isPublic: serviceData.isPublic,
           isActive: serviceData.isActive,
@@ -320,8 +282,8 @@ export async function updateServiceAction(formData: FormData) {
           durationMinutes: serviceData.durationMinutes ?? 15,
           priceCents:
             typeof serviceData.priceCents === "number" ? serviceData.priceCents : null,
-          depositRequired: serviceData.depositRequired,
-          depositCents: resolvePersistedDeposit(serviceData),
+          depositRequired: false,
+          depositCents: null,
           publicOrder: serviceData.publicOrder ?? 0,
           isPublic: serviceData.isPublic,
           isActive: serviceData.isActive,

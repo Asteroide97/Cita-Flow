@@ -1,4 +1,4 @@
-import { brand, brandSupportMailto } from "@/lib/brand";
+import { brandSupportMailto } from "@/lib/brand";
 
 export type PublicNavLink = {
   label: string;
@@ -308,7 +308,7 @@ export const faqs: Faq[] = [
   {
     question: "¿Cómo se activa el plan?",
     answer:
-      "El cobro del plan se gestiona manualmente por transferencia bancaria, sin checkout automático por ahora.",
+      "El cobro del plan se gestiona manualmente por transferencia bancaria, sin cobro automático por ahora.",
   },
   {
     question: "¿Agenda Viva cobra automáticamente?",

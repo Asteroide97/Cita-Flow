@@ -49,7 +49,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       case "service-not-found":
         return {
           tone: "error" as const,
-          message: "No encontre ese servicio dentro del negocio actual.",
+          message: "No encontré ese servicio dentro del negocio actual.",
         };
       case "service-name-required":
         return {
@@ -76,16 +76,6 @@ function resolveFlashMessage(status?: string, error?: string) {
           tone: "error" as const,
           message: "El precio no puede ser negativo y debe ser un monto válido.",
         };
-      case "service-deposit-required":
-        return {
-          tone: "error" as const,
-          message: "Si el anticipo es obligatorio, el monto debe ser mayor a 0.",
-        };
-      case "service-deposit-invalid":
-        return {
-          tone: "error" as const,
-          message: "El monto de anticipo no puede ser negativo.",
-        };
       case "service-public-order-invalid":
         return {
           tone: "error" as const,
@@ -104,7 +94,7 @@ function resolveFlashMessage(status?: string, error?: string) {
       default:
         return {
           tone: "error" as const,
-          message: "No pude completar la accion solicitada.",
+          message: "No pude completar la acción solicitada.",
         };
     }
   }
@@ -188,8 +178,6 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
       description: true,
       durationMinutes: true,
       priceCents: true,
-      depositRequired: true,
-      depositCents: true,
       publicOrder: true,
       isPublic: true,
       isActive: true,
@@ -229,7 +217,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
     <PanelPage
       eyebrow="Servicios"
       title="Catálogo público de servicios"
-      description="Administra el catálogo que alimenta el booking público del negocio. Define categoría, visibilidad, orden y reglas operativas sin tocar el historial de reservas."
+      description="Administra el catálogo que alimenta el booking público del negocio. Define categoría, visibilidad, orden y precio sin tocar el historial de reservas."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.4fr)]">
         <div className="grid gap-6">
@@ -281,8 +269,8 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 Solo los servicios activos y visibles aparecen en el booking público.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                El orden público controla cómo se presenta el catálogo; primero se usa
-                `publicOrder` y despues el nombre.
+                El orden público controla cómo se presenta el catálogo; primero se
+                usa `publicOrder` y después el nombre.
               </div>
             </div>
           </article>
@@ -307,7 +295,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
                   {editingService
-                    ? "Actualiza categoría, visibilidad, orden público, precio y reglas del servicio."
+                    ? "Actualiza categoría, visibilidad, orden público y precio del servicio."
                     : "Carga un servicio nuevo y decide si debe publicarse inmediatamente en el booking."}
                 </p>
               </div>
@@ -413,33 +401,6 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-semibold text-ink">
-                  Anticipo requerido
-                  <select
-                    name="depositRequired"
-                    defaultValue={editingService?.depositRequired ? "true" : "false"}
-                    className={formFieldClassName()}
-                  >
-                    <option value="false">No</option>
-                    <option value="true">Sí</option>
-                  </select>
-                </label>
-
-                <label className="text-sm font-semibold text-ink">
-                  Monto de anticipo
-                  <input
-                    name="deposit"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    defaultValue={centsToInputValue(editingService?.depositCents ?? null)}
-                    className={formFieldClassName()}
-                    placeholder="200.00"
-                  />
-                </label>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="text-sm font-semibold text-ink">
                   Estado
                   <select
                     name="isActive"
@@ -482,8 +443,8 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                   Servicios del catálogo
                 </p>
                 <p className="mt-2 text-sm leading-7 text-muted">
-                  Filtra activos, inactivos, públicos u ocultos y ajusta la visibilidad
-                  sin salir del listado.
+                  Filtra activos, inactivos, públicos u ocultos y ajusta la
+                  visibilidad sin salir del listado.
                 </p>
               </div>
 
@@ -536,7 +497,9 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                       <span className={getServiceStatusBadgeClassName(service.isActive)}>
                         {service.isActive ? "Activo" : "Inactivo"}
                       </span>
-                      <span className={getServiceVisibilityBadgeClassName(service.isPublic)}>
+                      <span
+                        className={getServiceVisibilityBadgeClassName(service.isPublic)}
+                      >
                         {service.isPublic ? "Público" : "Oculto"}
                       </span>
                     </div>
@@ -558,7 +521,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                   </Link>
                 </div>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
                       Categoría
@@ -586,20 +549,6 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                         service.priceCents,
                         authContext.clinic.currency,
                       )}
-                    </p>
-                  </div>
-
-                  <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                      Anticipo
-                    </p>
-                    <p className="mt-3 text-lg font-semibold text-ink">
-                      {service.depositRequired
-                        ? formatAppointmentMoney(
-                            service.depositCents,
-                            authContext.clinic.currency,
-                          )
-                        : "No requerido"}
                     </p>
                   </div>
 

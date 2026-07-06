@@ -81,7 +81,7 @@ export function PublicHero() {
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 12 reservas hoy
                 <span className="text-slate-300">•</span>
-                3 anticipos recibidos
+                2 espacios recuperados
                 <span className="text-slate-300">•</span>
                 5 recordatorios enviados
               </div>

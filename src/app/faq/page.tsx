@@ -8,7 +8,7 @@ import { buildPublicMetadata } from "@/lib/brand";
 export const metadata: Metadata = buildPublicMetadata({
   title: "FAQ",
   description:
-    "Resuelve dudas frecuentes sobre reservas, anticipos, profesionales, clientes y operación en Agenda Viva.",
+    "Resuelve dudas frecuentes sobre reservas, profesionales, clientes y operación en Agenda Viva.",
   path: "/faq",
 });
 

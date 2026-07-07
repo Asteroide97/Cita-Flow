@@ -1,6 +1,6 @@
 # Agenda Viva - Estado del MVP
 
-Actualizado: 2026-07-06
+Actualizado: 2026-07-07
 
 ## Resumen del producto
 
@@ -139,6 +139,7 @@ La landing larga ya fue separada en rutas publicas mas claras:
 - Ver horarios reales
 - Capturar datos del cliente
 - Crear reserva `PENDING`
+- El booking publico sigue creando reservas con estado inicial `PENDING`
 
 ### Lista de espera separada
 
@@ -157,11 +158,31 @@ La landing larga ya fue separada en rutas publicas mas claras:
 
 ### Gestion desde agenda
 
+- Calendario operativo tipo Google Calendar ya validado
+- Crear reserva desde calendario funciona
 - Crear reserva desde hueco disponible
+- Crear reserva desde hueco disponible funciona
 - Ver agenda por dia y semana
+- Ver agenda por mes
 - Ver bloqueos generales
+- Los bloqueos generales afectan el booking publico
+- Las ausencias de profesionales afectan el booking publico
 - Reagendar desde agenda
+- Reagendado desde agenda funciona
 - Ejecutar acciones rapidas
+- El doble submit no duplica reservas
+
+## Validacion reciente de calendario y booking
+
+- El calendario operativo tipo Google Calendar ya fue validado
+- Crear reserva desde calendario funciona
+- Crear reserva desde hueco disponible funciona
+- Bloqueos generales afectan el booking publico
+- Ausencias de profesionales afectan el booking publico
+- Reagendado desde agenda funciona
+- Booking publico crea reservas `PENDING`
+- El doble submit no duplica reservas
+- Responsive corregido en `/app/calendar` y `/booking/[clinicSlug]`
 
 ## Catalogos publicos implementados
 
@@ -254,6 +275,7 @@ Regla actual:
 
 - No activar envio automatico todavia
 - No venderlo como WhatsApp real ya activo
+- Meta Cloud API sigue pausado
 
 ## Que no se debe tocar por ahora
 
@@ -263,6 +285,7 @@ Regla actual:
 - No conectar Twilio
 - No conectar Stripe todavia
 - No conectar Google Calendar todavia
+- Los pagos automaticos y los anticipos siguen fuera del MVP
 - No renombrar modelos internos `Doctor`, `Patient` o `Clinic`
 - No cambiar el email demo `demo@citaflow.app` por ahora
 

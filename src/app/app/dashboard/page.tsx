@@ -191,7 +191,7 @@ export default async function DashboardPage() {
     <PanelPage
       eyebrow="Dashboard"
       title="Resumen del negocio"
-      description="Operación diaria."
+      description="Operacion diaria y acciones clave."
     >
       <OnboardingChecklist
         businessName={displayName}
@@ -203,7 +203,7 @@ export default async function DashboardPage() {
         <OperationalStatus {...operationalStatus} />
       </div>
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {dashboardMetrics.map((metric) => (
           <MetricCard
             key={metric.label}
@@ -215,7 +215,7 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="mt-8 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <DashboardTodayOperations
           summary={todayOverview.today}
           agendaHref={todayCalendarHref}

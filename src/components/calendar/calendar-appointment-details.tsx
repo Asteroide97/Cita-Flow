@@ -53,11 +53,15 @@ function CalendarStatusActionButton({
   className: string;
 }) {
   return (
-    <form action={action}>
+    <form action={action} className="w-full sm:w-auto">
       <input type="hidden" name="appointmentId" value={appointmentId} />
       <input type="hidden" name="intent" value={intent} />
       <input type="hidden" name="redirectPath" value={redirectPath} />
-      <Button type="submit" variant="secondary" className={className}>
+      <Button
+        type="submit"
+        variant="secondary"
+        className={`w-full justify-center ${className}`}
+      >
         {label}
       </Button>
     </form>
@@ -184,7 +188,7 @@ export function CalendarAppointmentDetails({
         ) : null}
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 sm:flex sm:flex-wrap">
         {actionAvailability.canConfirm ? (
           <CalendarStatusActionButton
             appointmentId={appointment.id}
@@ -230,10 +234,10 @@ export function CalendarAppointmentDetails({
         ) : null}
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 sm:flex sm:flex-wrap">
         <Link
           href={`/app/patients/${appointment.patient.id}`}
-          className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white/92 px-5 py-3 text-sm font-semibold text-ink shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50"
+          className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white/92 px-5 py-3 text-sm font-semibold text-ink shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 sm:w-auto"
         >
           Ir al cliente
         </Link>
@@ -241,7 +245,7 @@ export function CalendarAppointmentDetails({
         {canReschedule ? (
           <Link
             href={rescheduleOpenHref}
-            className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white/92 px-5 py-3 text-sm font-semibold text-ink shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50"
+            className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white/92 px-5 py-3 text-sm font-semibold text-ink shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 sm:w-auto"
           >
             Reagendar
           </Link>

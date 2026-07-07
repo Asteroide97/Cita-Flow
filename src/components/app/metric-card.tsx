@@ -16,18 +16,20 @@ const toneClasses = {
 
 export function MetricCard({ label, value, note, tone }: MetricCardProps) {
   return (
-    <article className="surface-card p-5">
+    <article className="surface-card p-4 sm:p-5">
       <div
         className={cn(
-          "inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]",
+          "inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
           toneClasses[tone],
         )}
       >
         {label}
       </div>
 
-      <p className="mt-4 text-3xl font-semibold tracking-[-0.06em] text-ink">{value}</p>
-      <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+      <p className="mt-3 text-2xl font-semibold tracking-[-0.06em] text-ink sm:mt-4 sm:text-3xl">
+        {value}
+      </p>
+      <p className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted sm:mt-2">
         {note}
       </p>
     </article>

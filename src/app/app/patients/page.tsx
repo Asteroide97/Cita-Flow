@@ -147,9 +147,9 @@ export default async function PatientsPage({ searchParams }: PatientsPageProps) 
     <PanelPage
       eyebrow="Clientes"
       title="Clientes"
-      description="Administra la base real de clientes del negocio y revisa quien tiene reservas proximas, historial y actividad reciente."
+      description="Lista real de clientes y su actividad."
     >
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <article className="surface-card p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
             Clientes totales
@@ -223,10 +223,10 @@ export default async function PatientsPage({ searchParams }: PatientsPageProps) 
               </select>
             </label>
 
-            <div className="flex gap-3 self-end">
+            <div className="flex flex-col gap-3 self-end sm:flex-row">
               <button
                 type="submit"
-                className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
               >
                 Filtrar
               </button>
@@ -234,7 +234,7 @@ export default async function PatientsPage({ searchParams }: PatientsPageProps) 
               {(searchValue || filter !== "all") ? (
                 <Link
                   href="/app/patients"
-                  className="rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
                 >
                   Limpiar
                 </Link>
@@ -251,7 +251,7 @@ export default async function PatientsPage({ searchParams }: PatientsPageProps) 
               <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-3">
-                    <h2 className="text-2xl font-semibold tracking-[-0.04em] text-ink">
+                    <h2 className="text-xl font-semibold tracking-[-0.04em] text-ink sm:text-2xl">
                       {patient.name}
                     </h2>
                     <span
@@ -275,7 +275,7 @@ export default async function PatientsPage({ searchParams }: PatientsPageProps) 
 
                 <Link
                   href={`/app/patients/${patient.id}`}
-                  className="inline-flex rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700 sm:w-auto"
                 >
                   Ver detalle
                 </Link>

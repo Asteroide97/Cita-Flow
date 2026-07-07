@@ -396,8 +396,8 @@ export default async function WaitlistPage({
                         </div>
 
                         {canClose ? (
-                          <div className="flex flex-wrap gap-2">
-                            <form action={cancelWaitlistEntryAction}>
+                          <div className="grid gap-2 sm:flex sm:flex-wrap">
+                            <form action={cancelWaitlistEntryAction} className="w-full sm:w-auto">
                               <input
                                 type="hidden"
                                 name="waitlistEntryId"
@@ -405,13 +405,13 @@ export default async function WaitlistPage({
                               />
                               <button
                                 type="submit"
-                                className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
+                                className="w-full rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
                               >
                                 Cancelar entrada
                               </button>
                             </form>
 
-                            <form action={expireWaitlistEntryAction}>
+                            <form action={expireWaitlistEntryAction} className="w-full sm:w-auto">
                               <input
                                 type="hidden"
                                 name="waitlistEntryId"
@@ -419,7 +419,7 @@ export default async function WaitlistPage({
                               />
                               <button
                                 type="submit"
-                                className="rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 transition hover:border-slate-300 hover:bg-slate-200"
+                                className="w-full rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 transition hover:border-slate-300 hover:bg-slate-200"
                               >
                                 Marcar expirada
                               </button>

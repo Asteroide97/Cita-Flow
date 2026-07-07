@@ -103,13 +103,18 @@ export function OperationalStatus({
             </span>
           </div>
 
-          <h2 className="mt-4 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
+          <h2 className="mt-4 text-xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
             {headline}
           </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">{description}</p>
+          <p className="mt-2.5 max-w-2xl text-sm leading-6 text-muted">{description}</p>
         </div>
 
-        <div className={cn("rounded-[28px] border p-5 sm:p-6 xl:max-w-sm", classes.panel)}>
+        <div
+          className={cn(
+            "w-full rounded-[28px] border p-5 sm:p-6 xl:max-w-sm",
+            classes.panel,
+          )}
+        >
           <div className="flex items-start gap-4">
             <span
               className={cn(
@@ -130,7 +135,7 @@ export function OperationalStatus({
             href={actionHref}
             target={actionTarget}
             rel={actionTarget === "_blank" ? "noreferrer" : undefined}
-            className="mt-5 inline-flex rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+            className="mt-5 inline-flex w-full justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
           >
             {actionLabel}
           </Link>
@@ -138,7 +143,7 @@ export function OperationalStatus({
       </div>
 
       <CollapsibleDetails summary="Ver detalles" className="mt-6">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {checks.map((check) => (
             <CheckItem key={check.id} check={check} />
           ))}

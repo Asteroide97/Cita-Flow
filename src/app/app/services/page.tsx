@@ -217,7 +217,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
     <PanelPage
       eyebrow="Servicios"
       title="Catálogo público de servicios"
-      description="Administra el catálogo que alimenta el booking público del negocio. Define categoría, visibilidad, orden y precio sin tocar el historial de reservas."
+      description="Administra el catálogo visible en tu booking."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.4fr)]">
         <div className="grid gap-6">
@@ -266,11 +266,10 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
             <div className="mt-5 grid gap-3 text-sm text-muted">
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                Solo los servicios activos y visibles aparecen en el booking público.
+                Solo los servicios activos y visibles aparecen en el booking.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                El orden público controla cómo se presenta el catálogo; primero se
-                usa `publicOrder` y después el nombre.
+                El orden usa `publicOrder` y luego el nombre.
               </div>
             </div>
           </article>
@@ -427,7 +426,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
 
               <button
                 type="submit"
-                className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 sm:w-auto"
               >
                 {editingService ? "Guardar cambios" : "Crear servicio"}
               </button>
@@ -464,10 +463,10 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                   </select>
                 </label>
 
-                <div className="flex gap-3 self-end">
+                <div className="flex flex-col gap-3 self-end sm:flex-row">
                   <button
                     type="submit"
-                    className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                    className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
                   >
                     Aplicar
                   </button>
@@ -475,7 +474,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                   {filter !== "all" ? (
                     <Link
                       href="/app/services"
-                      className="rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                      className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
                     >
                       Limpiar
                     </Link>
@@ -491,7 +490,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
-                      <p className="text-2xl font-semibold tracking-[-0.05em] text-ink">
+                      <p className="text-xl font-semibold tracking-[-0.05em] text-ink sm:text-2xl">
                         {service.name}
                       </p>
                       <span className={getServiceStatusBadgeClassName(service.isActive)}>
@@ -515,7 +514,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                         ? `/app/services?edit=${service.id}`
                         : `/app/services?edit=${service.id}&filter=${filter}`
                     }
-                    className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                    className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700 sm:w-auto"
                   >
                     Editar
                   </Link>
@@ -562,8 +561,8 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                   </div>
                 </div>
 
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <form action={toggleServiceStatusAction}>
+                <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
+                  <form action={toggleServiceStatusAction} className="w-full sm:w-auto">
                     <input type="hidden" name="serviceId" value={service.id} />
                     <input type="hidden" name="returnFilter" value={filter} />
                     <input
@@ -575,15 +574,15 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                       type="submit"
                       className={
                         service.isActive
-                          ? "rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700"
-                          : "rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"
+                          ? "w-full rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700"
+                          : "w-full rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"
                       }
                     >
                       {service.isActive ? "Desactivar" : "Activar"}
                     </button>
                   </form>
 
-                  <form action={toggleServicePublicVisibilityAction}>
+                  <form action={toggleServicePublicVisibilityAction} className="w-full sm:w-auto">
                     <input type="hidden" name="serviceId" value={service.id} />
                     <input type="hidden" name="returnFilter" value={filter} />
                     <input
@@ -595,8 +594,8 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                       type="submit"
                       className={
                         service.isPublic
-                          ? "rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700"
-                          : "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700"
+                          ? "w-full rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700"
+                          : "w-full rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700"
                       }
                     >
                       {service.isPublic ? "Ocultar del booking" : "Mostrar en booking"}

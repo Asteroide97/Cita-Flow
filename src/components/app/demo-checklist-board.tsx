@@ -68,7 +68,7 @@ export function DemoChecklistBoard({ groups }: DemoChecklistBoardProps) {
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
               Revisión manual
             </p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
+            <h2 className="mt-3 text-xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
               Estado de demo
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
@@ -79,7 +79,7 @@ export function DemoChecklistBoard({ groups }: DemoChecklistBoardProps) {
           <button
             type="button"
             onClick={resetChecklist}
-            className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+            className="inline-flex w-full justify-center rounded-full border border-line/80 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700 sm:w-auto"
           >
             Reiniciar checklist
           </button>
@@ -194,7 +194,7 @@ export function DemoChecklistBoard({ groups }: DemoChecklistBoardProps) {
                 <div className="mt-5">
                   <Link
                     href={group.actionHref}
-                    className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                    className="inline-flex w-full justify-center rounded-full border border-line/80 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700 sm:w-auto"
                   >
                     {group.actionLabel}
                   </Link>

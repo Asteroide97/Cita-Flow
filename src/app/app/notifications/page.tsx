@@ -312,14 +312,14 @@ export default async function NotificationsPage({
 
               <button
                 type="submit"
-                className="inline-flex items-center justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                className="inline-flex w-full items-center justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
               >
                 Filtrar
               </button>
 
               <Link
                 href="/app/notifications"
-                className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
               >
                 Limpiar
               </Link>
@@ -367,10 +367,10 @@ export default async function NotificationsPage({
                         </p>
                       </div>
 
-                      <div className="flex flex-col items-start gap-2 xl:items-end">
+                      <div className="flex w-full flex-col items-start gap-2 xl:w-auto xl:items-end">
                         {canSendWhatsApp ? (
                           metaConfig.isConfigured ? (
-                            <form action={sendWhatsAppNotificationAction}>
+                            <form action={sendWhatsAppNotificationAction} className="w-full sm:w-auto">
                               <input
                                 type="hidden"
                                 name="notificationId"
@@ -378,7 +378,7 @@ export default async function NotificationsPage({
                               />
                               <button
                                 type="submit"
-                                className={actionButtonClassName("whatsapp")}
+                                className={`${actionButtonClassName("whatsapp")} w-full sm:w-auto`}
                               >
                                 Enviar WhatsApp
                               </button>
@@ -388,7 +388,7 @@ export default async function NotificationsPage({
                               <button
                                 type="button"
                                 disabled
-                                className={actionButtonClassName("whatsapp")}
+                                className={`${actionButtonClassName("whatsapp")} w-full sm:w-auto`}
                               >
                                 Enviar WhatsApp
                               </button>
@@ -398,7 +398,7 @@ export default async function NotificationsPage({
                             </>
                           )
                         ) : canTransition ? (
-                          <form action={markNotificationSentAction}>
+                          <form action={markNotificationSentAction} className="w-full sm:w-auto">
                             <input
                               type="hidden"
                               name="notificationId"
@@ -406,7 +406,7 @@ export default async function NotificationsPage({
                             />
                             <button
                               type="submit"
-                              className={actionButtonClassName("sent")}
+                              className={`${actionButtonClassName("sent")} w-full sm:w-auto`}
                             >
                               Marcar como enviada
                             </button>
@@ -477,10 +477,10 @@ export default async function NotificationsPage({
                           </div>
                         ) : null}
 
-                        <div className="flex flex-wrap gap-2">
+                        <div className="grid gap-2 sm:flex sm:flex-wrap">
                           {canSendWhatsApp ? (
                             metaConfig.isConfigured ? (
-                              <form action={sendWhatsAppNotificationAction}>
+                              <form action={sendWhatsAppNotificationAction} className="w-full sm:w-auto">
                                 <input
                                   type="hidden"
                                   name="notificationId"
@@ -488,7 +488,7 @@ export default async function NotificationsPage({
                                 />
                                 <button
                                   type="submit"
-                                  className={actionButtonClassName("whatsapp")}
+                                  className={`${actionButtonClassName("whatsapp")} w-full sm:w-auto`}
                                 >
                                   Enviar WhatsApp
                                 </button>
@@ -497,7 +497,7 @@ export default async function NotificationsPage({
                               <button
                                 type="button"
                                 disabled
-                                className={actionButtonClassName("whatsapp")}
+                                className={`${actionButtonClassName("whatsapp")} w-full sm:w-auto`}
                               >
                                 Enviar WhatsApp
                               </button>
@@ -505,7 +505,7 @@ export default async function NotificationsPage({
                           ) : null}
 
                           {canTransition ? (
-                            <form action={markNotificationSentAction}>
+                            <form action={markNotificationSentAction} className="w-full sm:w-auto">
                               <input
                                 type="hidden"
                                 name="notificationId"
@@ -513,7 +513,7 @@ export default async function NotificationsPage({
                               />
                               <button
                                 type="submit"
-                                className={actionButtonClassName("sent")}
+                                className={`${actionButtonClassName("sent")} w-full sm:w-auto`}
                               >
                                 Marcar como enviada
                               </button>
@@ -521,7 +521,7 @@ export default async function NotificationsPage({
                           ) : null}
 
                           {canTransition ? (
-                            <form action={markNotificationFailedAction}>
+                            <form action={markNotificationFailedAction} className="w-full sm:w-auto">
                               <input
                                 type="hidden"
                                 name="notificationId"
@@ -534,7 +534,7 @@ export default async function NotificationsPage({
                               />
                               <button
                                 type="submit"
-                                className={actionButtonClassName("failed")}
+                                className={`${actionButtonClassName("failed")} w-full sm:w-auto`}
                               >
                                 Marcar como fallida
                               </button>
@@ -542,7 +542,7 @@ export default async function NotificationsPage({
                           ) : null}
 
                           {notification.status === NotificationStatus.PENDING ? (
-                            <form action={cancelNotificationAction}>
+                            <form action={cancelNotificationAction} className="w-full sm:w-auto">
                               <input
                                 type="hidden"
                                 name="notificationId"
@@ -550,7 +550,7 @@ export default async function NotificationsPage({
                               />
                               <button
                                 type="submit"
-                                className={actionButtonClassName("cancel")}
+                                className={`${actionButtonClassName("cancel")} w-full sm:w-auto`}
                               >
                                 Cancelar pendiente
                               </button>

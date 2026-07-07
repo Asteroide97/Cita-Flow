@@ -43,7 +43,82 @@ export function ReportRankingTable({
       </h2>
 
       {rows.length ? (
-        <div className="mt-5 overflow-x-auto">
+        <>
+          <div className="mt-5 grid gap-3 sm:hidden">
+            {rows.map((row) => (
+              <article
+                key={row.id}
+                className="rounded-[22px] border border-line/80 bg-white px-4 py-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    {row.href ? (
+                      <Link
+                        href={row.href}
+                        className="font-semibold text-ink transition hover:text-brand-700"
+                      >
+                        {row.label}
+                      </Link>
+                    ) : (
+                      <p className="font-semibold text-ink">{row.label}</p>
+                    )}
+                    {row.secondaryLabel ? (
+                      <p className="mt-1 text-xs text-muted">{row.secondaryLabel}</p>
+                    ) : null}
+                  </div>
+                  <span className="rounded-full border border-line/80 bg-surface-soft px-3 py-1 text-xs font-semibold text-ink">
+                    {row.total}
+                  </span>
+                </div>
+
+                <div className="mt-3 h-2.5 rounded-full bg-slate-100">
+                  <div
+                    className="h-2.5 rounded-full bg-brand-500"
+                    style={{ width: getBarWidth(row.total, maxTotal) }}
+                  />
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+                      Confirmadas
+                    </p>
+                    <p className="mt-1 font-semibold text-emerald-700">
+                      {getStatusValue(row, AppointmentStatus.CONFIRMED)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+                      Pendientes
+                    </p>
+                    <p className="mt-1 font-semibold text-amber-700">
+                      {getStatusValue(row, AppointmentStatus.PENDING)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+                      Canceladas
+                    </p>
+                    <p className="mt-1 font-semibold text-rose-700">
+                      {getStatusValue(row, AppointmentStatus.CANCELLED)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+                      Ultima reserva
+                    </p>
+                    <p className="mt-1 text-sm text-muted">
+                      {row.lastReservationAt
+                        ? formatDateTimeInTimeZone(row.lastReservationAt, timezone)
+                        : "Sin reservas"}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-5 hidden overflow-x-auto sm:block">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-line/80 text-left text-xs uppercase tracking-[0.16em] text-muted">
@@ -106,7 +181,8 @@ export function ReportRankingTable({
               })}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       ) : (
         <div className="mt-5 rounded-[24px] border border-dashed border-line bg-surface-soft px-5 py-4 text-sm text-muted">
           {emptyMessage}

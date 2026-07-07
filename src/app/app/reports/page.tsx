@@ -172,7 +172,7 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
     <PanelPage
       eyebrow="Reportes"
       title="Desempeno del negocio"
-      description="Vista simple del rendimiento de reservas, clientes y servicios."
+      description="Resumen de reservas, clientes y servicios."
     >
       <div className="grid gap-6">
         <ReportFilters
@@ -225,12 +225,12 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
                 Acciones
               </p>
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap">
                 {quickLinks.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700"
+                    className="inline-flex w-full rounded-full border border-line/80 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700 sm:w-auto"
                   >
                     {item.label}
                   </Link>

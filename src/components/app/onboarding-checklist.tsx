@@ -69,8 +69,8 @@ function ChecklistStep({
               <StepStatusBadge isComplete={step.isComplete} />
             </div>
 
-            <p className="mt-3 text-sm leading-6 text-ink">{step.description}</p>
-            <p className="mt-2 text-sm leading-6 text-muted">{step.helperText}</p>
+            <p className="mt-2.5 text-sm leading-6 text-ink">{step.description}</p>
+            <p className="mt-1.5 text-sm leading-6 text-muted">{step.helperText}</p>
           </div>
         </div>
 
@@ -78,7 +78,7 @@ function ChecklistStep({
           href={step.actionHref}
           target={step.actionTarget}
           rel={step.actionTarget === "_blank" ? "noreferrer" : undefined}
-          className="inline-flex shrink-0 rounded-full border border-line/80 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+          className="inline-flex w-full shrink-0 justify-center rounded-full border border-line/80 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700 sm:w-auto"
         >
           {step.actionLabel}
         </Link>
@@ -114,7 +114,7 @@ export function OnboardingChecklist({
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">
                 Checklist inicial
               </p>
-              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
+              <h2 className="mt-3 text-xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
                 Tu negocio ya puede recibir reservas.
               </h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-muted sm:text-base">
@@ -143,7 +143,7 @@ export function OnboardingChecklist({
               href={bookingUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex shrink-0 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+              className="inline-flex w-full shrink-0 justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 sm:w-auto"
             >
               Abrir booking público
             </Link>
@@ -162,7 +162,7 @@ export function OnboardingChecklist({
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
             Checklist inicial
           </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
+          <h2 className="mt-3 text-xl font-semibold tracking-[-0.05em] text-ink sm:text-3xl">
             Deja lista tu página de reservas
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-muted sm:text-base">

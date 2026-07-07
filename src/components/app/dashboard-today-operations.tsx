@@ -21,7 +21,7 @@ export function DashboardTodayOperations({
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
             Operacion de hoy
           </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+          <h2 className="mt-3 text-xl font-semibold tracking-[-0.05em] text-ink sm:text-2xl">
             Hoy
           </h2>
         </div>
@@ -68,7 +68,7 @@ export function DashboardTodayOperations({
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href={agendaHref}
-          className="inline-flex rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+          className="inline-flex w-full justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 sm:w-auto"
         >
           Ver agenda de hoy
         </Link>

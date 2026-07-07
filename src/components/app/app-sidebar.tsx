@@ -165,7 +165,7 @@ export function AppSidebar({
           </button>
         </div>
 
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {navigationItems.map((item) => {
             const isActive = pathname === item.href;
 

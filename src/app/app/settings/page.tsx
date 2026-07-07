@@ -144,7 +144,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
     <PanelPage
       eyebrow="Configuración"
       title="Configuración del negocio"
-      description={`Ajusta la identidad pública de tu negocio, el slug de booking y los datos base que usará ${brand.name} en el panel y en la experiencia pública.`}
+      description={`Ajusta la identidad publica, el slug y los datos visibles de tu negocio en ${brand.name}.`}
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.38fr)]">
         <div className="grid gap-6">
@@ -175,7 +175,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                 <div className="mt-3 flex flex-wrap gap-3">
                   <Link
                     href={bookingUrl}
-                    className="rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                    className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700 sm:w-auto"
                   >
                     Abrir booking
                   </Link>
@@ -240,16 +240,13 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
 
             <div className="mt-5 grid gap-3 text-sm text-muted">
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                Usa un slug corto y estable para no romper enlaces que ya hayas
-                compartido.
+                Usa un slug corto y estable.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                El nombre público y la descripción corta se reflejan en el booking sin
-                cambiar la arquitectura interna del panel.
+                El nombre y la descripcion corta se reflejan en el booking.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                El color de marca se aplica al booking público para que la experiencia
-                sea más consistente con tu negocio.
+                El color de marca se aplica al booking publico.
               </div>
             </div>
           </article>
@@ -415,7 +412,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
 
               <button
                 type="submit"
-                className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 sm:w-auto"
               >
                 Guardar configuración
               </button>

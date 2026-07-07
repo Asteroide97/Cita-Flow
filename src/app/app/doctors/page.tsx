@@ -202,7 +202,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
     <PanelPage
       eyebrow="Profesionales"
       title="Catálogo público de profesionales"
-      description="Gestiona a las personas que atienden reservas en tu negocio. Controla visibilidad, orden público, descripción y disponibilidad sin tocar el historial operativo."
+      description="Gestiona quién aparece en tu booking y cómo se presenta."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.4fr)]">
         <div className="grid gap-6">
@@ -251,12 +251,10 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
 
             <div className="mt-5 grid gap-3 text-sm text-muted">
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                Solo los profesionales activos y visibles aparecen en el booking
-                público.
+                Solo los profesionales activos y visibles aparecen en el booking.
               </div>
               <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-                El orden público controla el catálogo del booking; primero se usa
-                `publicOrder` y despues el nombre.
+                El orden usa `publicOrder` y despues el nombre.
               </div>
             </div>
           </article>
@@ -390,7 +388,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
 
               <button
                 type="submit"
-                className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 sm:w-auto"
               >
                 {editingDoctor ? "Guardar cambios" : "Crear profesional"}
               </button>
@@ -427,10 +425,10 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   </select>
                 </label>
 
-                <div className="flex gap-3 self-end">
+                <div className="flex flex-col gap-3 self-end sm:flex-row">
                   <button
                     type="submit"
-                    className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                    className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
                   >
                     Aplicar
                   </button>
@@ -438,7 +436,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   {filter !== "all" ? (
                     <Link
                       href="/app/doctors"
-                      className="rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                      className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
                     >
                       Limpiar
                     </Link>
@@ -461,7 +459,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
 
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-3">
-                        <p className="text-2xl font-semibold tracking-[-0.05em] text-ink">
+                        <p className="text-xl font-semibold tracking-[-0.05em] text-ink sm:text-2xl">
                           {doctor.name}
                         </p>
                         <span className={getDoctorStatusBadgeClassName(doctor.isActive)}>
@@ -490,7 +488,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                         ? `/app/doctors?edit=${doctor.id}`
                         : `/app/doctors?edit=${doctor.id}&filter=${filter}`
                     }
-                    className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                    className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700 sm:w-auto"
                   >
                     Editar
                   </Link>
@@ -534,15 +532,15 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                   </div>
                 </div>
 
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
                   <Link
                     href={`/app/doctors/${doctor.id}/availability`}
-                    className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                    className="inline-flex w-full items-center justify-center rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 sm:w-auto"
                   >
                     Gestionar disponibilidad
                   </Link>
 
-                  <form action={toggleDoctorStatusAction}>
+                  <form action={toggleDoctorStatusAction} className="w-full sm:w-auto">
                     <input type="hidden" name="doctorId" value={doctor.id} />
                     <input type="hidden" name="returnFilter" value={filter} />
                     <input
@@ -554,15 +552,15 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                       type="submit"
                       className={
                         doctor.isActive
-                          ? "rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700"
-                          : "rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"
+                          ? "w-full rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700"
+                          : "w-full rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"
                       }
                     >
                       {doctor.isActive ? "Desactivar" : "Activar"}
                     </button>
                   </form>
 
-                  <form action={toggleDoctorPublicVisibilityAction}>
+                  <form action={toggleDoctorPublicVisibilityAction} className="w-full sm:w-auto">
                     <input type="hidden" name="doctorId" value={doctor.id} />
                     <input type="hidden" name="returnFilter" value={filter} />
                     <input
@@ -574,8 +572,8 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
                       type="submit"
                       className={
                         doctor.isPublic
-                          ? "rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700"
-                          : "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700"
+                          ? "w-full rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700"
+                          : "w-full rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700"
                       }
                     >
                       {doctor.isPublic ? "Ocultar del booking" : "Mostrar en booking"}

@@ -23,15 +23,25 @@ export function CompactStatCard({
   className,
 }: CompactStatCardProps) {
   return (
-    <article className={cn("rounded-[22px] border border-line/80 bg-white/92 p-4", className)}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+    <article
+      className={cn(
+        "rounded-[22px] border border-line/80 bg-white/92 p-3.5 sm:p-4",
+        className,
+      )}
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
         {label}
       </p>
-      <p className={cn("mt-3 text-2xl font-semibold tracking-[-0.05em]", toneClasses[tone])}>
+      <p
+        className={cn(
+          "mt-2.5 text-xl font-semibold tracking-[-0.05em] sm:mt-3 sm:text-2xl",
+          toneClasses[tone],
+        )}
+      >
         {value}
       </p>
       {note ? (
-        <p className="mt-2 text-xs font-medium leading-5 text-muted">{note}</p>
+        <p className="mt-1.5 text-[11px] font-medium leading-5 text-muted">{note}</p>
       ) : null}
     </article>
   );

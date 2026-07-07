@@ -23,7 +23,7 @@ export function ReportFilters({
         </p>
       </div>
 
-      <form className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+      <form className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
         <label className="text-sm font-semibold text-ink">
           Desde
           <input
@@ -79,10 +79,10 @@ export function ReportFilters({
           </select>
         </label>
 
-        <div className="flex items-end gap-3">
+        <div className="flex items-end gap-3 sm:col-span-2 xl:col-span-1">
           <button
             type="submit"
-            className="inline-flex w-full items-center justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 xl:w-auto"
+            className="inline-flex w-full items-center justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
           >
             Aplicar
           </button>

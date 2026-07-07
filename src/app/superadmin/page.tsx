@@ -325,7 +325,7 @@ export default async function SuperAdminPage({ searchParams }: SuperAdminPagePro
       <PanelPage
         eyebrow="Superadmin"
         title="Control comercial"
-        description="Vista interna para revisar negocios registrados y gestionar cobros manuales sin bloquear la operación."
+        description="Vista interna para revisar negocios y cobros manuales."
       >
         <div className="grid gap-6">
           {flash ? (
@@ -399,9 +399,8 @@ export default async function SuperAdminPage({ searchParams }: SuperAdminPagePro
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
                   Negocios registrados
                 </p>
-                <p className="mt-2 text-sm leading-7 text-muted">
-                  Busca por nombre, slug o email del owner y filtra el estado
-                  comercial sin afectar la operación diaria.
+                <p className="mt-2 text-sm text-muted">
+                  Busca por nombre, slug o email del owner.
                 </p>
               </div>
 
@@ -448,10 +447,10 @@ export default async function SuperAdminPage({ searchParams }: SuperAdminPagePro
                   </select>
                 </label>
 
-                <div className="flex gap-3 self-end">
+                <div className="flex flex-col gap-3 self-end sm:flex-row">
                   <button
                     type="submit"
-                    className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                    className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
                   >
                     Aplicar
                   </button>
@@ -459,7 +458,7 @@ export default async function SuperAdminPage({ searchParams }: SuperAdminPagePro
                   {(searchQuery || billingFilter !== "all" || businessTypeFilter !== "all") ? (
                     <Link
                       href="/superadmin"
-                      className="rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                      className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
                     >
                       Limpiar
                     </Link>
@@ -487,7 +486,7 @@ export default async function SuperAdminPage({ searchParams }: SuperAdminPagePro
                     <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-3">
-                          <p className="text-2xl font-semibold tracking-[-0.05em] text-ink">
+                          <p className="text-xl font-semibold tracking-[-0.05em] text-ink sm:text-2xl">
                             {clinic.name}
                           </p>
                           <span
@@ -612,7 +611,7 @@ export default async function SuperAdminPage({ searchParams }: SuperAdminPagePro
                         <div className="mt-5 flex flex-wrap gap-3">
                           <Link
                             href={bookingPath}
-                            className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                            className="inline-flex w-full items-center justify-center rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 sm:w-auto"
                           >
                             Abrir booking
                           </Link>
@@ -717,7 +716,7 @@ export default async function SuperAdminPage({ searchParams }: SuperAdminPagePro
 
                           <button
                             type="submit"
-                            className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+                            className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 sm:w-auto"
                           >
                             Guardar estado
                           </button>
@@ -740,7 +739,7 @@ export default async function SuperAdminPage({ searchParams }: SuperAdminPagePro
                             />
                             <button
                               type="submit"
-                              className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"
+                              className="w-full rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 sm:w-auto"
                             >
                               Marcar contactado hoy
                             </button>
@@ -772,7 +771,7 @@ export default async function SuperAdminPage({ searchParams }: SuperAdminPagePro
 
                           <button
                             type="submit"
-                            className="rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                            className="w-full rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700 sm:w-auto"
                           >
                             Guardar nota
                           </button>

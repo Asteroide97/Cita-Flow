@@ -84,7 +84,7 @@ export function BookingSummary({
   });
 
   return (
-    <aside className="surface-card p-6 sm:p-7">
+    <aside className="surface-card min-w-0 p-6 sm:p-7">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
         Resumen de reserva
       </p>

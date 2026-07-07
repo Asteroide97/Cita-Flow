@@ -21,7 +21,11 @@ export function ServiceStep({
   currency,
 }: ServiceStepProps) {
   return (
-    <section id="servicio" className="surface-card scroll-mt-6 p-6 sm:p-7" tabIndex={-1}>
+    <section
+      id="servicio"
+      className="surface-card min-w-0 scroll-mt-6 p-6 sm:p-7"
+      tabIndex={-1}
+    >
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
         Paso 2
       </p>

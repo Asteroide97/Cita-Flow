@@ -27,7 +27,11 @@ export function PatientDetailsStep({
   action,
 }: PatientDetailsStepProps) {
   return (
-    <section id="datos" className="surface-card scroll-mt-6 p-6 sm:p-7" tabIndex={-1}>
+    <section
+      id="datos"
+      className="surface-card min-w-0 scroll-mt-6 p-6 sm:p-7"
+      tabIndex={-1}
+    >
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
         Paso 4
       </p>

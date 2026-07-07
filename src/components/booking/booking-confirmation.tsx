@@ -14,7 +14,7 @@ export function BookingConfirmation({
   resetHref,
 }: BookingConfirmationProps) {
   return (
-    <section className="surface-card p-6 sm:p-8">
+    <section className="surface-card min-w-0 p-6 sm:p-8">
       <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
         Solicitud registrada
       </span>

@@ -19,7 +19,11 @@ export function DateStep({
   selectedServiceId,
 }: DateStepProps) {
   return (
-    <section id="fecha" className="surface-card scroll-mt-6 p-6 sm:p-7" tabIndex={-1}>
+    <section
+      id="fecha"
+      className="surface-card min-w-0 scroll-mt-6 p-6 sm:p-7"
+      tabIndex={-1}
+    >
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
         Paso 1
       </p>
@@ -31,7 +35,7 @@ export function DateStep({
         horarios reales para ese día.
       </p>
 
-      <div className="mt-6 flex gap-3 overflow-x-auto pb-2">
+      <div className="mt-6 flex w-full max-w-full gap-3 overflow-x-auto pb-2">
         {dateOptions.map((option) => {
           const isSelected = selectedDate === option.value;
 

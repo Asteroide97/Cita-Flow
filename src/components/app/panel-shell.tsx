@@ -19,7 +19,7 @@ export function PanelShell({ auth, children }: PanelShellProps) {
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,_#f4f8fc_0%,_#f8fbff_45%,_#ffffff_100%)] text-ink">
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen flex-col lg:flex-row">
         <AppSidebar
           clinicName={auth.clinic.name}
           clinicSlug={auth.clinic.slug}
@@ -29,7 +29,7 @@ export function PanelShell({ auth, children }: PanelShellProps) {
           showSuperAdminLink={showSuperAdminLink}
         />
 
-        <div className="flex min-h-screen flex-1 flex-col">
+        <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <header className="border-b border-line/70 bg-white/85 backdrop-blur">
             <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-5 py-4 sm:px-8 lg:px-10 xl:flex-row xl:items-center xl:justify-between">
               <div>

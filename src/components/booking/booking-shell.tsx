@@ -133,8 +133,8 @@ export function BookingShell({
               : "mt-8 grid gap-6"
           }
         >
-          <div className="grid gap-6">
-            <section className="surface-card p-6 sm:p-8">
+          <div className="grid min-w-0 gap-6">
+            <section className="surface-card min-w-0 p-6 sm:p-8">
               <span
                 className="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold shadow-soft"
                 style={{
@@ -157,7 +157,9 @@ export function BookingShell({
           </div>
 
           {aside ? (
-            <div className="grid gap-6 self-start xl:sticky xl:top-6">{aside}</div>
+            <div className="grid min-w-0 gap-6 self-start xl:sticky xl:top-6">
+              {aside}
+            </div>
           ) : null}
         </div>
       </div>

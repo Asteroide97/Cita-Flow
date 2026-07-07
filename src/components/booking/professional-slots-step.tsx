@@ -104,7 +104,7 @@ export function ProfessionalSlotsStep({
   return (
     <section
       id="fecha-hora"
-      className="surface-card scroll-mt-6 p-6 sm:p-7"
+      className="surface-card min-w-0 scroll-mt-6 p-6 sm:p-7"
       tabIndex={-1}
     >
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">

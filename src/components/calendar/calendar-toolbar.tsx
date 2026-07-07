@@ -11,13 +11,16 @@ type CalendarToolbarProps = {
   doctorId: string;
   doctors: CalendarDoctorOption[];
   rangeLabel: string;
-  timezone: string;
   totalAppointments: number;
+  totalBlockedTimes: number;
   previousHref: string;
   nextHref: string;
   todayHref: string;
   dayHref: string;
   weekHref: string;
+  monthHref: string;
+  createPanelHref: string;
+  blockPanelHref: string;
 };
 
 export function CalendarToolbar({
@@ -26,117 +29,88 @@ export function CalendarToolbar({
   doctorId,
   doctors,
   rangeLabel,
-  timezone,
   totalAppointments,
+  totalBlockedTimes,
   previousHref,
   nextHref,
   todayHref,
   dayHref,
   weekHref,
+  monthHref,
+  createPanelHref,
+  blockPanelHref,
 }: CalendarToolbarProps) {
-  const navigationLabel = view === "day" ? "día" : "semana";
-
   return (
-    <article className="surface-card p-6 sm:p-7">
-      <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
-            Agenda visual
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.06em] text-ink">
-            {rangeLabel}
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
-            Vista {view === "day" ? "diaria" : "semanal"} con datos reales en{" "}
-            <span className="font-semibold text-ink">{timezone}</span>.
-          </p>
-        </div>
+    <article className="surface-card p-4 sm:p-5">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={todayHref}
+            className="inline-flex items-center justify-center rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-100"
+          >
+            Hoy
+          </Link>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:justify-end">
-          <div className="inline-flex rounded-full border border-line/80 bg-surface-soft p-1">
-            <Link
-              href={dayHref}
-              className={cn(
-                "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-                view === "day"
-                  ? "bg-brand-600 text-white shadow-soft"
-                  : "text-muted hover:text-ink",
-              )}
-            >
-              Vista diaria
-            </Link>
-            <Link
-              href={weekHref}
-              className={cn(
-                "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-                view === "week"
-                  ? "bg-brand-600 text-white shadow-soft"
-                  : "text-muted hover:text-ink",
-              )}
-            >
-              Vista semanal
-            </Link>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
+          <div className="inline-flex overflow-hidden rounded-full border border-line/80 bg-white shadow-soft">
             <Link
               href={previousHref}
-              className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-4 py-3 text-sm font-semibold text-ink shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50"
+              className="px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-brand-50"
             >
-              Anterior {navigationLabel}
+              ←
             </Link>
-            <Link
-              href={todayHref}
-              className="inline-flex items-center justify-center rounded-full border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700 transition-all hover:-translate-y-0.5 hover:bg-brand-100"
-            >
-              Ir a hoy
-            </Link>
+            <div className="border-l border-r border-line/80 px-4 py-2 text-sm font-semibold text-ink">
+              {rangeLabel}
+            </div>
             <Link
               href={nextHref}
-              className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-4 py-3 text-sm font-semibold text-ink shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50"
+              className="px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-brand-50"
             >
-              Siguiente {navigationLabel}
+              →
             </Link>
           </div>
-        </div>
-      </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <div className="rounded-[24px] border border-line/80 bg-surface-soft px-4 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Reservas en vista
-          </p>
-          <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-ink">
-            {totalAppointments}
-          </p>
-          <p className="mt-1 text-xs text-muted">Todos los estados.</p>
-        </div>
-
-        <div className="rounded-[24px] border border-line/80 bg-white px-4 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Filtro actual
-          </p>
-          <p className="mt-3 text-base font-semibold text-ink">
-            {doctorId
-              ? doctors.find((doctor) => doctor.id === doctorId)?.name ?? "Profesional filtrado"
-              : "Todos los profesionales"}
-          </p>
-          <p className="mt-1 text-xs text-muted">Ajusta fecha o profesional.</p>
+          <div className="inline-flex rounded-full border border-line/80 bg-surface-soft p-1">
+            {[
+              { key: "day" as const, label: "Día", href: dayHref },
+              { key: "week" as const, label: "Semana", href: weekHref },
+              { key: "month" as const, label: "Mes", href: monthHref },
+            ].map((option) => (
+              <Link
+                key={option.key}
+                href={option.href}
+                className={cn(
+                  "rounded-full px-3 py-2 text-sm font-semibold transition-colors",
+                  view === option.key
+                    ? "bg-brand-600 text-white shadow-soft"
+                    : "text-muted hover:text-ink",
+                )}
+              >
+                {option.label}
+              </Link>
+            ))}
+          </div>
         </div>
 
-        <div className="rounded-[24px] border border-line/80 bg-white px-4 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Horario visible
-          </p>
-          <p className="mt-3 text-base font-semibold text-ink">08:00 - 20:00</p>
-          <p className="mt-1 text-xs text-muted">Tramo principal del día.</p>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={blockPanelHref}
+            className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white/92 px-5 py-3 text-sm font-semibold text-ink shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 sm:w-auto"
+          >
+            Bloquear horario
+          </Link>
+          <Link
+            href={createPanelHref}
+            className="inline-flex w-full items-center justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700 sm:w-auto"
+          >
+            Crear reserva
+          </Link>
         </div>
       </div>
 
       <form
         action="/app/calendar"
         method="get"
-        className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,240px)_minmax(0,280px)_auto]"
+        className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,180px)_minmax(0,240px)_auto]"
       >
         <input type="hidden" name="view" value={view} />
 
@@ -161,7 +135,7 @@ export function CalendarToolbar({
             {doctors.map((doctor) => (
               <option key={doctor.id} value={doctor.id}>
                 {doctor.name}
-                {doctor.specialty ? ` - ${doctor.specialty}` : ""}
+                {doctor.specialty ? ` · ${doctor.specialty}` : ""}
                 {!doctor.isActive ? " (inactivo)" : ""}
               </option>
             ))}
@@ -169,11 +143,20 @@ export function CalendarToolbar({
         </label>
 
         <div className="flex items-end">
-          <Button type="submit" className="w-full xl:w-auto">
-            Aplicar filtros
+          <Button type="submit" variant="secondary" className="w-full lg:w-auto">
+            Aplicar
           </Button>
         </div>
       </form>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+        <span className="rounded-full border border-line/80 bg-white px-3 py-1.5">
+          {totalAppointments} reservas
+        </span>
+        <span className="rounded-full border border-line/80 bg-white px-3 py-1.5">
+          {totalBlockedTimes} bloqueos
+        </span>
+      </div>
     </article>
   );
 }

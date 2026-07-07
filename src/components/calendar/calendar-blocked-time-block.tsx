@@ -23,12 +23,12 @@ export function CalendarBlockedTimeBlock({
   if (variant === "list") {
     return (
       <div
-        className={`rounded-[22px] border px-4 py-4 ${tone.blockClassName}`}
+        className={`rounded-[20px] border px-4 py-4 ${tone.blockClassName}`}
         aria-label="Horario bloqueado"
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em]">
               Bloqueado
             </p>
             <p className="mt-2 text-sm font-medium">
@@ -56,18 +56,18 @@ export function CalendarBlockedTimeBlock({
 
   return (
     <div
-      className={`pointer-events-none absolute inset-x-1 rounded-[20px] border px-3 py-2 ${tone.blockClassName} z-0`}
+      className={`pointer-events-none absolute inset-x-2 z-10 overflow-hidden rounded-[18px] border px-3 py-2 ${tone.blockClassName}`}
       style={{
         top: `${layout.top}px`,
         height: `${layout.height}px`,
       }}
       aria-hidden="true"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-85">
-        Bloqueado · {layout.startLabel} - {layout.endLabel}
+      <p className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] opacity-90">
+        Bloqueado · {layout.startLabel}
       </p>
-      {layout.height >= 64 ? (
-        <p className="mt-2 truncate text-xs font-medium opacity-80">
+      {layout.height >= 54 ? (
+        <p className="mt-2 truncate text-xs font-medium opacity-85">
           {blockedTime.reason ?? "Sin motivo"}
         </p>
       ) : null}

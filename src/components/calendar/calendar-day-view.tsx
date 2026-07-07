@@ -8,67 +8,61 @@ import type {
 } from "@/types/calendar";
 
 import { CalendarAppointmentBlock } from "./calendar-appointment-block";
+import { CalendarAvailableSlotBlock } from "./calendar-available-slot-block";
 import { CalendarBlockedTimeBlock } from "./calendar-blocked-time-block";
 import { CalendarEmptyState } from "./calendar-empty-state";
 import {
   buildCalendarAppointmentLayouts,
+  buildCalendarAvailableSlotLayouts,
   buildCalendarBlockedLayouts,
-  buildCalendarPath,
   buildCalendarHourRows,
   CALENDAR_TIMELINE_HEIGHT,
 } from "./calendar-helpers";
+
+type CalendarSlotLink = {
+  startAt: Date;
+  endAt: Date;
+  startTime: string;
+  endTime: string;
+  href: string;
+};
 
 type CalendarDayViewProps = {
   day: CalendarDayDefinition;
   appointments: CalendarAppointment[];
   timezone: string;
-  doctorId: string;
   doctors: CalendarDoctorOption[];
   selectedAppointmentId?: string;
   selectedServiceLabel?: string | null;
   createLinksByDoctorId: Record<string, string>;
+  appointmentHrefsById: Record<string, string>;
   blockedTimes: CalendarBlockedTime[];
-  availableSlotsByDoctorId: Record<
-    string,
-    Array<{
-      startTime: string;
-      endTime: string;
-      href: string;
-    }>
-  >;
+  availableSlotsByDoctorId: Record<string, CalendarSlotLink[]>;
 };
 
 function DoctorSlotSummary({
   slots,
-  selectedServiceLabel,
 }: {
-  slots: Array<{ startTime: string; endTime: string; href: string }>;
-  selectedServiceLabel?: string | null;
+  slots: CalendarSlotLink[];
 }) {
   if (!slots.length) {
-    return (
-      <p className="text-sm leading-7 text-muted">
-        {selectedServiceLabel
-          ? `Sin huecos libres para ${selectedServiceLabel.toLowerCase()}.`
-          : "Sin huecos libres calculados para hoy."}
-      </p>
-    );
+    return null;
   }
 
   return (
     <div className="flex flex-wrap gap-2">
-      {slots.slice(0, 4).map((slot) => (
+      {slots.slice(0, 5).map((slot) => (
         <Link
           key={`${slot.startTime}-${slot.endTime}`}
           href={slot.href}
-          className="inline-flex rounded-full border border-dashed border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 transition hover:-translate-y-0.5 hover:border-brand-300 hover:bg-brand-100"
+          className="inline-flex rounded-full border border-dashed border-brand-200 bg-brand-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-700 transition hover:border-brand-300 hover:bg-brand-100"
         >
           {slot.startTime}
         </Link>
       ))}
-      {slots.length > 4 ? (
-        <span className="inline-flex rounded-full border border-line/80 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-          +{slots.length - 4} huecos
+      {slots.length > 5 ? (
+        <span className="inline-flex rounded-full border border-line/80 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+          +{slots.length - 5}
         </span>
       ) : null}
     </div>
@@ -79,11 +73,11 @@ export function CalendarDayView({
   day,
   appointments,
   timezone,
-  doctorId,
   doctors,
   selectedAppointmentId,
   selectedServiceLabel = null,
   createLinksByDoctorId,
+  appointmentHrefsById,
   blockedTimes,
   availableSlotsByDoctorId,
 }: CalendarDayViewProps) {
@@ -94,7 +88,6 @@ export function CalendarDayView({
     day.dateValue,
     timezone,
   );
-  const visibleDoctors = doctors.length ? doctors : [];
   const appointmentsByDoctorId = appointments.reduce<Record<string, CalendarAppointment[]>>(
     (accumulator, appointment) => {
       if (!accumulator[appointment.doctor.id]) {
@@ -109,77 +102,94 @@ export function CalendarDayView({
   );
   const hasAnySlots = Object.values(availableSlotsByDoctorId).some((slots) => slots.length);
 
-  if (!appointments.length && !hasAnySlots && !blockedTimes.length) {
+  if (!appointments.length && !blockedTimes.length && !hasAnySlots) {
     return (
       <article className="surface-card p-6 sm:p-7">
         <CalendarEmptyState
           title="No hay reservas para este día."
-          description="No hay reservas, bloqueos ni huecos listos para crear una reserva rápida en la fecha seleccionada."
+          description="Abre el panel lateral para crear una reserva o bloquear horario."
         />
       </article>
     );
   }
 
+  const mobileTimelineItems = [
+    ...appointments.map((appointment) => ({
+      key: appointment.id,
+      type: "appointment" as const,
+      startAt: appointment.startAt,
+      endAt: appointment.endAt,
+      appointment,
+    })),
+    ...blockedTimes.map((blockedTime) => ({
+      key: blockedTime.id,
+      type: "blocked" as const,
+      startAt: blockedTime.startAt,
+      endAt: blockedTime.endAt,
+      blockedTime,
+    })),
+  ].sort((left, right) => left.startAt.getTime() - right.startAt.getTime());
+
   return (
     <article className="surface-card overflow-hidden">
-      <div className="border-b border-line/80 px-6 py-5 sm:px-7">
+      <div className="border-b border-line/80 px-5 py-4 sm:px-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-              Vista diaria
+              Vista día
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-ink">
               {day.label}
             </h2>
           </div>
 
-          <p className="text-sm text-muted">
-            {appointments.length} reserva{appointments.length === 1 ? "" : "s"} en agenda
-          </p>
+          {selectedServiceLabel ? (
+            <span className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">
+              Huecos para {selectedServiceLabel}
+            </span>
+          ) : null}
         </div>
       </div>
 
-      <div className="hidden lg:block overflow-x-auto">
+      <div className="hidden overflow-x-auto lg:block">
         <div
           className="grid border-b border-line/80"
           style={{
-            gridTemplateColumns: `84px repeat(${Math.max(visibleDoctors.length, 1)}, minmax(260px, 1fr))`,
+            gridTemplateColumns: `76px repeat(${Math.max(doctors.length, 1)}, minmax(220px, 1fr))`,
           }}
         >
-          <div className="px-4 py-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-              Hora
-            </p>
+          <div className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+            Hora
           </div>
 
-          {visibleDoctors.map((doctor) => {
+          {doctors.map((doctor) => {
             const dayAppointments = appointmentsByDoctorId[doctor.id] ?? [];
             const daySlots = availableSlotsByDoctorId[doctor.id] ?? [];
 
             return (
               <div
                 key={doctor.id}
-                className="border-l border-line/80 bg-white/60 px-4 py-4"
+                className="border-l border-line/80 bg-white/70 px-4 py-4"
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-                  {doctor.name}
-                </p>
-                <p className="mt-2 text-sm text-muted">
-                  {dayAppointments.length} reserva
-                  {dayAppointments.length === 1 ? "" : "s"}
-                  {doctor.specialty ? ` · ${doctor.specialty}` : ""}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-ink">{doctor.name}</p>
+                    <p className="mt-1 text-xs text-muted">
+                      {doctor.specialty ?? "Agenda"}
+                    </p>
+                  </div>
+
                   <Link
-                    href={createLinksByDoctorId[doctor.id] ?? "#calendar-quick-create"}
-                    className="inline-flex rounded-full border border-line/80 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-ink transition hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50"
+                    href={createLinksByDoctorId[doctor.id] ?? "/app/calendar"}
+                    className="inline-flex rounded-full border border-line/80 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink transition hover:border-brand-200 hover:bg-brand-50"
                   >
-                    Crear reserva
+                    Crear
                   </Link>
-                  <DoctorSlotSummary
-                    slots={daySlots}
-                    selectedServiceLabel={selectedServiceLabel}
-                  />
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+                  <span>{dayAppointments.length} reservas</span>
+                  {daySlots.length ? <span>{daySlots.length} huecos</span> : null}
                 </div>
               </div>
             );
@@ -189,18 +199,18 @@ export function CalendarDayView({
         <div
           className="grid"
           style={{
-            gridTemplateColumns: `84px repeat(${Math.max(visibleDoctors.length, 1)}, minmax(260px, 1fr))`,
+            gridTemplateColumns: `76px repeat(${Math.max(doctors.length, 1)}, minmax(220px, 1fr))`,
           }}
         >
           <div className="relative border-r border-line/80 bg-white/70">
             <div
-              className="relative px-4"
+              className="relative px-3"
               style={{ height: `${CALENDAR_TIMELINE_HEIGHT}px` }}
             >
               {hourRows.map((row) => (
                 <span
                   key={row.key}
-                  className="absolute left-4 -translate-y-1/2 text-xs font-semibold uppercase tracking-[0.16em] text-muted"
+                  className="absolute left-3 -translate-y-1/2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted"
                   style={{ top: `${row.top}px` }}
                 >
                   {row.label}
@@ -209,15 +219,16 @@ export function CalendarDayView({
             </div>
           </div>
 
-          {visibleDoctors.map((doctor) => {
+          {doctors.map((doctor) => {
             const dayAppointments = appointmentsByDoctorId[doctor.id] ?? [];
             const dayLayouts = buildCalendarAppointmentLayouts(dayAppointments, timezone);
             const daySlots = availableSlotsByDoctorId[doctor.id] ?? [];
+            const slotLayouts = buildCalendarAvailableSlotLayouts(daySlots, timezone);
 
             return (
               <div
                 key={doctor.id}
-                className="relative border-r border-line/80 bg-[linear-gradient(180deg,_rgba(248,251,255,0.92)_0%,_rgba(255,255,255,0.98)_100%)] last:border-r-0"
+                className="relative border-r border-line/80 bg-[linear-gradient(180deg,rgba(248,251,255,0.92)_0%,rgba(255,255,255,0.98)_100%)] last:border-r-0"
               >
                 <div
                   className="relative"
@@ -231,9 +242,17 @@ export function CalendarDayView({
                     />
                   ))}
 
+                  {slotLayouts.map((layout, index) => (
+                    <CalendarAvailableSlotBlock
+                      key={`${doctor.id}-${layout.startLabel}-${index}`}
+                      layout={layout}
+                      href={daySlots[index]?.href ?? "/app/calendar"}
+                    />
+                  ))}
+
                   {blockedLayouts.map((layout) => (
                     <CalendarBlockedTimeBlock
-                      key={layout.blockedTime.id}
+                      key={`${doctor.id}-${layout.blockedTime.id}`}
                       blockedTime={layout.blockedTime}
                       timezone={timezone}
                       variant="day"
@@ -241,13 +260,9 @@ export function CalendarDayView({
                     />
                   ))}
 
-                  {!dayAppointments.length ? (
-                    <div className="absolute inset-x-4 top-6 rounded-[20px] border border-dashed border-line/80 bg-white/80 px-4 py-4 text-sm text-muted">
-                      {blockedTimes.length
-                        ? "El negocio tiene bloqueos activos este día. Revisa los rangos sombreados."
-                        : daySlots.length
-                        ? "Sin reservas todavía. Puedes usar un hueco libre para crear una."
-                        : "Sin reservas ni huecos libres visibles para este profesional."}
+                  {!dayAppointments.length && !daySlots.length && !blockedLayouts.length ? (
+                    <div className="absolute inset-x-4 top-6 rounded-[18px] border border-dashed border-line/80 bg-white/80 px-4 py-4 text-sm text-muted">
+                      Sin reservas ni huecos visibles.
                     </div>
                   ) : null}
 
@@ -256,12 +271,7 @@ export function CalendarDayView({
                       key={layout.appointment.id}
                       appointment={layout.appointment}
                       timezone={timezone}
-                      href={buildCalendarPath({
-                        view: "day",
-                        date: day.dateValue,
-                        doctorId: doctorId || undefined,
-                        appointmentId: layout.appointment.id,
-                      })}
+                      href={appointmentHrefsById[layout.appointment.id] ?? "/app/calendar"}
                       isSelected={selectedAppointmentId === layout.appointment.id}
                       variant="day"
                       layout={layout}
@@ -275,85 +285,64 @@ export function CalendarDayView({
       </div>
 
       <div className="grid gap-4 p-4 lg:hidden">
-        {visibleDoctors.map((doctor) => {
-          const dayAppointments = appointmentsByDoctorId[doctor.id] ?? [];
-          const daySlots = availableSlotsByDoctorId[doctor.id] ?? [];
+        {selectedServiceLabel && hasAnySlots ? (
+          <section className="rounded-[24px] border border-line/80 bg-surface-soft px-4 py-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+              Huecos disponibles
+            </p>
+            <div className="mt-3 grid gap-3">
+              {doctors.map((doctor) => {
+                const daySlots = availableSlotsByDoctorId[doctor.id] ?? [];
 
-          return (
-            <section
-              key={doctor.id}
-              className="rounded-[26px] border border-line/80 bg-white/92 px-4 py-4"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brand-700">
-                    {doctor.name}
-                  </p>
-                  <p className="mt-1 text-sm text-muted">
-                    {doctor.specialty ?? "Agenda del día"}
-                  </p>
-                </div>
+                if (!daySlots.length) {
+                  return null;
+                }
 
-                <span className="text-sm font-medium text-muted">
-                  {dayAppointments.length} reserva
-                  {dayAppointments.length === 1 ? "" : "s"}
-                </span>
-              </div>
+                return (
+                  <div key={doctor.id}>
+                    <p className="text-sm font-semibold text-ink">{doctor.name}</p>
+                    <div className="mt-2">
+                      <DoctorSlotSummary slots={daySlots} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
 
-              <div className="mt-4">
-                <div className="mb-3">
-                  <Link
-                    href={createLinksByDoctorId[doctor.id] ?? "#calendar-quick-create"}
-                    className="inline-flex rounded-full border border-line/80 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-ink transition hover:border-brand-200 hover:bg-brand-50"
-                  >
-                    Crear reserva
-                  </Link>
-                </div>
-                <DoctorSlotSummary
-                  slots={daySlots}
-                  selectedServiceLabel={selectedServiceLabel}
-                />
-              </div>
+        {mobileTimelineItems.length ? (
+          mobileTimelineItems.map((item) =>
+            item.type === "appointment" ? (
+              <CalendarAppointmentBlock
+                key={item.key}
+                appointment={item.appointment}
+                timezone={timezone}
+                href={appointmentHrefsById[item.appointment.id] ?? "/app/calendar"}
+                isSelected={selectedAppointmentId === item.appointment.id}
+                variant="list"
+              />
+            ) : (
+              <CalendarBlockedTimeBlock
+                key={item.key}
+                blockedTime={item.blockedTime}
+                timezone={timezone}
+                variant="list"
+              />
+            ),
+          )
+        ) : (
+          <CalendarEmptyState
+            title="No hay reservas para este día."
+            description="Abre el panel lateral para crear una reserva o bloquear horario."
+          />
+        )}
 
-              {blockedTimes.length ? (
-                <div className="mt-4 grid gap-3">
-                  {blockedTimes.map((blockedTime) => (
-                    <CalendarBlockedTimeBlock
-                      key={blockedTime.id}
-                      blockedTime={blockedTime}
-                      timezone={timezone}
-                      variant="list"
-                    />
-                  ))}
-                </div>
-              ) : null}
-
-              {dayAppointments.length ? (
-                <div className="mt-4 grid gap-3">
-                  {dayAppointments.map((appointment) => (
-                    <CalendarAppointmentBlock
-                      key={appointment.id}
-                      appointment={appointment}
-                      timezone={timezone}
-                      href={buildCalendarPath({
-                        view: "day",
-                        date: day.dateValue,
-                        doctorId: doctorId || undefined,
-                        appointmentId: appointment.id,
-                      })}
-                      isSelected={selectedAppointmentId === appointment.id}
-                      variant="list"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-4 text-sm leading-7 text-muted">
-                  No hay reservas para este profesional en el día seleccionado.
-                </p>
-              )}
-            </section>
-          );
-        })}
+        {!selectedServiceLabel && hasAnySlots ? (
+          <div className="rounded-[22px] border border-dashed border-line/80 bg-white px-4 py-4 text-sm text-muted">
+            Selecciona un servicio en “Crear reserva” para ver huecos disponibles en la agenda.
+          </div>
+        ) : null}
       </div>
     </article>
   );

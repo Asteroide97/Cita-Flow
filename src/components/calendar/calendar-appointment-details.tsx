@@ -34,6 +34,7 @@ type CalendarAppointmentDetailsProps = {
   rescheduleSlotTime: string;
   rescheduleAvailableSlotResult: GetAvailableSlotsResult | null;
   rescheduleOpenHref: string;
+  embedded?: boolean;
 };
 
 function CalendarStatusActionButton({
@@ -79,19 +80,25 @@ export function CalendarAppointmentDetails({
   rescheduleSlotTime,
   rescheduleAvailableSlotResult,
   rescheduleOpenHref,
+  embedded = false,
 }: CalendarAppointmentDetailsProps) {
+  const wrapperClassName = embedded ? "grid gap-5" : "surface-card p-6 sm:p-7";
+
   if (!appointment) {
     return (
-      <article className="surface-card p-6 sm:p-7">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
-          Detalle de reserva
-        </p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-          Selecciona una reserva
-        </h2>
-        <p className="mt-3 text-sm leading-7 text-muted">
-          Haz clic sobre un bloque de la agenda para revisar al cliente, el servicio,
-          la hora y ejecutar acciones rápidas desde esta vista.
+      <article className={wrapperClassName}>
+        {!embedded ? (
+          <>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
+              Detalle de reserva
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+              Selecciona una reserva
+            </h2>
+          </>
+        ) : null}
+        <p className="text-sm leading-7 text-muted">
+          Selecciona una reserva de la agenda para ver acciones rápidas.
         </p>
       </article>
     );
@@ -101,30 +108,32 @@ export function CalendarAppointmentDetails({
   const canReschedule = actionAvailability.canCancel;
 
   return (
-    <article id="calendar-appointment-details" className="surface-card p-6 sm:p-7">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <article id="calendar-appointment-details" className={wrapperClassName}>
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
-            Detalle de reserva
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+          {!embedded ? (
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
+              Detalle de reserva
+            </p>
+          ) : null}
+          <h2 className="text-xl font-semibold tracking-[-0.04em] text-ink">
             {appointment.patient.name}
           </h2>
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted">
             {formatAppointmentPhone(appointment.patient.phoneE164)}
-            {appointment.patient.email ? ` - ${appointment.patient.email}` : ""}
+            {appointment.patient.email ? ` · ${appointment.patient.email}` : ""}
           </p>
         </div>
 
         <AppointmentStatusBadge status={appointment.status} />
       </div>
 
-      <div className="mt-6 grid gap-3">
+      <div className="grid gap-3">
         <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
             Fecha y hora
           </p>
-          <p className="mt-3 text-base font-semibold text-ink">
+          <p className="mt-2 text-sm font-semibold text-ink">
             {formatCalendarDayTitle(appointment.startAt, timezone)}
           </p>
           <p className="mt-1 text-sm text-muted">
@@ -134,39 +143,48 @@ export function CalendarAppointmentDetails({
 
         <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Profesional y servicio
+            Cliente
           </p>
-          <p className="mt-3 text-base font-semibold text-ink">
-            {appointment.doctor.name}
-          </p>
-          <p className="mt-1 text-sm text-muted">
-            {appointment.service.name} - {appointment.service.durationMinutes} min
+          <p className="mt-2 text-sm font-semibold text-ink">
+            {appointment.patient.name}
           </p>
         </div>
 
         <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Precio y origen
+            Servicio
           </p>
-          <p className="mt-3 text-base font-semibold text-ink">
-            {formatAppointmentMoney(appointment.service.priceCents, currency)}
+          <p className="mt-2 text-sm font-semibold text-ink">
+            {appointment.service.name}
           </p>
           <p className="mt-1 text-sm text-muted">
+            {appointment.doctor.name} · {appointment.service.durationMinutes} min
+          </p>
+        </div>
+
+        <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+            Origen
+          </p>
+          <p className="mt-2 text-sm font-semibold text-ink">
             {appointmentSourceLabels[appointment.source]}
           </p>
+          <p className="mt-1 text-sm text-muted">
+            {formatAppointmentMoney(appointment.service.priceCents, currency)}
+          </p>
         </div>
 
-        <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Notas internas
-          </p>
-          <p className="mt-3 text-sm leading-7 text-muted">
-            {appointment.notes ?? "Sin notas internas registradas."}
-          </p>
-        </div>
+        {appointment.notes ? (
+          <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
+              Notas
+            </p>
+            <p className="mt-2 text-sm leading-7 text-muted">{appointment.notes}</p>
+          </div>
+        ) : null}
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3">
         {actionAvailability.canConfirm ? (
           <CalendarStatusActionButton
             appointmentId={appointment.id}
@@ -193,7 +211,7 @@ export function CalendarAppointmentDetails({
           <CalendarStatusActionButton
             appointmentId={appointment.id}
             intent="complete"
-            label="Marcar completada"
+            label="Completar"
             redirectPath={redirectPath}
             action={action}
             className="border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100"
@@ -204,7 +222,7 @@ export function CalendarAppointmentDetails({
           <CalendarStatusActionButton
             appointmentId={appointment.id}
             intent="no-show"
-            label="Marcar no-show"
+            label="No-show"
             redirectPath={redirectPath}
             action={action}
             className="border-slate-200 bg-slate-100 text-slate-700 hover:border-slate-300 hover:bg-slate-200"
@@ -212,38 +230,31 @@ export function CalendarAppointmentDetails({
         ) : null}
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3">
         <Link
           href={`/app/patients/${appointment.patient.id}`}
-          className="inline-flex items-center rounded-full border border-line/80 bg-white px-4 py-3 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
+          className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white/92 px-5 py-3 text-sm font-semibold text-ink shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50"
         >
-          Ir al detalle del cliente
+          Ir al cliente
         </Link>
 
         {canReschedule ? (
           <Link
-            href={`${rescheduleOpenHref}#calendar-appointment-details`}
-            className="inline-flex items-center rounded-full border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700 transition-colors hover:border-brand-300 hover:bg-brand-100"
+            href={rescheduleOpenHref}
+            className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white/92 px-5 py-3 text-sm font-semibold text-ink shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50"
           >
-            Reagendar desde agenda
+            Reagendar
           </Link>
         ) : null}
       </div>
 
       {rescheduleOpen && canReschedule ? (
-        <div className="mt-6 rounded-[24px] border border-line/80 bg-surface-soft px-4 py-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">
-            Reagendar reserva
-          </p>
-          <p className="mt-2 text-sm leading-7 text-muted">
-            Selecciona otro día y confirma un horario libre del mismo profesional y
-            servicio.
-          </p>
-
-          <form action="/app/calendar" className="mt-4 grid gap-4">
+        <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
+          <form action="/app/calendar" className="grid gap-4">
             <input type="hidden" name="view" value={view} />
             <input type="hidden" name="date" value={calendarDateValue} />
             <input type="hidden" name="doctorId" value={doctorFilterId} />
+            <input type="hidden" name="panel" value="appointment" />
             <input type="hidden" name="appointmentId" value={appointment.id} />
             <input
               type="hidden"
@@ -262,7 +273,7 @@ export function CalendarAppointmentDetails({
             </label>
 
             <Button type="submit" variant="secondary">
-              Ver horarios para reagendar
+              Ver horarios
             </Button>
           </form>
 
@@ -283,25 +294,16 @@ export function CalendarAppointmentDetails({
                   selectedSlotTime={rescheduleSlotTime}
                 />
 
-                <Button type="submit">Confirmar nuevo horario</Button>
+                <Button type="submit">Guardar nuevo horario</Button>
               </form>
             ) : (
-              <div className="mt-4 rounded-[22px] border border-dashed border-line/80 bg-white px-4 py-4 text-sm text-muted">
-                No hay horarios disponibles para reagendar en la fecha elegida.
+              <div className="mt-4 rounded-[20px] border border-dashed border-line/80 bg-white px-4 py-4 text-sm text-muted">
+                No hay horarios disponibles para esa fecha.
               </div>
             )
           ) : null}
         </div>
       ) : null}
-
-      <div className="mt-6">
-        <Link
-          href={clearSelectionHref}
-          className="inline-flex items-center rounded-full border border-line/80 bg-white px-4 py-3 text-sm font-semibold text-muted transition-colors hover:border-brand-200 hover:bg-brand-50 hover:text-ink"
-        >
-          Cerrar detalle
-        </Link>
-      </div>
     </article>
   );
 }

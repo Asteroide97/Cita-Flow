@@ -4,14 +4,18 @@ import {
   buildClinicDateMarker,
   buildClinicDateTime,
   parseIsoDateInput,
+  type AvailableSlot,
   type LocalDateParts,
 } from "@/lib/appointments/availability";
 import type {
   CalendarAppointment,
   CalendarAppointmentLayout,
+  CalendarAvailableSlotLayout,
   CalendarBlockedLayout,
   CalendarBlockedTime,
   CalendarDayDefinition,
+  CalendarMonthCell,
+  CalendarPanelMode,
   CalendarViewMode,
 } from "@/types/calendar";
 
@@ -21,7 +25,7 @@ export const CALENDAR_HOUR_HEIGHT = 84;
 export const CALENDAR_TOTAL_MINUTES =
   (CALENDAR_END_HOUR - CALENDAR_START_HOUR) * 60;
 export const CALENDAR_TIMELINE_HEIGHT =
-  ((CALENDAR_END_HOUR - CALENDAR_START_HOUR) * CALENDAR_HOUR_HEIGHT);
+  (CALENDAR_END_HOUR - CALENDAR_START_HOUR) * CALENDAR_HOUR_HEIGHT;
 
 function formatToParts(date: Date, timezone: string) {
   const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -59,6 +63,18 @@ function getDayOfWeekIndex(parts: LocalDateParts) {
   return new Date(Date.UTC(parts.year, parts.month - 1, parts.day)).getUTCDay();
 }
 
+function getDaysInMonth(year: number, month: number) {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+
+function getMonthDateParts(parts: LocalDateParts) {
+  return {
+    year: parts.year,
+    month: parts.month,
+    day: 1,
+  } satisfies LocalDateParts;
+}
+
 export function buildCalendarDateValue(parts: LocalDateParts) {
   return `${String(parts.year).padStart(4, "0")}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
 }
@@ -74,7 +90,11 @@ export function getCurrentCalendarDateParts(timezone: string): LocalDateParts {
 }
 
 export function resolveCalendarViewMode(value?: string): CalendarViewMode {
-  return value === "week" ? "week" : "day";
+  if (value === "week" || value === "month") {
+    return value;
+  }
+
+  return "day";
 }
 
 export function resolveCalendarDateParts(
@@ -94,6 +114,33 @@ export function shiftCalendarDateParts(parts: LocalDateParts, amount: number) {
   };
 }
 
+export function shiftCalendarMonthParts(parts: LocalDateParts, amount: number) {
+  const targetMonthIndex = parts.month - 1 + amount;
+  const targetYear = parts.year + Math.floor(targetMonthIndex / 12);
+  const normalizedMonthIndex =
+    ((targetMonthIndex % 12) + 12) % 12;
+  const targetMonth = normalizedMonthIndex + 1;
+  const targetDay = Math.min(parts.day, getDaysInMonth(targetYear, targetMonth));
+
+  return {
+    year: targetYear,
+    month: targetMonth,
+    day: targetDay,
+  } satisfies LocalDateParts;
+}
+
+export function shiftCalendarViewDateParts(
+  parts: LocalDateParts,
+  view: CalendarViewMode,
+  amount: number,
+) {
+  if (view === "month") {
+    return shiftCalendarMonthParts(parts, amount);
+  }
+
+  return shiftCalendarDateParts(parts, view === "day" ? amount : amount * 7);
+}
+
 export function getCalendarWeekStart(parts: LocalDateParts) {
   const dayIndex = getDayOfWeekIndex(parts);
   const offset = dayIndex === 0 ? -6 : 1 - dayIndex;
@@ -105,11 +152,15 @@ export function buildCalendarPath({
   view,
   date,
   doctorId,
+  panel,
   appointmentId,
   createDoctorId,
   createServiceId,
   createDate,
   createSlotTime,
+  blockDate,
+  blockStartTime,
+  blockEndTime,
   rescheduleAppointmentId,
   rescheduleDate,
   rescheduleSlotTime,
@@ -117,11 +168,15 @@ export function buildCalendarPath({
   view: CalendarViewMode;
   date: string;
   doctorId?: string;
+  panel?: CalendarPanelMode;
   appointmentId?: string;
   createDoctorId?: string;
   createServiceId?: string;
   createDate?: string;
   createSlotTime?: string;
+  blockDate?: string;
+  blockStartTime?: string;
+  blockEndTime?: string;
   rescheduleAppointmentId?: string;
   rescheduleDate?: string;
   rescheduleSlotTime?: string;
@@ -133,6 +188,10 @@ export function buildCalendarPath({
 
   if (doctorId) {
     params.set("doctorId", doctorId);
+  }
+
+  if (panel) {
+    params.set("panel", panel);
   }
 
   if (appointmentId) {
@@ -153,6 +212,18 @@ export function buildCalendarPath({
 
   if (createSlotTime) {
     params.set("createSlotTime", createSlotTime);
+  }
+
+  if (blockDate) {
+    params.set("blockDate", blockDate);
+  }
+
+  if (blockStartTime) {
+    params.set("blockStartTime", blockStartTime);
+  }
+
+  if (blockEndTime) {
+    params.set("blockEndTime", blockEndTime);
   }
 
   if (rescheduleAppointmentId) {
@@ -203,6 +274,24 @@ export function formatCalendarCompactDate(date: Date, timezone: string) {
   );
 }
 
+export function formatCalendarMonthLabel(
+  date: Date | LocalDateParts,
+  timezone: string,
+) {
+  const marker =
+    date instanceof Date
+      ? date
+      : buildClinicDateMarker(getMonthDateParts(date), timezone);
+
+  return cleanSpanishDateLabel(
+    new Intl.DateTimeFormat("es-MX", {
+      month: "long",
+      year: "numeric",
+      timeZone: timezone,
+    }).format(marker),
+  );
+}
+
 export function formatCalendarTime(date: Date, timezone: string) {
   return new Intl.DateTimeFormat("es-MX", {
     hour: "2-digit",
@@ -250,11 +339,57 @@ export function buildCalendarDays(
   });
 }
 
+export function buildCalendarMonthGrid(
+  selectedDateParts: LocalDateParts,
+  timezone: string,
+) {
+  const monthStart = getMonthDateParts(selectedDateParts);
+  const firstVisibleDay = getCalendarWeekStart(monthStart);
+  const todayDateValue = buildCalendarDateValue(
+    getCurrentCalendarDateParts(timezone),
+  );
+  const selectedDateValue = buildCalendarDateValue(selectedDateParts);
+
+  const cells = Array.from({ length: 42 }, (_, index) => {
+    const cellParts = shiftCalendarDateParts(firstVisibleDay, index);
+    const marker = buildClinicDateMarker(cellParts, timezone);
+    const dateValue = buildCalendarDateValue(cellParts);
+
+    return {
+      key: dateValue,
+      dateValue,
+      marker,
+      dayLabel: new Intl.DateTimeFormat("es-MX", {
+        day: "numeric",
+        timeZone: timezone,
+      }).format(marker),
+      shortWeekdayLabel: cleanSpanishDateLabel(
+        new Intl.DateTimeFormat("es-MX", {
+          weekday: "short",
+          timeZone: timezone,
+        }).format(marker),
+      ),
+      isCurrentMonth: cellParts.month === selectedDateParts.month,
+      isToday: dateValue === todayDateValue,
+      isSelected: dateValue === selectedDateValue,
+    } satisfies CalendarMonthCell;
+  });
+
+  return Array.from({ length: 6 }, (_, weekIndex) =>
+    cells.slice(weekIndex * 7, weekIndex * 7 + 7),
+  );
+}
+
 export function buildCalendarRangeLabel(
   view: CalendarViewMode,
   days: CalendarDayDefinition[],
   timezone: string,
+  selectedDateParts?: LocalDateParts,
 ) {
+  if (view === "month" && selectedDateParts) {
+    return formatCalendarMonthLabel(selectedDateParts, timezone);
+  }
+
   if (!days.length) {
     return "";
   }
@@ -274,6 +409,16 @@ export function buildCalendarRangeBounds(
   selectedDateParts: LocalDateParts,
   timezone: string,
 ) {
+  if (view === "month") {
+    const monthStart = getMonthDateParts(selectedDateParts);
+    const nextMonthStart = shiftCalendarMonthParts(monthStart, 1);
+
+    return {
+      startAt: buildClinicDateTime(monthStart, "00:00", timezone),
+      endAt: buildClinicDateTime(nextMonthStart, "00:00", timezone),
+    };
+  }
+
   if (view === "week") {
     const startParts = getCalendarWeekStart(selectedDateParts);
 
@@ -312,7 +457,7 @@ export function buildCalendarHourRows() {
   );
 }
 
-function getAppointmentMinutes(date: Date, timezone: string) {
+function getCalendarMinutes(date: Date, timezone: string) {
   const parts = formatToParts(date, timezone);
 
   return parts.hour * 60 + parts.minute;
@@ -383,8 +528,8 @@ export function buildCalendarAppointmentLayouts(
 ) {
   const visibleAppointments = appointments
     .map((appointment) => {
-      const startMinutes = getAppointmentMinutes(appointment.startAt, timezone);
-      const endMinutes = getAppointmentMinutes(appointment.endAt, timezone);
+      const startMinutes = getCalendarMinutes(appointment.startAt, timezone);
+      const endMinutes = getCalendarMinutes(appointment.endAt, timezone);
       const bounds = normalizeTimelineBounds(startMinutes, endMinutes);
 
       if (!bounds) {
@@ -442,26 +587,58 @@ export function buildCalendarAppointmentLayouts(
   return layouts;
 }
 
+export function buildCalendarAvailableSlotLayouts(
+  slots: AvailableSlot[],
+  timezone: string,
+) {
+  return slots
+    .map((slot) => {
+      const minutes = getCalendarMinutes(slot.startAt, timezone);
+      const visibleStart = CALENDAR_START_HOUR * 60;
+      const visibleEnd = CALENDAR_END_HOUR * 60;
+
+      if (minutes < visibleStart || minutes > visibleEnd) {
+        return null;
+      }
+
+      const top =
+        ((minutes - visibleStart) / 60) *
+        CALENDAR_HOUR_HEIGHT;
+
+      return {
+        startAt: slot.startAt,
+        endAt: slot.endAt,
+        startLabel: slot.startTime,
+        endLabel: slot.endTime,
+        top,
+      } satisfies CalendarAvailableSlotLayout;
+    })
+    .filter((item): item is CalendarAvailableSlotLayout => item !== null);
+}
+
 export function groupAppointmentsByDateValue(
   appointments: CalendarAppointment[],
   timezone: string,
 ) {
-  return appointments.reduce<Record<string, CalendarAppointment[]>>((accumulator, appointment) => {
-    const parts = formatToParts(appointment.startAt, timezone);
-    const key = buildCalendarDateValue({
-      year: parts.year,
-      month: parts.month,
-      day: parts.day,
-    });
+  return appointments.reduce<Record<string, CalendarAppointment[]>>(
+    (accumulator, appointment) => {
+      const parts = formatToParts(appointment.startAt, timezone);
+      const key = buildCalendarDateValue({
+        year: parts.year,
+        month: parts.month,
+        day: parts.day,
+      });
 
-    if (!accumulator[key]) {
-      accumulator[key] = [];
-    }
+      if (!accumulator[key]) {
+        accumulator[key] = [];
+      }
 
-    accumulator[key].push(appointment);
+      accumulator[key].push(appointment);
 
-    return accumulator;
-  }, {});
+      return accumulator;
+    },
+    {},
+  );
 }
 
 export function filterCalendarBlockedTimesForDateValue(
@@ -476,7 +653,11 @@ export function filterCalendarBlockedTimesForDateValue(
   }
 
   const dayStart = buildClinicDateTime(dateParts, "00:00", timezone);
-  const dayEnd = buildClinicDateTime(shiftCalendarDateParts(dateParts, 1), "00:00", timezone);
+  const dayEnd = buildClinicDateTime(
+    shiftCalendarDateParts(dateParts, 1),
+    "00:00",
+    timezone,
+  );
 
   return blockedTimes.filter(
     (blockedTime) => blockedTime.startAt < dayEnd && blockedTime.endAt > dayStart,
@@ -495,15 +676,19 @@ export function buildCalendarBlockedLayouts(
   }
 
   const dayStart = buildClinicDateTime(dateParts, "00:00", timezone);
-  const dayEnd = buildClinicDateTime(shiftCalendarDateParts(dateParts, 1), "00:00", timezone);
+  const dayEnd = buildClinicDateTime(
+    shiftCalendarDateParts(dateParts, 1),
+    "00:00",
+    timezone,
+  );
 
   return blockedTimes
     .map((blockedTime) => {
       const clippedStart =
         blockedTime.startAt > dayStart ? blockedTime.startAt : dayStart;
       const clippedEnd = blockedTime.endAt < dayEnd ? blockedTime.endAt : dayEnd;
-      const startMinutes = getAppointmentMinutes(clippedStart, timezone);
-      const endMinutes = getAppointmentMinutes(clippedEnd, timezone);
+      const startMinutes = getCalendarMinutes(clippedStart, timezone);
+      const endMinutes = getCalendarMinutes(clippedEnd, timezone);
       const bounds = normalizeTimelineBounds(startMinutes, endMinutes);
 
       if (!bounds) {
@@ -535,7 +720,7 @@ export function getCalendarStatusTone(status: AppointmentStatus) {
     case AppointmentStatus.CONFIRMED:
       return {
         blockClassName:
-          "border-emerald-200 bg-emerald-50/96 text-emerald-950 shadow-[0_18px_40px_-32px_rgba(5,150,105,0.42)]",
+          "border-emerald-200 bg-emerald-100/95 text-emerald-950 shadow-[0_18px_32px_-28px_rgba(5,150,105,0.5)]",
         badgeClassName:
           "border-emerald-200 bg-emerald-100 text-emerald-700",
         dotClassName: "bg-emerald-500",
@@ -543,36 +728,36 @@ export function getCalendarStatusTone(status: AppointmentStatus) {
     case AppointmentStatus.PENDING:
       return {
         blockClassName:
-          "border-amber-200 bg-amber-50/96 text-amber-950 shadow-[0_18px_40px_-32px_rgba(217,119,6,0.42)]",
+          "border-amber-200 bg-amber-100/95 text-amber-950 shadow-[0_18px_32px_-28px_rgba(217,119,6,0.42)]",
         badgeClassName: "border-amber-200 bg-amber-100 text-amber-700",
         dotClassName: "bg-amber-500",
       };
     case AppointmentStatus.CANCELLED:
       return {
         blockClassName:
-          "border-rose-200 bg-rose-50/96 text-rose-950 shadow-[0_18px_40px_-32px_rgba(225,29,72,0.34)]",
+          "border-rose-200 bg-rose-100/90 text-rose-950 shadow-[0_18px_32px_-28px_rgba(225,29,72,0.34)]",
         badgeClassName: "border-rose-200 bg-rose-100 text-rose-700",
         dotClassName: "bg-rose-500",
       };
     case AppointmentStatus.COMPLETED:
       return {
         blockClassName:
-          "border-brand-200 bg-brand-50/96 text-brand-950 shadow-[0_18px_40px_-32px_rgba(37,99,235,0.34)]",
+          "border-brand-200 bg-brand-100/95 text-brand-950 shadow-[0_18px_32px_-28px_rgba(37,99,235,0.36)]",
         badgeClassName: "border-brand-200 bg-brand-100 text-brand-700",
         dotClassName: "bg-brand-500",
       };
     case AppointmentStatus.NO_SHOW:
       return {
         blockClassName:
-          "border-slate-200 bg-slate-100/96 text-slate-900 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.24)]",
-        badgeClassName: "border-slate-200 bg-slate-200 text-slate-700",
+          "border-slate-300 bg-slate-200/95 text-slate-900 shadow-[0_18px_32px_-28px_rgba(15,23,42,0.28)]",
+        badgeClassName: "border-slate-300 bg-slate-200 text-slate-700",
         dotClassName: "bg-slate-500",
       };
     case AppointmentStatus.RESCHEDULED:
     default:
       return {
         blockClassName:
-          "border-slate-200 bg-white text-slate-900 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.2)]",
+          "border-slate-200 bg-white text-slate-900 shadow-[0_18px_32px_-28px_rgba(15,23,42,0.2)]",
         badgeClassName: "border-slate-200 bg-slate-100 text-slate-700",
         dotClassName: "bg-slate-400",
       };
@@ -582,43 +767,19 @@ export function getCalendarStatusTone(status: AppointmentStatus) {
 export function getCalendarBlockedTone() {
   return {
     blockClassName:
-      "border-slate-300 bg-slate-200/55 text-slate-800 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.18)]",
-    badgeClassName: "border-slate-300 bg-slate-100 text-slate-700",
-    dotClassName: "bg-slate-500",
+      "border-slate-500 bg-[repeating-linear-gradient(-45deg,rgba(51,65,85,0.18),rgba(51,65,85,0.18)_10px,rgba(148,163,184,0.18)_10px,rgba(148,163,184,0.18)_20px)] text-slate-900 shadow-[0_18px_32px_-28px_rgba(15,23,42,0.28)]",
+    badgeClassName: "border-slate-400 bg-slate-800 text-white",
+    dotClassName: "bg-slate-700",
   };
 }
 
-export function getCalendarStatusLegend() {
-  return [
-    {
-      status: AppointmentStatus.PENDING,
-      label: "Pendiente",
-      note: "Pendiente de acción.",
-    },
-    {
-      status: AppointmentStatus.CONFIRMED,
-      label: "Confirmada",
-      note: "Horario confirmado.",
-    },
-    {
-      status: AppointmentStatus.CANCELLED,
-      label: "Cancelada",
-      note: "Ya no bloquea horario.",
-    },
-    {
-      status: AppointmentStatus.COMPLETED,
-      label: "Completada",
-      note: "Reserva cerrada.",
-    },
-    {
-      status: AppointmentStatus.NO_SHOW,
-      label: "No-show",
-      note: "Cliente ausente.",
-    },
-  ].map((item) => ({
-    ...item,
-    tone: getCalendarStatusTone(item.status),
-  }));
+export function getCalendarAvailableTone() {
+  return {
+    blockClassName:
+      "border-brand-200/90 bg-brand-50/55 text-brand-700 hover:border-brand-300 hover:bg-brand-100/70",
+    badgeClassName: "border-brand-200 bg-brand-50 text-brand-700",
+    dotClassName: "bg-brand-400",
+  };
 }
 
 export function getCalendarAgendaLegend() {
@@ -626,38 +787,37 @@ export function getCalendarAgendaLegend() {
     {
       key: "pending",
       label: "Pendiente",
-      note: "Pendiente de acción.",
       tone: getCalendarStatusTone(AppointmentStatus.PENDING),
     },
     {
       key: "confirmed",
       label: "Confirmada",
-      note: "Horario confirmado.",
       tone: getCalendarStatusTone(AppointmentStatus.CONFIRMED),
     },
     {
       key: "cancelled",
       label: "Cancelada",
-      note: "Ya no bloquea horario.",
       tone: getCalendarStatusTone(AppointmentStatus.CANCELLED),
     },
     {
       key: "completed",
       label: "Completada",
-      note: "Reserva cerrada.",
       tone: getCalendarStatusTone(AppointmentStatus.COMPLETED),
     },
     {
       key: "no-show",
       label: "No-show",
-      note: "Cliente ausente.",
       tone: getCalendarStatusTone(AppointmentStatus.NO_SHOW),
     },
     {
       key: "blocked",
       label: "Bloqueado",
-      note: "No admite reservas nuevas.",
       tone: getCalendarBlockedTone(),
+    },
+    {
+      key: "available",
+      label: "Disponible",
+      tone: getCalendarAvailableTone(),
     },
   ];
 }

@@ -1,21 +1,26 @@
-import { Prisma } from "@prisma/client";
+import Link from "next/link";
+import { AppointmentStatus, Prisma } from "@prisma/client";
 
 import { resolveAppointmentsFlashMessage } from "@/components/appointments/appointment-helpers";
 import { PanelPage } from "@/components/app/panel-page";
 import { CalendarAppointmentDetails } from "@/components/calendar/calendar-appointment-details";
+import { CalendarBlockForm } from "@/components/calendar/calendar-block-form";
 import { CalendarDayView } from "@/components/calendar/calendar-day-view";
 import {
   buildCalendarDateValue,
   buildCalendarDays,
+  buildCalendarMonthGrid,
   buildCalendarPath,
   buildCalendarRangeBounds,
   buildCalendarRangeLabel,
   getCurrentCalendarDateParts,
   resolveCalendarDateParts,
   resolveCalendarViewMode,
-  shiftCalendarDateParts,
+  shiftCalendarViewDateParts,
 } from "@/components/calendar/calendar-helpers";
+import { CalendarMonthView } from "@/components/calendar/calendar-month-view";
 import { CalendarQuickCreateForm } from "@/components/calendar/calendar-quick-create-form";
+import { CalendarSidePanel } from "@/components/calendar/calendar-side-panel";
 import { CalendarStatusLegend } from "@/components/calendar/calendar-status-legend";
 import { CalendarToolbar } from "@/components/calendar/calendar-toolbar";
 import { CalendarWeekView } from "@/components/calendar/calendar-week-view";
@@ -29,11 +34,12 @@ import { prisma } from "@/lib/prisma";
 import type {
   CalendarDoctorOption,
   CalendarPageSearchParams,
+  CalendarPanelMode,
 } from "@/types/calendar";
 
 import {
-  createCalendarBusinessBlockAction,
   cancelCalendarBusinessBlockAction,
+  createCalendarBusinessBlockAction,
 } from "./actions";
 import {
   createAdminAppointmentAction,
@@ -75,7 +81,7 @@ function resolveCalendarPageFlash(status?: string, error?: string) {
       case "business-block-not-found":
         return {
           tone: "error" as const,
-          message: "No encontre ese bloqueo dentro del negocio actual.",
+          message: "No encontré ese bloqueo dentro del negocio actual.",
         };
       default:
         return resolveAppointmentsFlashMessage(status, error);
@@ -114,13 +120,14 @@ export default async function CalendarPage({
   const selectedDoctorId = query.doctorId?.trim() ?? "";
   const selectedAppointmentId = query.appointmentId?.trim() ?? "";
   const currentDoctorFilter = selectedDoctorId || undefined;
+  const panelQuery = query.panel?.trim() ?? "";
 
   const [doctors, services, patients] = await Promise.all([
     prisma.doctor.findMany({
       where: {
         clinicId: authContext.clinic.id,
       },
-      orderBy: [{ isActive: "desc" }, { name: "asc" }],
+      orderBy: [{ isActive: "desc" }, { publicOrder: "asc" }, { name: "asc" }],
       select: {
         id: true,
         name: true,
@@ -163,7 +170,15 @@ export default async function CalendarPage({
   const selectedDoctor =
     doctorOptions.find((doctor) => doctor.id === selectedDoctorId) ?? null;
   const days = buildCalendarDays(view, selectedDateParts, timezone);
-  const rangeLabel = buildCalendarRangeLabel(view, days, timezone);
+  const selectedDay = buildCalendarDays("day", selectedDateParts, timezone)[0];
+  const monthWeeks =
+    view === "month" ? buildCalendarMonthGrid(selectedDateParts, timezone) : [];
+  const rangeLabel = buildCalendarRangeLabel(
+    view,
+    days,
+    timezone,
+    selectedDateParts,
+  );
   const bounds = buildCalendarRangeBounds(view, selectedDateParts, timezone);
 
   const appointmentWhere: Prisma.AppointmentWhereInput = {
@@ -235,62 +250,163 @@ export default async function CalendarPage({
   const selectedAppointment =
     appointments.find((appointment) => appointment.id === selectedAppointmentId) ??
     null;
-  const selectedDay = days.find((day) => day.isSelected) ?? days[0];
+  const resolvedPanel: CalendarPanelMode | null = selectedAppointment
+    ? "appointment"
+    : panelQuery === "create" || panelQuery === "block"
+      ? panelQuery
+      : null;
+
   const flash = resolveCalendarPageFlash(query.status, query.error);
   const todayDateValue = buildCalendarDateValue(
     getCurrentCalendarDateParts(timezone),
   );
   const previousDateValue = buildCalendarDateValue(
-    shiftCalendarDateParts(selectedDateParts, view === "day" ? -1 : -7),
+    shiftCalendarViewDateParts(selectedDateParts, view, -1),
   );
   const nextDateValue = buildCalendarDateValue(
-    shiftCalendarDateParts(selectedDateParts, view === "day" ? 1 : 7),
+    shiftCalendarViewDateParts(selectedDateParts, view, 1),
   );
 
+  const rawCreateDoctorId = query.createDoctorId?.trim() ?? "";
+  const rawCreateServiceId = query.createServiceId?.trim() ?? "";
+  const rawCreateDate = query.createDate?.trim() ?? "";
+  const rawCreateSlotTime = query.createSlotTime?.trim() ?? "";
   const selectedCreateDoctorId =
-    query.createDoctorId?.trim() ||
-    selectedDoctorId ||
+    activeDoctors.find((doctor) => doctor.id === rawCreateDoctorId)?.id ||
+    (selectedDoctor?.isActive ? selectedDoctor.id : "") ||
     activeDoctors[0]?.id ||
-    doctorOptions[0]?.id ||
     "";
   const selectedCreateServiceId =
-    query.createServiceId?.trim() || activeServices[0]?.id || services[0]?.id || "";
-  const selectedCreateDate = query.createDate?.trim() || selectedDateValue;
-  const selectedCreateSlotTime = query.createSlotTime?.trim() ?? "";
+    activeServices.find((service) => service.id === rawCreateServiceId)?.id || "";
+  const selectedCreateDate = rawCreateDate || selectedDateValue;
+  const selectedCreateSlotTime = rawCreateSlotTime;
   const selectedCreateDateParts = selectedCreateDate
     ? parseIsoDateInput(selectedCreateDate)
     : null;
   const selectedCreateDoctor =
-    doctorOptions.find((doctor) => doctor.id === selectedCreateDoctorId) ?? null;
+    activeDoctors.find((doctor) => doctor.id === selectedCreateDoctorId) ?? null;
   const selectedCreateService =
-    services.find((service) => service.id === selectedCreateServiceId) ?? null;
+    activeServices.find((service) => service.id === selectedCreateServiceId) ?? null;
+  const shouldPersistCreateContext =
+    resolvedPanel === "create" ||
+    Boolean(rawCreateDoctorId || rawCreateServiceId || rawCreateSlotTime);
+
+  const rawBlockDate = query.blockDate?.trim() ?? "";
+  const rawBlockStartTime = query.blockStartTime?.trim() ?? "";
+  const rawBlockEndTime = query.blockEndTime?.trim() ?? "";
+  const selectedBlockDate = rawBlockDate || selectedDateValue;
+  const selectedBlockStartTime = rawBlockStartTime || "09:00";
+  const selectedBlockEndTime = rawBlockEndTime || "10:00";
+  const shouldPersistBlockContext =
+    resolvedPanel === "block" ||
+    Boolean(rawBlockDate || rawBlockStartTime || rawBlockEndTime);
+
+  const baseCalendarHref = buildCalendarPath({
+    view,
+    date: selectedDateValue,
+    doctorId: currentDoctorFilter,
+    createDoctorId: shouldPersistCreateContext ? selectedCreateDoctorId : undefined,
+    createServiceId: shouldPersistCreateContext ? selectedCreateServiceId : undefined,
+    createDate: shouldPersistCreateContext ? selectedCreateDate : undefined,
+    blockDate: shouldPersistBlockContext ? selectedBlockDate : undefined,
+    blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+    blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
+  });
+
+  const createPanelHref = buildCalendarPath({
+    view,
+    date: selectedDateValue,
+    doctorId: currentDoctorFilter,
+    panel: "create",
+    createDoctorId: selectedCreateDoctorId || undefined,
+    createServiceId: selectedCreateServiceId || undefined,
+    createDate: selectedCreateDate || undefined,
+    createSlotTime: selectedCreateSlotTime || undefined,
+    blockDate: shouldPersistBlockContext ? selectedBlockDate : undefined,
+    blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+    blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
+  });
+
+  const blockPanelHref = buildCalendarPath({
+    view,
+    date: selectedDateValue,
+    doctorId: currentDoctorFilter,
+    panel: "block",
+    createDoctorId: shouldPersistCreateContext ? selectedCreateDoctorId : undefined,
+    createServiceId: shouldPersistCreateContext ? selectedCreateServiceId : undefined,
+    createDate: shouldPersistCreateContext ? selectedCreateDate : undefined,
+    blockDate: selectedBlockDate,
+    blockStartTime: selectedBlockStartTime,
+    blockEndTime: selectedBlockEndTime,
+  });
+
+  const appointmentHrefsById = Object.fromEntries(
+    appointments.map((appointment) => [
+      appointment.id,
+      buildCalendarPath({
+        view,
+        date: selectedDateValue,
+        doctorId: currentDoctorFilter,
+        panel: "appointment",
+        appointmentId: appointment.id,
+        createDoctorId: shouldPersistCreateContext ? selectedCreateDoctorId : undefined,
+        createServiceId: shouldPersistCreateContext ? selectedCreateServiceId : undefined,
+        createDate: shouldPersistCreateContext ? selectedCreateDate : undefined,
+        createSlotTime: shouldPersistCreateContext ? selectedCreateSlotTime : undefined,
+        blockDate: shouldPersistBlockContext ? selectedBlockDate : undefined,
+        blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+        blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
+      }),
+    ]),
+  );
+
+  const dayHrefByDateValue = Object.fromEntries(
+    (view === "month" ? monthWeeks.flat() : days).map((day) => [
+      day.dateValue,
+      buildCalendarPath({
+        view: "day",
+        date: day.dateValue,
+        doctorId: currentDoctorFilter,
+        panel: resolvedPanel === "create" ? "create" : resolvedPanel === "block" ? "block" : undefined,
+        createDoctorId: shouldPersistCreateContext ? selectedCreateDoctorId : undefined,
+        createServiceId: shouldPersistCreateContext ? selectedCreateServiceId : undefined,
+        createDate: shouldPersistCreateContext ? day.dateValue : undefined,
+        createSlotTime: shouldPersistCreateContext ? selectedCreateSlotTime : undefined,
+        blockDate: resolvedPanel === "block" ? day.dateValue : undefined,
+        blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+        blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
+      }),
+    ]),
+  );
 
   const quickCreateAvailableSlotResult =
-    selectedCreateDoctorId && selectedCreateServiceId && selectedCreateDateParts
+    selectedCreateDoctor && selectedCreateService && selectedCreateDateParts
       ? await getAvailableSlots({
           clinicId: authContext.clinic.id,
-          doctorId: selectedCreateDoctorId,
-          serviceId: selectedCreateServiceId,
+          doctorId: selectedCreateDoctor.id,
+          serviceId: selectedCreateService.id,
           date: buildClinicDateMarker(selectedCreateDateParts, timezone),
         })
       : null;
 
   const dayViewDoctors =
-    view === "day"
-      ? selectedDoctor
-        ? [selectedDoctor]
-        : doctorOptions.filter(
-            (doctor) =>
-              doctor.isActive ||
-              appointments.some((appointment) => appointment.doctor.id === doctor.id),
-          )
-      : [];
+    selectedDoctor
+      ? [selectedDoctor]
+      : doctorOptions.filter(
+          (doctor) =>
+            doctor.isActive ||
+            appointments.some((appointment) => appointment.doctor.id === doctor.id),
+        );
 
   const availableSlotsByDoctorId =
     view === "day" && selectedCreateService
       ? Object.fromEntries(
           await Promise.all(
             dayViewDoctors.map(async (doctor) => {
+              if (!doctor.isActive) {
+                return [doctor.id, []] as const;
+              }
+
               const slotResult = await getAvailableSlots({
                 clinicId: authContext.clinic.id,
                 doctorId: doctor.id,
@@ -299,18 +415,20 @@ export default async function CalendarPage({
               });
 
               const slotLinks = slotResult.slots.map((slot) => ({
-                startTime: slot.startTime,
-                endTime: slot.endTime,
-                href: `${buildCalendarPath({
+                ...slot,
+                href: buildCalendarPath({
                   view: "day",
                   date: selectedDateValue,
                   doctorId: currentDoctorFilter,
-                  appointmentId: selectedAppointment?.id,
+                  panel: "create",
                   createDoctorId: doctor.id,
                   createServiceId: selectedCreateService.id,
                   createDate: selectedDateValue,
                   createSlotTime: slot.startTime,
-                })}#calendar-quick-create`,
+                  blockDate: shouldPersistBlockContext ? selectedBlockDate : undefined,
+                  blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+                  blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
+                }),
               }));
 
               return [doctor.id, slotLinks] as const;
@@ -319,23 +437,23 @@ export default async function CalendarPage({
         )
       : {};
 
-  const createLinksByDoctorId =
-    view === "day"
-      ? Object.fromEntries(
-          dayViewDoctors.map((doctor) => [
-            doctor.id,
-            `${buildCalendarPath({
-              view: "day",
-              date: selectedDateValue,
-              doctorId: currentDoctorFilter,
-              appointmentId: selectedAppointment?.id,
-              createDoctorId: doctor.id,
-              createServiceId: selectedCreateServiceId || undefined,
-              createDate: selectedDateValue,
-            })}#calendar-quick-create`,
-          ]),
-        )
-      : {};
+  const createLinksByDoctorId = Object.fromEntries(
+    dayViewDoctors.map((doctor) => [
+      doctor.id,
+      buildCalendarPath({
+        view: "day",
+        date: selectedDateValue,
+        doctorId: currentDoctorFilter,
+        panel: "create",
+        createDoctorId: doctor.isActive ? doctor.id : selectedCreateDoctorId || undefined,
+        createServiceId: selectedCreateServiceId || undefined,
+        createDate: selectedDateValue,
+        blockDate: shouldPersistBlockContext ? selectedBlockDate : undefined,
+        blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+        blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
+      }),
+    ]),
+  );
 
   const rescheduleOpen =
     Boolean(selectedAppointment) &&
@@ -359,46 +477,65 @@ export default async function CalendarPage({
         })
       : null;
 
-  const baseCalendarHref = buildCalendarPath({
-    view,
-    date: selectedDateValue,
-    doctorId: currentDoctorFilter,
-    createDoctorId: selectedCreateDoctorId || undefined,
-    createServiceId: selectedCreateServiceId || undefined,
-    createDate: selectedCreateDate || undefined,
-    createSlotTime: selectedCreateSlotTime || undefined,
-  });
   const detailRedirectPath = buildCalendarPath({
     view,
     date: selectedDateValue,
     doctorId: currentDoctorFilter,
+    panel: "appointment",
     appointmentId: selectedAppointment?.id,
-    createDoctorId: selectedCreateDoctorId || undefined,
-    createServiceId: selectedCreateServiceId || undefined,
-    createDate: selectedCreateDate || undefined,
-    createSlotTime: selectedCreateSlotTime || undefined,
+    createDoctorId: shouldPersistCreateContext ? selectedCreateDoctorId : undefined,
+    createServiceId: shouldPersistCreateContext ? selectedCreateServiceId : undefined,
+    createDate: shouldPersistCreateContext ? selectedCreateDate : undefined,
+    createSlotTime: shouldPersistCreateContext ? selectedCreateSlotTime : undefined,
+    blockDate: shouldPersistBlockContext ? selectedBlockDate : undefined,
+    blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+    blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
     rescheduleAppointmentId: rescheduleOpen ? selectedAppointment?.id : undefined,
     rescheduleDate: rescheduleOpen ? rescheduleDateValue : undefined,
     rescheduleSlotTime: rescheduleOpen ? rescheduleSlotTime : undefined,
   });
-  const quickCreateSuccessHref = buildCalendarPath({
+
+  const createPanelRedirectPath = buildCalendarPath({
     view,
     date: selectedDateValue,
     doctorId: currentDoctorFilter,
+    panel: "create",
     createDoctorId: selectedCreateDoctorId || undefined,
     createServiceId: selectedCreateServiceId || undefined,
     createDate: selectedCreateDate || undefined,
+    createSlotTime: selectedCreateSlotTime || undefined,
+    blockDate: shouldPersistBlockContext ? selectedBlockDate : undefined,
+    blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+    blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
   });
+
+  const createSuccessHref = buildCalendarPath({
+    view,
+    date: selectedDateValue,
+    doctorId: currentDoctorFilter,
+    panel: "appointment",
+    createDoctorId: shouldPersistCreateContext ? selectedCreateDoctorId : undefined,
+    createServiceId: shouldPersistCreateContext ? selectedCreateServiceId : undefined,
+    createDate: shouldPersistCreateContext ? selectedCreateDate : undefined,
+    blockDate: shouldPersistBlockContext ? selectedBlockDate : undefined,
+    blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+    blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
+  });
+
   const rescheduleOpenHref = selectedAppointment
     ? buildCalendarPath({
         view,
         date: selectedDateValue,
         doctorId: currentDoctorFilter,
+        panel: "appointment",
         appointmentId: selectedAppointment.id,
-        createDoctorId: selectedCreateDoctorId || undefined,
-        createServiceId: selectedCreateServiceId || undefined,
-        createDate: selectedCreateDate || undefined,
-        createSlotTime: selectedCreateSlotTime || undefined,
+        createDoctorId: shouldPersistCreateContext ? selectedCreateDoctorId : undefined,
+        createServiceId: shouldPersistCreateContext ? selectedCreateServiceId : undefined,
+        createDate: shouldPersistCreateContext ? selectedCreateDate : undefined,
+        createSlotTime: shouldPersistCreateContext ? selectedCreateSlotTime : undefined,
+        blockDate: shouldPersistBlockContext ? selectedBlockDate : undefined,
+        blockStartTime: shouldPersistBlockContext ? selectedBlockStartTime : undefined,
+        blockEndTime: shouldPersistBlockContext ? selectedBlockEndTime : undefined,
         rescheduleAppointmentId: selectedAppointment.id,
         rescheduleDate:
           rescheduleDateValue ||
@@ -406,19 +543,51 @@ export default async function CalendarPage({
       })
     : baseCalendarHref;
 
+  const monthSummariesByDate =
+    view === "month"
+      ? Object.fromEntries(
+          monthWeeks.flat().map((day) => {
+            const dayAppointments = appointments.filter(
+              (appointment) =>
+                formatDateValueInTimeZone(appointment.startAt, timezone) === day.dateValue,
+            );
+            const dayBlockedCount = blockedTimes.filter((blockedTime) => {
+              const startDate = formatDateValueInTimeZone(blockedTime.startAt, timezone);
+              const endDate = formatDateValueInTimeZone(blockedTime.endAt, timezone);
+
+              return day.dateValue >= startDate && day.dateValue <= endDate;
+            }).length;
+
+            return [
+              day.dateValue,
+              {
+                totalAppointments: dayAppointments.length,
+                pendingCount: dayAppointments.filter(
+                  (appointment) => appointment.status === AppointmentStatus.PENDING,
+                ).length,
+                confirmedCount: dayAppointments.filter(
+                  (appointment) => appointment.status === AppointmentStatus.CONFIRMED,
+                ).length,
+                blockedCount: dayBlockedCount,
+              },
+            ] as const;
+          }),
+        )
+      : {};
+
   return (
     <PanelPage
       eyebrow="Agenda"
-      title="Agenda visual"
-      description="Consulta la agenda, crea reservas rápidas y bloquea horarios desde una sola vista."
+      title="Agenda"
+      description="Día, semana y mes en una sola vista."
     >
-      <div className="grid gap-6">
+      <div className="grid gap-4">
         {flash ? (
           <div
             className={
               flash.tone === "success"
-                ? "rounded-[26px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800"
-                : "rounded-[26px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700"
+                ? "rounded-[22px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800"
+                : "rounded-[22px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700"
             }
           >
             {flash.message}
@@ -431,8 +600,8 @@ export default async function CalendarPage({
           doctorId={selectedDoctorId}
           doctors={doctorOptions}
           rangeLabel={rangeLabel}
-          timezone={timezone}
           totalAppointments={appointments.length}
+          totalBlockedTimes={blockedTimes.length}
           previousHref={buildCalendarPath({
             view,
             date: previousDateValue,
@@ -458,215 +627,152 @@ export default async function CalendarPage({
             date: selectedDateValue,
             doctorId: currentDoctorFilter,
           })}
+          monthHref={buildCalendarPath({
+            view: "month",
+            date: selectedDateValue,
+            doctorId: currentDoctorFilter,
+          })}
+          createPanelHref={createPanelHref}
+          blockPanelHref={blockPanelHref}
         />
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_380px]">
-          <div className="grid gap-6">
+        <CalendarStatusLegend
+          totalAppointments={appointments.length}
+          totalBlockedTimes={blockedTimes.length}
+          doctorLabel={selectedDoctor?.name ?? null}
+          selectedServiceLabel={selectedCreateService?.name ?? null}
+        />
+
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="min-w-0">
             {view === "day" ? (
               <CalendarDayView
                 day={selectedDay}
                 appointments={appointments}
                 blockedTimes={blockedTimes}
                 timezone={timezone}
-                doctorId={selectedDoctorId}
                 doctors={dayViewDoctors}
                 selectedAppointmentId={selectedAppointment?.id}
                 selectedServiceLabel={selectedCreateService?.name ?? null}
                 createLinksByDoctorId={createLinksByDoctorId}
+                appointmentHrefsById={appointmentHrefsById}
                 availableSlotsByDoctorId={availableSlotsByDoctorId}
               />
-            ) : (
+            ) : view === "week" ? (
               <CalendarWeekView
                 days={days}
                 appointments={appointments}
                 blockedTimes={blockedTimes}
                 timezone={timezone}
-                doctorId={selectedDoctorId}
                 selectedAppointmentId={selectedAppointment?.id}
+                appointmentHrefsById={appointmentHrefsById}
+                dayHrefByDateValue={dayHrefByDateValue}
+              />
+            ) : (
+              <CalendarMonthView
+                weeks={monthWeeks}
+                summariesByDate={monthSummariesByDate}
+                dayHrefByDateValue={dayHrefByDateValue}
               />
             )}
           </div>
 
-          <div className="grid gap-6 self-start xl:sticky xl:top-6">
-            <CalendarStatusLegend
-              totalAppointments={appointments.length}
-              totalBlockedTimes={blockedTimes.length}
-              rangeLabel={rangeLabel}
-              doctorLabel={selectedDoctor?.name ?? null}
-            />
-
-            <article className="surface-card p-6 sm:p-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
-                Bloquear horario
-              </p>
-              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-                Bloqueos del negocio
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-muted">
-                Oculta horarios en booking y panel.
-              </p>
-
-              <form action={createCalendarBusinessBlockAction} className="mt-6 grid gap-4">
-                <input type="hidden" name="redirectPath" value={detailRedirectPath} />
-
-                <label className="text-sm font-semibold text-ink">
-                  Fecha
-                  <input
-                    type="date"
-                    name="date"
-                    defaultValue={selectedDateValue}
-                    className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
-                  />
-                </label>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="text-sm font-semibold text-ink">
-                    Hora inicio
-                    <input
-                      type="time"
-                      name="startTime"
-                      defaultValue="09:00"
-                      className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
-                    />
-                  </label>
-
-                  <label className="text-sm font-semibold text-ink">
-                    Hora fin
-                    <input
-                      type="time"
-                      name="endTime"
-                      defaultValue="14:00"
-                      className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
-                    />
-                  </label>
-                </div>
-
-                <label className="text-sm font-semibold text-ink">
-                  Motivo opcional
-                  <textarea
-                    name="reason"
-                    rows={3}
-                    className="mt-2 w-full rounded-2xl border border-line/80 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand-300 focus:ring-2 focus:ring-brand-100"
-                    placeholder="Capacitación, mantenimiento, cierre..."
-                  />
-                </label>
-
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    type="submit"
-                    name="blockMode"
-                    value="range"
-                    className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
-                  >
-                    Bloquear rango de horas
-                  </button>
-
-                  <button
-                    type="submit"
-                    name="blockMode"
-                    value="full-day"
-                    className="rounded-full border border-amber-200 bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-700 transition hover:border-amber-300 hover:bg-amber-100"
-                  >
-                    Bloquear día completo
-                  </button>
-                </div>
-              </form>
-
-              <div className="mt-6 grid gap-3">
-                {blockedTimes.length ? (
-                  blockedTimes.map((blockedTime) => (
-                    <div
-                      key={blockedTime.id}
-                      className="rounded-[22px] border border-line/80 bg-white px-4 py-4"
-                    >
-                      <p className="text-sm font-semibold text-ink">
-                        {new Intl.DateTimeFormat("es-MX", {
-                          weekday: "short",
-                          day: "2-digit",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                          timeZone: timezone,
-                        }).format(blockedTime.startAt)}{" "}
-                        -{" "}
-                        {new Intl.DateTimeFormat("es-MX", {
-                          day: "2-digit",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                          timeZone: timezone,
-                        }).format(blockedTime.endAt)}
-                      </p>
-                      <p className="mt-2 text-sm text-muted">
-                        {blockedTime.reason ?? "Sin motivo especificado"}
-                      </p>
-
-                      <form action={cancelCalendarBusinessBlockAction} className="mt-4">
-                        <input type="hidden" name="blockId" value={blockedTime.id} />
-                        <input
-                          type="hidden"
-                          name="redirectPath"
-                          value={detailRedirectPath}
-                        />
-                        <button
-                          type="submit"
-                          className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
-                        >
-                          Cancelar bloqueo
-                        </button>
-                      </form>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-[22px] border border-dashed border-line bg-surface-soft px-4 py-4 text-sm text-muted">
-                    No hay bloqueos del negocio dentro del rango visible.
-                  </div>
-                )}
+          {resolvedPanel === "appointment" ? (
+            <CalendarSidePanel
+              eyebrow="Reserva"
+              title="Detalle"
+              description="Consulta, actualiza o reagenda la reserva seleccionada."
+              closeHref={baseCalendarHref}
+            >
+              <CalendarAppointmentDetails
+                appointment={selectedAppointment}
+                timezone={timezone}
+                currency={currency}
+                redirectPath={detailRedirectPath}
+                clearSelectionHref={baseCalendarHref}
+                action={updateAppointmentStatusAction}
+                rescheduleAction={rescheduleAdminAppointmentAction}
+                view={view}
+                calendarDateValue={selectedDateValue}
+                doctorFilterId={selectedDoctorId}
+                rescheduleOpen={rescheduleOpen}
+                rescheduleDateValue={rescheduleDateValue}
+                rescheduleSlotTime={rescheduleSlotTime}
+                rescheduleAvailableSlotResult={rescheduleAvailableSlotResult}
+                rescheduleOpenHref={rescheduleOpenHref}
+                embedded
+              />
+            </CalendarSidePanel>
+          ) : resolvedPanel === "create" ? (
+            <CalendarSidePanel
+              eyebrow="Reserva"
+              title="Crear reserva"
+              description="Selecciona servicio, horario y cliente."
+              closeHref={baseCalendarHref}
+            >
+              <CalendarQuickCreateForm
+                activeDoctors={activeDoctors}
+                activeServices={activeServices}
+                patients={patients}
+                selectedDoctorId={selectedCreateDoctorId}
+                selectedServiceId={selectedCreateServiceId}
+                selectedDate={selectedCreateDate}
+                selectedSlotTime={selectedCreateSlotTime}
+                selectedDateParts={selectedCreateDateParts}
+                selectedDoctor={selectedCreateDoctor}
+                selectedService={selectedCreateService}
+                availableSlotResult={quickCreateAvailableSlotResult}
+                timezone={timezone}
+                view={view}
+                calendarDateValue={selectedDateValue}
+                filterDoctorId={selectedDoctorId}
+                loadActionPath="/app/calendar"
+                createAction={createAdminAppointmentAction}
+                redirectPath={createPanelRedirectPath}
+                successRedirectPath={createSuccessHref}
+                embedded
+              />
+            </CalendarSidePanel>
+          ) : resolvedPanel === "block" ? (
+            <CalendarSidePanel
+              eyebrow="Bloqueo"
+              title="Bloquear horario"
+              description="Oculta este rango para todo el negocio."
+              closeHref={baseCalendarHref}
+            >
+              <CalendarBlockForm
+                redirectPath={blockPanelHref}
+                selectedDateValue={selectedBlockDate}
+                selectedStartTime={selectedBlockStartTime}
+                selectedEndTime={selectedBlockEndTime}
+                blockedTimes={blockedTimes}
+                timezone={timezone}
+                createAction={createCalendarBusinessBlockAction}
+                cancelAction={cancelCalendarBusinessBlockAction}
+              />
+            </CalendarSidePanel>
+          ) : (
+            <CalendarSidePanel
+              eyebrow="Panel"
+              title="Acciones rápidas"
+              description="Selecciona una reserva o abre un hueco para trabajar desde aquí."
+            >
+              <div className="grid gap-3">
+                <Link
+                  href={createPanelHref}
+                  className="inline-flex items-center justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-700"
+                >
+                  Crear reserva
+                </Link>
+                <Link
+                  href={blockPanelHref}
+                  className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:bg-brand-50"
+                >
+                  Bloquear horario
+                </Link>
               </div>
-            </article>
-
-            <CalendarQuickCreateForm
-              activeDoctors={activeDoctors}
-              activeServices={activeServices}
-              patients={patients}
-              selectedDoctorId={selectedCreateDoctorId}
-              selectedServiceId={selectedCreateServiceId}
-              selectedDate={selectedCreateDate}
-              selectedSlotTime={selectedCreateSlotTime}
-              selectedDateParts={selectedCreateDateParts}
-              selectedDoctor={selectedCreateDoctor}
-              selectedService={selectedCreateService ?? null}
-              availableSlotResult={quickCreateAvailableSlotResult}
-              timezone={timezone}
-              view={view}
-              calendarDateValue={selectedDateValue}
-              filterDoctorId={selectedDoctorId}
-              loadActionPath="/app/calendar"
-              createAction={createAdminAppointmentAction}
-              redirectPath={detailRedirectPath}
-              successRedirectPath={quickCreateSuccessHref}
-            />
-
-            <CalendarAppointmentDetails
-              appointment={selectedAppointment}
-              timezone={timezone}
-              currency={currency}
-              redirectPath={detailRedirectPath}
-              clearSelectionHref={baseCalendarHref}
-              action={updateAppointmentStatusAction}
-              rescheduleAction={rescheduleAdminAppointmentAction}
-              view={view}
-              calendarDateValue={selectedDateValue}
-              doctorFilterId={selectedDoctorId}
-              rescheduleOpen={rescheduleOpen}
-              rescheduleDateValue={rescheduleDateValue}
-              rescheduleSlotTime={rescheduleSlotTime}
-              rescheduleAvailableSlotResult={rescheduleAvailableSlotResult}
-              rescheduleOpenHref={rescheduleOpenHref}
-            />
-          </div>
+            </CalendarSidePanel>
+          )}
         </div>
       </div>
     </PanelPage>

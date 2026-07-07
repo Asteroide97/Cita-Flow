@@ -3,52 +3,49 @@ import { getCalendarAgendaLegend } from "./calendar-helpers";
 type CalendarStatusLegendProps = {
   totalAppointments: number;
   totalBlockedTimes: number;
-  rangeLabel: string;
   doctorLabel: string | null;
+  selectedServiceLabel: string | null;
 };
 
 export function CalendarStatusLegend({
   totalAppointments,
   totalBlockedTimes,
-  rangeLabel,
   doctorLabel,
+  selectedServiceLabel,
 }: CalendarStatusLegendProps) {
   const items = getCalendarAgendaLegend();
 
   return (
-    <article className="surface-card p-6 sm:p-7">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
-        Estado de agenda
-      </p>
-      <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-ink">
-        {totalAppointments} reservas y {totalBlockedTimes} bloqueos en {rangeLabel}
-      </h2>
-      <p className="mt-2 text-sm leading-6 text-muted">
-        {doctorLabel
-          ? `Mostrando solo la agenda de ${doctorLabel}.`
-          : "Mostrando todos los profesionales."}
-      </p>
+    <article className="surface-card p-4 sm:p-5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-line/80 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-ink">
+            {doctorLabel ?? "Todos los profesionales"}
+          </span>
+          {selectedServiceLabel ? (
+            <span className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">
+              Huecos para {selectedServiceLabel}
+            </span>
+          ) : null}
+          <span className="rounded-full border border-line/80 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+            {totalAppointments} reservas
+          </span>
+          <span className="rounded-full border border-line/80 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+            {totalBlockedTimes} bloqueos
+          </span>
+        </div>
 
-      <div className="mt-5 grid gap-3">
-        {items.map((item) => (
-          <div
-            key={item.key}
-            className="rounded-[22px] border border-line/70 bg-white/94 px-4 py-4"
-          >
-            <div className="flex items-center gap-3">
-              <span
-                className={`h-3 w-3 rounded-full ${item.tone.dotClassName}`}
-                aria-hidden="true"
-              />
-              <span
-                className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${item.tone.badgeClassName}`}
-              >
-                {item.label}
-              </span>
-            </div>
-            <p className="mt-2 text-xs leading-5 text-muted">{item.note}</p>
-          </div>
-        ))}
+        <div className="flex flex-wrap items-center gap-2">
+          {items.map((item) => (
+            <span
+              key={item.key}
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] ${item.tone.badgeClassName}`}
+            >
+              <span className={`h-2 w-2 rounded-full ${item.tone.dotClassName}`} />
+              {item.label}
+            </span>
+          ))}
+        </div>
       </div>
     </article>
   );

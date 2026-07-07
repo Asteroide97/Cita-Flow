@@ -95,16 +95,16 @@ export function AppointmentFilters({
           </select>
         </label>
 
-        <div className="flex flex-wrap gap-3 lg:col-span-4">
+        <div className="grid gap-3 sm:flex sm:flex-wrap lg:col-span-4">
           <button
             type="submit"
-            className="rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700"
+            className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-700 sm:w-auto"
           >
             Aplicar filtros
           </button>
           <Link
             href="/app/appointments"
-            className="rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+            className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700 sm:w-auto"
           >
             Limpiar
           </Link>

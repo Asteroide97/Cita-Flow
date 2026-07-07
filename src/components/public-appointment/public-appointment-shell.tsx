@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { brand } from "@/lib/brand";
+import { BrandWordmark } from "@/components/ui/brand-wordmark";
 
 function hexToRgba(hexColor: string, alpha: number) {
   const normalized = hexColor.replace("#", "");
@@ -62,9 +62,7 @@ export function PublicAppointmentShell({
             </span>
 
             <div>
-              <p className="text-lg font-extrabold tracking-[-0.05em] text-ink">
-                {brand.name}
-              </p>
+              <BrandWordmark className="text-lg font-extrabold tracking-[-0.05em] text-ink" />
               <p className="text-sm text-muted">Autoservicio de reservas</p>
             </div>
           </Link>

@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import { panelNavigation, superAdminNavigationItem } from "@/data/panel";
-import { brand } from "@/lib/brand";
 import { cn } from "@/lib/utils";
+import { BrandWordmark } from "../ui/brand-wordmark";
 
 type AppSidebarProps = {
   clinicName: string;
@@ -25,9 +26,12 @@ export function AppSidebar({
   showSuperAdminLink = false,
 }: AppSidebarProps) {
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigationItems = showSuperAdminLink
     ? [...panelNavigation, superAdminNavigationItem]
     : panelNavigation;
+  const activeItem =
+    navigationItems.find((item) => pathname === item.href) ?? navigationItems[0];
 
   return (
     <>
@@ -44,7 +48,10 @@ export function AppSidebar({
             </span>
 
             <div>
-              <p className="text-lg font-extrabold tracking-[-0.05em]">{brand.name}</p>
+              <BrandWordmark
+                className="text-lg font-extrabold tracking-[-0.05em]"
+                accentClassName="text-white"
+              />
               <p className="text-sm text-slate-400">Panel protegido</p>
             </div>
           </Link>
@@ -130,7 +137,7 @@ export function AppSidebar({
 
       <div className="border-b border-line/70 bg-white/95 px-4 py-4 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-3">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex min-w-0 items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,_#1d4ed8_0%,_#60a5fa_100%)]">
               <span className="grid h-4 w-4 grid-cols-2 gap-1">
                 <span className="rounded-full bg-white" />
@@ -139,23 +146,26 @@ export function AppSidebar({
                 <span className="rounded-full bg-white" />
               </span>
             </span>
-            <div>
-              <p className="text-base font-extrabold tracking-[-0.04em] text-ink">
-                {brand.name}
-              </p>
-              <p className="text-xs text-muted">
-                {clinicName} - {roleLabel}
+            <div className="min-w-0">
+              <BrandWordmark className="truncate text-base font-extrabold tracking-[-0.04em] text-ink" />
+              <p className="truncate text-xs text-muted">
+                {clinicName} - {activeItem?.label ?? roleLabel}
               </p>
             </div>
           </Link>
+
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((current) => !current)}
+            className="inline-flex shrink-0 items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink shadow-soft transition-colors hover:border-brand-200 hover:bg-brand-50"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="panel-mobile-menu"
+          >
+            {isMobileMenuOpen ? "Cerrar" : "Menu"}
+          </button>
         </div>
 
-        <div className="mt-4 rounded-[22px] border border-line/80 bg-white px-4 py-3">
-          <p className="text-sm font-semibold text-ink">{userName}</p>
-          <p className="mt-1 text-xs text-muted">{userEmail}</p>
-        </div>
-
-        <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
           {navigationItems.map((item) => {
             const isActive = pathname === item.href;
 
@@ -163,6 +173,7 @@ export function AppSidebar({
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={cn(
                   "shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
                   isActive
@@ -174,7 +185,53 @@ export function AppSidebar({
               </Link>
             );
           })}
-        </nav>
+        </div>
+
+        {isMobileMenuOpen ? (
+          <div
+            id="panel-mobile-menu"
+            className="mt-4 grid gap-3 rounded-[24px] border border-line/80 bg-white p-4 shadow-soft"
+          >
+            <div className="rounded-[20px] border border-line/70 bg-surface-soft px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                Negocio actual
+              </p>
+              <p className="mt-2 text-sm font-semibold text-ink">{clinicName}</p>
+              <p className="mt-1 text-xs text-muted">/{clinicSlug}</p>
+            </div>
+
+            <div className="rounded-[20px] border border-line/70 bg-white px-4 py-3">
+              <p className="text-sm font-semibold text-ink">{userName}</p>
+              <p className="mt-1 text-xs text-muted">{userEmail}</p>
+              <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">
+                {roleLabel}
+              </p>
+            </div>
+
+            <nav className="grid gap-2">
+              {navigationItems.map((item) => {
+                const isActive = pathname === item.href;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      "rounded-[18px] border px-4 py-3 text-sm font-semibold transition-colors",
+                      isActive
+                        ? "border-brand-200 bg-brand-50 text-brand-700"
+                        : "border-line/70 bg-white text-ink",
+                    )}
+                  >
+                    <p>{item.label}</p>
+                    <p className="mt-1 text-xs font-medium text-muted">{item.description}</p>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        ) : null}
       </div>
     </>
   );

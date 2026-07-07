@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { brand } from "@/lib/brand";
+import { BrandWordmark } from "@/components/ui/brand-wordmark";
 
 type AuthHighlight = {
   label: string;
@@ -32,7 +32,7 @@ export function AuthShell({
 }: AuthShellProps) {
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,_#f6f9fd_0%,_#edf5ff_42%,_#ffffff_100%)] text-ink">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-6 sm:px-8 lg:px-10">
+      <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
         <Link href="/" className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,_#1d4ed8_0%,_#60a5fa_100%)] shadow-soft">
             <span className="grid h-4 w-4 grid-cols-2 gap-1">
@@ -44,25 +44,23 @@ export function AuthShell({
           </span>
 
           <div>
-            <p className="text-lg font-extrabold tracking-[-0.05em] text-ink">
-              {brand.name}
-            </p>
+            <BrandWordmark className="text-lg font-extrabold tracking-[-0.05em] text-ink" />
             <p className="text-sm text-muted">Acceso al panel</p>
           </div>
         </Link>
 
         <Link
           href="/"
-          className="rounded-full border border-line/80 bg-white/90 px-4 py-2 text-sm font-semibold text-ink shadow-soft transition-colors hover:border-brand-200 hover:bg-brand-50"
+          className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white/90 px-4 py-2 text-sm font-semibold text-ink shadow-soft transition-colors hover:border-brand-200 hover:bg-brand-50 sm:w-auto"
         >
           Ver landing
         </Link>
       </div>
 
-      <div className="mx-auto grid max-w-6xl gap-8 px-5 pb-10 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:px-10 lg:pb-16">
-        <section className="surface-card p-6 sm:p-8 lg:p-10">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 pb-10 sm:px-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:px-10 lg:pb-16">
+        <section className="surface-card min-w-0 p-5 sm:p-8 lg:p-10">
           <div className="eyebrow-chip">{eyebrow}</div>
-          <h1 className="mt-6 max-w-xl text-4xl font-semibold tracking-[-0.06em] text-ink sm:text-5xl">
+          <h1 className="mt-6 max-w-xl text-3xl font-semibold tracking-[-0.06em] text-ink sm:text-5xl">
             {title}
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-muted sm:text-base">

@@ -27,15 +27,15 @@ export function DateStep({
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
         Paso 1
       </p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-        Elige el día
+      <h2 className="mt-3 text-xl font-semibold tracking-[-0.05em] text-ink sm:text-2xl">
+        Elige el dia
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Empieza por la fecha. Después te mostraremos servicios y profesionales con
-        horarios reales para ese día.
+        Empieza por la fecha. Despues te mostraremos servicios y profesionales con
+        horarios reales para ese dia.
       </p>
 
-      <div className="mt-6 flex w-full max-w-full gap-3 overflow-x-auto pb-2">
+      <div className="mt-6 flex w-full max-w-full gap-3 overflow-x-auto pb-2 [scrollbar-width:none]">
         {dateOptions.map((option) => {
           const isSelected = selectedDate === option.value;
 
@@ -50,8 +50,8 @@ export function DateStep({
               aria-current={isSelected ? "date" : undefined}
               className={
                 isSelected
-                  ? "min-w-[138px] shrink-0 rounded-[24px] border px-4 py-4 text-left shadow-soft sm:min-w-[148px]"
-                  : "min-w-[138px] shrink-0 rounded-[24px] border border-line/80 bg-white px-4 py-4 text-left transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 sm:min-w-[148px]"
+                  ? "min-w-[132px] shrink-0 rounded-[24px] border px-4 py-4 text-left shadow-soft sm:min-w-[148px]"
+                  : "min-w-[132px] shrink-0 rounded-[24px] border border-line/80 bg-white px-4 py-4 text-left transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 sm:min-w-[148px]"
               }
               style={
                 isSelected
@@ -89,7 +89,7 @@ export function DateStep({
 
       <details className="mt-4 rounded-[22px] border border-line/80 bg-slate-50/80 px-4 py-4">
         <summary className="cursor-pointer text-sm font-semibold text-ink">
-          Ver más fechas
+          Ver mas fechas
         </summary>
         <form
           action={`/booking/${clinicSlug}`}

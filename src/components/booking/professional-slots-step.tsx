@@ -44,7 +44,7 @@ function renderSlotGroup(params: {
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
         {params.title}
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
         {params.slots.map((slot) => {
           const isSelected =
             params.selectedDoctorId === params.doctorId &&
@@ -62,8 +62,8 @@ function renderSlotGroup(params: {
               scroll={false}
               className={
                 isSelected
-                  ? "rounded-full border px-4 py-2 text-sm font-semibold shadow-soft"
-                  : "rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
+                  ? "inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold shadow-soft"
+                  : "inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
               }
               style={
                 isSelected
@@ -110,7 +110,7 @@ export function ProfessionalSlotsStep({
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
         Paso 3
       </p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+      <h2 className="mt-3 text-xl font-semibold tracking-[-0.05em] text-ink sm:text-2xl">
         Elige profesional y horario
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
@@ -141,7 +141,7 @@ export function ProfessionalSlotsStep({
                 }
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex items-start gap-4">
+                  <div className="flex min-w-0 items-start gap-4">
                     <ProfessionalAvatar
                       name={item.doctor.name}
                       photoUrl={item.doctor.photoUrl}
@@ -149,15 +149,15 @@ export function ProfessionalSlotsStep({
                       className="rounded-[20px]"
                     />
 
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-3">
                         <p className="text-lg font-semibold text-ink">{item.doctor.name}</p>
                         <span className="rounded-full border border-line/80 bg-surface-soft px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-                          {item.doctor.specialty ?? "Atención"}
+                          {item.doctor.specialty ?? "Atencion"}
                         </span>
                       </div>
                       <p className="mt-2 text-sm leading-7 text-muted">
-                        {item.doctor.bio ?? "Disponible para reservas en línea."}
+                        {item.doctor.bio ?? "Disponible para reservas en linea."}
                       </p>
                     </div>
                   </div>
@@ -170,7 +170,7 @@ export function ProfessionalSlotsStep({
                       waitlist: true,
                     })}
                     scroll={false}
-                    className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
+                    className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50 sm:w-auto"
                   >
                     Otro horario con este profesional
                   </Link>
@@ -178,7 +178,7 @@ export function ProfessionalSlotsStep({
 
                 <div className="mt-5 grid gap-4">
                   {renderSlotGroup({
-                    title: "Mañana",
+                    title: "Manana",
                     slots: item.morningSlots,
                     clinicSlug,
                     selectedDate,
@@ -204,7 +204,7 @@ export function ProfessionalSlotsStep({
         </div>
       ) : (
         <div className="mt-6 rounded-[24px] border border-dashed border-line/90 bg-surface-soft px-5 py-6 text-sm leading-7 text-muted">
-          No encontramos horarios disponibles para este servicio en el día
+          No encontramos horarios disponibles para este servicio en el dia
           seleccionado.
         </div>
       )}
@@ -215,7 +215,7 @@ export function ProfessionalSlotsStep({
             Abriste la lista de espera. Esto no crea una reserva.
           </div>
         ) : (
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
               href={buildBookingAnchorHref(clinicSlug, "lista-espera", {
                 date: selectedDate,
@@ -223,7 +223,7 @@ export function ProfessionalSlotsStep({
                 waitlist: true,
               })}
               scroll={false}
-              className="inline-flex rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
+              className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50 sm:w-auto"
             >
               Prefiero otro horario
             </Link>

@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { publicNavigationLinks } from "@/data/landing";
-import { brand } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
+import { BrandWordmark } from "../ui/brand-wordmark";
 import { ButtonLink } from "../ui/button-link";
 
 function isActivePath(pathname: string, href: string) {
@@ -19,7 +19,6 @@ function isActivePath(pathname: string, href: string) {
 
 export function PublicHeader() {
   const pathname = usePathname();
-  const [brandLead, ...brandRest] = brand.name.split(" ");
 
   return (
     <header className="sticky top-0 z-50 px-4 pt-4 sm:px-6">
@@ -35,9 +34,7 @@ export function PublicHeader() {
               </span>
             </span>
 
-            <span className="truncate text-lg font-extrabold tracking-[-0.05em] text-ink sm:text-xl">
-              {brandLead} <span className="text-brand-600">{brandRest.join(" ")}</span>
-            </span>
+            <BrandWordmark className="truncate text-lg font-extrabold tracking-[-0.05em] text-ink sm:text-xl" />
           </Link>
 
           <nav className="hidden items-center gap-2 md:flex">

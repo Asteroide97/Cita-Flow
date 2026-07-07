@@ -29,17 +29,17 @@ export function ServiceStep({
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
         Paso 2
       </p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
+      <h2 className="mt-3 text-xl font-semibold tracking-[-0.05em] text-ink sm:text-2xl">
         Elige el servicio
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Te mostraremos solo servicios activos y públicos. Al elegir uno calculamos
-        qué profesionales tienen horarios reales ese día.
+        Te mostraremos solo servicios activos y publicos. Al elegir uno calculamos
+        que profesionales tienen horarios reales ese dia.
       </p>
 
       {!services.length ? (
         <div className="mt-6 rounded-[24px] border border-dashed border-line/90 bg-surface-soft px-5 py-6 text-sm leading-7 text-muted">
-          Este negocio aún no tiene servicios públicos disponibles.
+          Este negocio aun no tiene servicios publicos disponibles.
         </div>
       ) : (
         <div className="mt-6 grid gap-3">
@@ -86,7 +86,7 @@ export function ServiceStep({
                         : undefined
                     }
                   >
-                    {isSelected ? "✓" : "2"}
+                    {isSelected ? "OK" : "2"}
                   </span>
 
                   <div className="min-w-0">
@@ -103,7 +103,7 @@ export function ServiceStep({
                     </div>
 
                     <p className="mt-2 text-sm leading-7 text-muted">
-                      {service.description ?? "Servicio disponible para reserva pública."}
+                      {service.description ?? "Servicio disponible para reserva publica."}
                     </p>
 
                     <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted">

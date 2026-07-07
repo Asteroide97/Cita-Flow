@@ -17,7 +17,7 @@ export function CalendarSidePanel({
   children,
 }: CalendarSidePanelProps) {
   return (
-    <aside className="surface-card p-5 sm:p-6 xl:sticky xl:top-6">
+    <aside className="surface-card min-w-0 p-5 sm:p-6 xl:sticky xl:top-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">

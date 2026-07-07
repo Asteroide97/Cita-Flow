@@ -9,14 +9,14 @@ const calendarDays = ["L", "M", "X", "J", "V", "S", "D"];
 export function PublicHero() {
   return (
     <SectionShell className="pb-18 pt-10 sm:pb-24">
-      <div className="grid gap-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
+      <div className="grid gap-12 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
         <div className="max-w-2xl">
           <div className="eyebrow-chip">
             <span className="h-2 w-2 rounded-full bg-brand-600" />
             Plataforma de reservas para negocios de servicios
           </div>
 
-          <h1 className="mt-8 text-balance text-[3.15rem] font-semibold leading-[0.95] tracking-[-0.09em] text-ink sm:text-6xl lg:text-[4.85rem]">
+          <h1 className="mt-8 max-w-[11ch] text-balance text-[2.2rem] font-semibold leading-[0.96] tracking-[-0.08em] text-ink sm:max-w-none sm:text-6xl lg:text-[4.85rem]">
             Llena tu agenda.
             <span className="block text-brand-700">Automatiza tus reservas.</span>
           </h1>
@@ -26,7 +26,7 @@ export function PublicHero() {
             ausencias y recuperar horarios liberados.
           </p>
 
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center">
             <ButtonLink href="/registro" className="min-w-[176px]">
               Probar gratis
             </ButtonLink>
@@ -35,7 +35,7 @@ export function PublicHero() {
             </ButtonLink>
           </div>
 
-          <div className="mt-12 grid gap-4 sm:grid-cols-3">
+          <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-3">
             {heroMetrics.map((metric) => (
               <div key={metric.label} className="surface-card px-5 py-5">
                 <p className="text-lg font-semibold tracking-[-0.05em] text-brand-700">

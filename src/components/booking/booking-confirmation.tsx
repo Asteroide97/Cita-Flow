@@ -77,17 +77,17 @@ export function BookingConfirmation({
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap">
         <Link
           href={resetHref}
-          className="inline-flex rounded-full px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
           style={{ backgroundColor: "var(--booking-brand)" }}
         >
           Reservar otra vez
         </Link>
         <Link
           href="/"
-          className="inline-flex rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
+          className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
         >
           Volver a {brand.name}
         </Link>

@@ -1,11 +1,15 @@
 import type { Prisma } from "@prisma/client";
 
-import type { GetAvailableSlotsResult } from "@/lib/appointments/availability";
+import type {
+  AvailableSlot,
+  GetAvailableSlotsResult,
+} from "@/lib/appointments/availability";
 
 export type BookingPageSearchParams = {
   serviceId?: string;
   doctorId?: string;
   date?: string;
+  slot?: string;
   slotTime?: string;
   status?: string;
   error?: string;
@@ -14,6 +18,7 @@ export type BookingPageSearchParams = {
 };
 
 export type BookingStepAnchor =
+  | "fecha"
   | "servicio"
   | "doctor"
   | "fecha-hora"
@@ -63,6 +68,13 @@ export type BookingDoctorOption = {
   specialty: string | null;
   bio: string | null;
   photoUrl: string | null;
+};
+
+export type BookingProfessionalAvailability = {
+  doctor: BookingDoctorOption;
+  slots: AvailableSlot[];
+  morningSlots: AvailableSlot[];
+  afternoonSlots: AvailableSlot[];
 };
 
 export type BookingFlashMessage = {

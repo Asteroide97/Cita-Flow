@@ -8,11 +8,11 @@ import { WaitlistSubmitButton } from "./waitlist-submit-button";
 type WaitlistRequestFormProps = {
   clinicSlug: string;
   serviceId: string;
-  doctorId: string;
+  doctorId: string | null;
   selectedDate: string;
   minDate: string;
   selectedService: BookingServiceOption;
-  selectedDoctor: BookingDoctorOption;
+  selectedDoctor: BookingDoctorOption | null;
   action: (formData: FormData) => void | Promise<void>;
 };
 
@@ -42,13 +42,15 @@ export function WaitlistRequestForm({
         Esto no crea una reserva. Te avisaremos si se libera un horario compatible.
       </p>
       <p className="mt-2 text-sm leading-7 text-muted">
-        Lo registraremos para {selectedService.name} con {selectedDoctor.name}.
+        {selectedDoctor
+          ? `Lo registraremos para ${selectedService.name} con ${selectedDoctor.name}.`
+          : `Lo registraremos para ${selectedService.name}.`}
       </p>
 
       <form action={action} className="mt-6 grid gap-4">
         <input type="hidden" name="clinicSlug" value={clinicSlug} />
         <input type="hidden" name="serviceId" value={serviceId} />
-        <input type="hidden" name="doctorId" value={doctorId} />
+        {doctorId ? <input type="hidden" name="doctorId" value={doctorId} /> : null}
         <input type="hidden" name="returnDate" value={selectedDate} />
 
         <div className="grid gap-4 md:grid-cols-2">

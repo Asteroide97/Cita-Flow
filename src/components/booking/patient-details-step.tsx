@@ -10,7 +10,7 @@ type PatientDetailsStepProps = {
   serviceId: string;
   doctorId: string;
   date: string;
-  slotTime: string;
+  slot: string;
   selectedService: BookingServiceOption;
   selectedDoctor: BookingDoctorOption;
   action: (formData: FormData) => void | Promise<void>;
@@ -21,7 +21,7 @@ export function PatientDetailsStep({
   serviceId,
   doctorId,
   date,
-  slotTime,
+  slot,
   selectedService,
   selectedDoctor,
   action,
@@ -46,7 +46,7 @@ export function PatientDetailsStep({
         <input type="hidden" name="serviceId" value={serviceId} />
         <input type="hidden" name="doctorId" value={doctorId} />
         <input type="hidden" name="date" value={date} />
-        <input type="hidden" name="slotTime" value={slotTime} />
+        <input type="hidden" name="slot" value={slot} />
 
         <label className="text-sm font-medium text-ink">
           Nombre completo

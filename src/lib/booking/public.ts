@@ -84,6 +84,7 @@ export function buildBookingPath(
     serviceId?: string | null;
     doctorId?: string | null;
     date?: string | null;
+    slot?: string | null;
     slotTime?: string | null;
     status?: string | null;
     error?: string | null;
@@ -105,8 +106,10 @@ export function buildBookingPath(
     query.set("date", params.date);
   }
 
-  if (params.slotTime) {
-    query.set("slotTime", params.slotTime);
+  const slotValue = params.slot ?? params.slotTime;
+
+  if (slotValue) {
+    query.set("slot", slotValue);
   }
 
   if (params.status) {
@@ -155,12 +158,12 @@ export function resolveBookingFlashMessage(
       case "doctor-required":
         return {
           tone: "error",
-          message: "Selecciona un profesional disponible para continuar.",
+          message: "Elige un profesional y un horario disponible para continuar.",
         };
       case "date-required":
         return {
           tone: "error",
-          message: "Elige una fecha valida para consultar horarios reales.",
+          message: "Elige un día válido para consultar horarios reales.",
         };
       case "slot-required":
         return {
@@ -175,7 +178,7 @@ export function resolveBookingFlashMessage(
       case "doctor-unavailable":
         return {
           tone: "error",
-          message: "Ese profesional ya no está disponible en este negocio.",
+          message: "Ese profesional ya no está disponible para este día o ya no es público.",
         };
       case "slot-unavailable":
         return {
@@ -190,17 +193,17 @@ export function resolveBookingFlashMessage(
       case "patient-phone-required":
         return {
           tone: "error",
-          message: "Comparte un telefono o WhatsApp para continuar.",
+          message: "Comparte un teléfono o WhatsApp para continuar.",
         };
       case "patient-phone-invalid":
         return {
           tone: "error",
-          message: "El telefono no tiene un formato valido.",
+          message: "El teléfono no tiene un formato válido.",
         };
       case "patient-email-invalid":
         return {
           tone: "error",
-          message: "El email no tiene un formato valido.",
+          message: "El email no tiene un formato válido.",
         };
       case "waitlist-name-required":
         return {
@@ -210,22 +213,22 @@ export function resolveBookingFlashMessage(
       case "waitlist-phone-required":
         return {
           tone: "error",
-          message: "Comparte tu WhatsApp o telefono para avisarte si se libera un espacio.",
+          message: "Comparte tu WhatsApp o teléfono para avisarte si se libera un espacio.",
         };
       case "waitlist-phone-invalid":
         return {
           tone: "error",
-          message: "El telefono para la lista de espera no tiene un formato valido.",
+          message: "El teléfono para la lista de espera no tiene un formato válido.",
         };
       case "waitlist-email-invalid":
         return {
           tone: "error",
-          message: "El email para la lista de espera no tiene un formato valido.",
+          message: "El email para la lista de espera no tiene un formato válido.",
         };
       case "clinic-unavailable":
         return {
           tone: "error",
-          message: "Este enlace de reserva no esta disponible en este momento.",
+          message: "Este enlace de reserva no está disponible en este momento.",
         };
       case "rate-limited":
         return {
@@ -326,7 +329,7 @@ export function resolvePreferredTimeRange(
       return {
         startTime: "08:00",
         endTime: "13:59",
-        label: "Manana",
+        label: "Mañana",
       };
     case "AFTERNOON":
       return {
@@ -349,5 +352,5 @@ export function getBookingClinicDescription(clinic: BookingClinic) {
     return clinic.publicDescription.trim();
   }
 
-  return `Reserva en ${getBookingClinicDisplayName(clinic)}. Elige servicio, profesional, fecha y horario usando la disponibilidad real del negocio.`;
+  return `Reserva en ${getBookingClinicDisplayName(clinic)}. Elige día, servicio, profesional y horario usando la disponibilidad real del negocio.`;
 }

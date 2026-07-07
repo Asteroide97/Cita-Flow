@@ -43,6 +43,7 @@ type BookingRedirectState = {
   serviceId?: string | null;
   doctorId?: string | null;
   date?: string | null;
+  slot?: string | null;
   slotTime?: string | null;
   error?: string | null;
   status?: string | null;
@@ -89,6 +90,7 @@ function buildBookingRedirectPath(state: BookingRedirectState) {
     serviceId: state.serviceId,
     doctorId: state.doctorId,
     date: state.date,
+    slot: state.slot,
     slotTime: state.slotTime,
     error: state.error,
     status: state.status,
@@ -233,7 +235,7 @@ async function resolvePublicPatient(params: {
 async function resolveActiveBookingCatalog(params: {
   clinicId: string;
   serviceId: string;
-  doctorId: string;
+  doctorId?: string | null;
 }) {
   const [service, doctor] = await Promise.all([
     prisma.service.findFirst({
@@ -248,18 +250,20 @@ async function resolveActiveBookingCatalog(params: {
         name: true,
       },
     }),
-    prisma.doctor.findFirst({
-      where: {
-        id: params.doctorId,
-        clinicId: params.clinicId,
-        isActive: true,
-        isPublic: true,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    }),
+    params.doctorId
+      ? prisma.doctor.findFirst({
+          where: {
+            id: params.doctorId,
+            clinicId: params.clinicId,
+            isActive: true,
+            isPublic: true,
+          },
+          select: {
+            id: true,
+            name: true,
+          },
+        })
+      : Promise.resolve(null),
   ]);
 
   return {
@@ -354,7 +358,7 @@ async function redirectToPublicBookingConfirmation(params: {
 async function findExistingPublicWaitlistEntry(params: {
   clinicId: string;
   serviceId: string;
-  doctorId: string;
+  doctorId: string | null;
   preferredDate: Date | null;
   patientId?: string;
   patientPhone?: string;
@@ -395,7 +399,7 @@ async function findExistingPublicWaitlistEntry(params: {
 async function redirectToPublicWaitlistSuccess(params: {
   clinicSlug: string;
   serviceId: string;
-  doctorId: string;
+  doctorId: string | null;
   date: string;
   ipAddress: string;
   phoneRateLimitKey: string;
@@ -421,7 +425,9 @@ export async function createPublicBookingAction(formData: FormData) {
   const serviceId = String(formData.get("serviceId") ?? "").trim();
   const doctorId = String(formData.get("doctorId") ?? "").trim();
   const date = String(formData.get("date") ?? "").trim();
-  const slotTime = String(formData.get("slotTime") ?? "").trim();
+  const slotTime = String(
+    formData.get("slot") ?? formData.get("slotTime") ?? "",
+  ).trim();
   const patientName = normalizeOptionalText(formData.get("patientName"));
   const patientPhoneRaw = normalizeOptionalText(formData.get("patientPhone"));
   const patientEmailRaw = normalizeOptionalText(formData.get("patientEmail"));
@@ -539,7 +545,7 @@ export async function createPublicBookingAction(formData: FormData) {
         clinicSlug,
         serviceId,
         error: "doctor-required",
-        focus: "doctor",
+        focus: "fecha-hora",
       }),
     );
   }
@@ -563,7 +569,7 @@ export async function createPublicBookingAction(formData: FormData) {
         serviceId,
         doctorId,
         error: "date-required",
-        focus: "fecha-hora",
+        focus: "fecha",
       }),
     );
   }
@@ -726,7 +732,7 @@ export async function createPublicBookingAction(formData: FormData) {
         serviceId,
         doctorId,
         error: "date-required",
-        focus: "fecha-hora",
+        focus: "fecha",
       }),
     );
   }
@@ -785,7 +791,7 @@ export async function createPublicBookingAction(formData: FormData) {
         clinicSlug,
         serviceId,
         error: "doctor-unavailable",
-        focus: "doctor",
+        focus: "fecha-hora",
       }),
     );
   }
@@ -1001,7 +1007,7 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
   const ipAddress = getBookingClientIp(requestHeaders);
   const clinicSlug = String(formData.get("clinicSlug") ?? "").trim();
   const serviceId = String(formData.get("serviceId") ?? "").trim();
-  const doctorId = String(formData.get("doctorId") ?? "").trim();
+  const doctorId = String(formData.get("doctorId") ?? "").trim() || null;
   const selectedDate = String(formData.get("returnDate") ?? "").trim();
   const patientName = normalizeOptionalText(formData.get("patientName"));
   const patientPhoneRaw = normalizeOptionalText(formData.get("patientPhone"));
@@ -1073,17 +1079,6 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
         clinicSlug,
         error: "service-required",
         focus: "servicio",
-      }),
-    );
-  }
-
-  if (!doctorId) {
-    redirect(
-      buildBookingRedirectPath({
-        clinicSlug,
-        serviceId,
-        error: "doctor-required",
-        focus: "doctor",
       }),
     );
   }
@@ -1210,13 +1205,14 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
     );
   }
 
-  if (!doctor) {
+  if (doctorId && !doctor) {
     redirect(
       buildBookingRedirectPath({
         clinicSlug,
         serviceId,
         error: "doctor-unavailable",
-        focus: "doctor",
+        focus: "fecha-hora",
+        waitlist: true,
       }),
     );
   }
@@ -1244,7 +1240,7 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
       const existingWaitlistEntry = await findExistingPublicWaitlistEntry({
         clinicId: clinic.id,
         serviceId: service.id,
-        doctorId: doctor.id,
+        doctorId: doctor?.id ?? null,
         preferredDate,
         patientId: patient.id,
         db: transaction,
@@ -1259,7 +1255,7 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
           clinicId: clinic.id,
           patientId: patient.id,
           serviceId: service.id,
-          doctorId: doctor.id,
+          doctorId: doctor?.id ?? null,
           preferredDate,
           preferredStartTime: preferredWindow.startTime,
           preferredEndTime: preferredWindow.endTime,
@@ -1282,12 +1278,12 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
           metadata: {
             patientId: patient.id,
             serviceId: service.id,
-            doctorId: doctor.id,
-          preferredDate: waitlistEntry.preferredDate?.toISOString() ?? null,
-          preferredRange,
-          autoAccept,
-          notes,
-        },
+            doctorId: doctor?.id ?? null,
+            preferredDate: waitlistEntry.preferredDate?.toISOString() ?? null,
+            preferredRange,
+            autoAccept,
+            notes,
+          },
         },
         transaction,
       );
@@ -1304,7 +1300,7 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
     const duplicateWaitlistEntry = await findExistingPublicWaitlistEntry({
       clinicId: clinic.id,
       serviceId: service.id,
-      doctorId: doctor.id,
+      doctorId: doctor?.id ?? null,
       preferredDate,
       patientPhone: normalizedPhone,
     });
@@ -1313,7 +1309,7 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
       await redirectToPublicWaitlistSuccess({
         clinicSlug,
         serviceId: service.id,
-        doctorId: doctor.id,
+        doctorId: doctor?.id ?? null,
         date: waitlistDate,
         ipAddress,
         phoneRateLimitKey,
@@ -1355,7 +1351,7 @@ export async function createPublicWaitlistEntryAction(formData: FormData) {
   await redirectToPublicWaitlistSuccess({
     clinicSlug,
     serviceId: service.id,
-    doctorId: doctor.id,
+    doctorId: doctor?.id ?? null,
     date: waitlistDate,
     ipAddress,
     phoneRateLimitKey,

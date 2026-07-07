@@ -1,84 +1,53 @@
 import Link from "next/link";
 
-import type { GetAvailableSlotsResult } from "@/lib/appointments/availability";
 import { buildBookingAnchorHref } from "@/lib/booking/public";
-import type {
-  BookingDateOption,
-  BookingDoctorOption,
-  BookingFlashMessage,
-  BookingServiceOption,
-} from "@/types/booking";
-
-import { SlotsStep } from "./slots-step";
-import { WaitlistRequestForm } from "./waitlist-request-form";
+import type { BookingDateOption } from "@/types/booking";
 
 type DateStepProps = {
   clinicSlug: string;
-  selectedServiceId: string;
-  selectedDoctorId: string;
   selectedDate: string;
-  selectedSlotTime: string;
   minDate: string;
   dateOptions: BookingDateOption[];
-  availableSlotResult: GetAvailableSlotsResult | null;
-  waitlistOpen: boolean;
-  waitlistFlash: BookingFlashMessage | null;
-  selectedService: BookingServiceOption;
-  selectedDoctor: BookingDoctorOption;
-  waitlistAction: (formData: FormData) => void | Promise<void>;
+  selectedServiceId?: string;
 };
 
 export function DateStep({
   clinicSlug,
-  selectedServiceId,
-  selectedDoctorId,
   selectedDate,
-  selectedSlotTime,
   minDate,
   dateOptions,
-  availableSlotResult,
-  waitlistOpen,
-  waitlistFlash,
-  selectedService,
-  selectedDoctor,
-  waitlistAction,
+  selectedServiceId,
 }: DateStepProps) {
   return (
-    <section
-      id="fecha-hora"
-      className="surface-card scroll-mt-6 p-6 sm:p-7"
-      tabIndex={-1}
-    >
+    <section id="fecha" className="surface-card scroll-mt-6 p-6 sm:p-7" tabIndex={-1}>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-        Paso 3
+        Paso 1
       </p>
       <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
-        Elige fecha y hora
+        Elige el día
       </h2>
       <p className="mt-3 text-sm leading-7 text-muted">
-        Te mostramos los próximos días disponibles y cargamos horarios reales en
-        cuanto eliges una fecha.
+        Empieza por la fecha. Después te mostraremos servicios y profesionales con
+        horarios reales para ese día.
       </p>
 
-      <div className="mt-6 grid gap-3 md:grid-cols-7">
+      <div className="mt-6 flex gap-3 overflow-x-auto pb-2">
         {dateOptions.map((option) => {
           const isSelected = selectedDate === option.value;
 
           return (
             <Link
               key={option.value}
-              href={buildBookingAnchorHref(clinicSlug, "fecha-hora", {
-                serviceId: selectedServiceId,
-                doctorId: selectedDoctorId,
+              href={buildBookingAnchorHref(clinicSlug, "servicio", {
                 date: option.value,
-                waitlist: waitlistOpen,
+                serviceId: selectedServiceId ?? null,
               })}
               scroll={false}
               aria-current={isSelected ? "date" : undefined}
               className={
                 isSelected
-                  ? "rounded-[24px] border px-4 py-4 text-left shadow-soft"
-                  : "rounded-[24px] border border-line/80 bg-white px-4 py-4 text-left transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50"
+                  ? "min-w-[138px] shrink-0 rounded-[24px] border px-4 py-4 text-left shadow-soft sm:min-w-[148px]"
+                  : "min-w-[138px] shrink-0 rounded-[24px] border border-line/80 bg-white px-4 py-4 text-left transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 sm:min-w-[148px]"
               }
               style={
                 isSelected
@@ -119,14 +88,14 @@ export function DateStep({
           Ver más fechas
         </summary>
         <form
-          action={`/booking/${clinicSlug}#fecha-hora`}
+          action={`/booking/${clinicSlug}`}
           method="get"
           className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto]"
         >
-          <input type="hidden" name="serviceId" value={selectedServiceId} />
-          <input type="hidden" name="doctorId" value={selectedDoctorId} />
-          <input type="hidden" name="focus" value="fecha-hora" />
-          {waitlistOpen ? <input type="hidden" name="waitlist" value="1" /> : null}
+          {selectedServiceId ? (
+            <input type="hidden" name="serviceId" value={selectedServiceId} />
+          ) : null}
+          <input type="hidden" name="focus" value="servicio" />
           <label className="text-sm font-medium text-ink">
             Fecha deseada
             <input
@@ -147,45 +116,6 @@ export function DateStep({
           </button>
         </form>
       </details>
-
-      {selectedDate ? (
-        <SlotsStep
-          clinicSlug={clinicSlug}
-          selectedServiceId={selectedServiceId}
-          selectedDoctorId={selectedDoctorId}
-          selectedDate={selectedDate}
-          selectedSlotTime={selectedSlotTime}
-          availableSlotResult={availableSlotResult}
-          waitlistOpen={waitlistOpen}
-        />
-      ) : null}
-
-      {waitlistFlash ? (
-        <div
-          className={
-            waitlistFlash.tone === "success"
-              ? "mt-6 rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800"
-              : "mt-6 rounded-[24px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700"
-          }
-        >
-          {waitlistFlash.message}
-        </div>
-      ) : null}
-
-      {waitlistOpen && !selectedSlotTime ? (
-        <div className="mt-6">
-          <WaitlistRequestForm
-            clinicSlug={clinicSlug}
-            serviceId={selectedServiceId}
-            doctorId={selectedDoctorId}
-            selectedDate={selectedDate}
-            minDate={minDate}
-            selectedService={selectedService}
-            selectedDoctor={selectedDoctor}
-            action={waitlistAction}
-          />
-        </div>
-      ) : null}
     </section>
   );
 }

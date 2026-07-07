@@ -8,6 +8,7 @@ import type { BookingServiceOption } from "@/types/booking";
 type ServiceStepProps = {
   clinicSlug: string;
   services: BookingServiceOption[];
+  selectedDate: string;
   selectedServiceId: string;
   currency: string;
 };
@@ -15,20 +16,21 @@ type ServiceStepProps = {
 export function ServiceStep({
   clinicSlug,
   services,
+  selectedDate,
   selectedServiceId,
   currency,
 }: ServiceStepProps) {
   return (
     <section id="servicio" className="surface-card scroll-mt-6 p-6 sm:p-7" tabIndex={-1}>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
-        Paso 1
+        Paso 2
       </p>
       <h2 className="mt-3 text-2xl font-semibold tracking-[-0.05em] text-ink">
         Elige el servicio
       </h2>
-      <p className="mt-3 text-sm leading-6 text-muted">
-        Selecciona el servicio que quieres reservar. Solo se muestran servicios
-        activos y públicos del negocio.
+      <p className="mt-3 text-sm leading-7 text-muted">
+        Te mostraremos solo servicios activos y públicos. Al elegir uno calculamos
+        qué profesionales tienen horarios reales ese día.
       </p>
 
       {!services.length ? (
@@ -43,7 +45,8 @@ export function ServiceStep({
             return (
               <Link
                 key={service.id}
-                href={buildBookingAnchorHref(clinicSlug, "doctor", {
+                href={buildBookingAnchorHref(clinicSlug, "fecha-hora", {
+                  date: selectedDate,
                   serviceId: service.id,
                 })}
                 scroll={false}
@@ -79,8 +82,9 @@ export function ServiceStep({
                         : undefined
                     }
                   >
-                    {isSelected ? "✓" : "1"}
+                    {isSelected ? "✓" : "2"}
                   </span>
+
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
                       <p className="text-base font-semibold text-ink">{service.name}</p>
@@ -93,9 +97,11 @@ export function ServiceStep({
                         {service.durationMinutes} min
                       </span>
                     </div>
+
                     <p className="mt-2 text-sm leading-7 text-muted">
                       {service.description ?? "Servicio disponible para reserva pública."}
                     </p>
+
                     <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted">
                       <span>{formatAppointmentMoney(service.priceCents, currency)}</span>
                     </div>

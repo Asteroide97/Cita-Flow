@@ -6,8 +6,8 @@ import { BookingScrollManager } from "@/components/booking/booking-scroll-manage
 import { BookingShell } from "@/components/booking/booking-shell";
 import { BookingSummary } from "@/components/booking/booking-summary";
 import { DateStep } from "@/components/booking/date-step";
-import { DoctorStep } from "@/components/booking/doctor-step";
 import { PatientDetailsStep } from "@/components/booking/patient-details-step";
+import { ProfessionalSlotsStep } from "@/components/booking/professional-slots-step";
 import { ServiceStep } from "@/components/booking/service-step";
 import {
   buildClinicDateMarker,
@@ -30,6 +30,7 @@ import type {
   BookingClinic,
   BookingDoctorOption,
   BookingPageSearchParams,
+  BookingProfessionalAvailability,
   BookingServiceOption,
 } from "@/types/booking";
 
@@ -44,6 +45,12 @@ type BookingPageProps = {
   }>;
   searchParams: Promise<BookingPageSearchParams>;
 };
+
+function isMorningSlot(startTime: string) {
+  const [hours] = startTime.split(":");
+
+  return Number(hours) < 14;
+}
 
 export async function generateMetadata({
   params,
@@ -117,9 +124,8 @@ export default async function PublicBookingPage({
       >
         <section className="surface-card p-6 sm:p-8">
           <p className="text-sm leading-8 text-muted">
-            Si llegaste aquí desde un enlace antiguo, solicita al negocio su
-            link actualizado. También puedes volver a la página principal de
-            {brand.name}.
+            Si llegaste aquí desde un enlace antiguo, solicita al negocio su link
+            actualizado. También puedes volver a la página principal de {brand.name}.
           </p>
           <div className="mt-6">
             <Link
@@ -138,6 +144,7 @@ export default async function PublicBookingPage({
     ...clinic,
     name: getBookingClinicDisplayName(clinic),
   };
+
   const [services, doctors] = await Promise.all([
     prisma.service.findMany({
       where: {
@@ -176,29 +183,75 @@ export default async function PublicBookingPage({
 
   const serviceOptions = services satisfies BookingServiceOption[];
   const doctorOptions = doctors satisfies BookingDoctorOption[];
-  const selectedService =
-    serviceOptions.find((service) => service.id === query.serviceId?.trim()) ?? null;
-  const selectedDoctor =
-    doctorOptions.find((doctor) => doctor.id === query.doctorId?.trim()) ?? null;
-  const selectedDate =
-    selectedService && selectedDoctor ? query.date?.trim() ?? "" : "";
+
+  const selectedDate = query.date?.trim() ?? "";
   const selectedDateParts = selectedDate ? parseIsoDateInput(selectedDate) : null;
-  const availableSlotResult =
-    selectedService && selectedDoctor && selectedDateParts
-      ? await getAvailableSlots({
-          clinicId: typedClinic.id,
-          doctorId: selectedDoctor.id,
-          serviceId: selectedService.id,
-          date: buildClinicDateMarker(selectedDateParts, typedClinic.timezone),
-        })
-      : null;
-  const selectedSlotTime =
-    selectedService && selectedDoctor && selectedDateParts
-      ? query.slotTime?.trim() ?? ""
-      : "";
+  const requestedServiceId = query.serviceId?.trim() ?? "";
+  const requestedDoctorId = query.doctorId?.trim() ?? "";
+  const requestedSlot = query.slot?.trim() || query.slotTime?.trim() || "";
+
+  const selectedService =
+    serviceOptions.find((service) => service.id === requestedServiceId) ?? null;
+  const selectedWaitlistDoctor =
+    doctorOptions.find((doctor) => doctor.id === requestedDoctorId) ?? null;
+  const hasInvalidServiceSelection = Boolean(requestedServiceId && !selectedService);
+  const hasInvalidDoctorSelection = Boolean(
+    requestedDoctorId && !selectedWaitlistDoctor,
+  );
+
+  const availableProfessionals: BookingProfessionalAvailability[] =
+    selectedDateParts && selectedService
+      ? (
+          await Promise.all(
+            doctorOptions.map(async (doctor) => {
+              const availableSlotResult = await getAvailableSlots({
+                clinicId: typedClinic.id,
+                doctorId: doctor.id,
+                serviceId: selectedService.id,
+                date: buildClinicDateMarker(selectedDateParts, typedClinic.timezone),
+              });
+
+              if (!availableSlotResult.slots.length) {
+                return null;
+              }
+
+              return {
+                doctor,
+                slots: availableSlotResult.slots,
+                morningSlots: availableSlotResult.slots.filter((slot) =>
+                  isMorningSlot(slot.startTime),
+                ),
+                afternoonSlots: availableSlotResult.slots.filter(
+                  (slot) => !isMorningSlot(slot.startTime),
+                ),
+              } satisfies BookingProfessionalAvailability;
+            }),
+          )
+        ).filter(
+          (
+            item,
+          ): item is BookingProfessionalAvailability => item !== null,
+        )
+      : [];
+
+  const selectedDoctorAvailability =
+    availableProfessionals.find((item) => item.doctor.id === requestedDoctorId) ?? null;
+  const selectedDoctor = selectedDoctorAvailability?.doctor ?? null;
   const selectedSlot =
-    availableSlotResult?.slots.find((slot) => slot.startTime === selectedSlotTime) ??
-    null;
+    selectedDoctorAvailability?.slots.find(
+      (slot) => slot.startTime === requestedSlot,
+    ) ?? null;
+
+  const derivedError =
+    query.error?.trim() ||
+    (hasInvalidServiceSelection
+      ? "service-unavailable"
+      : hasInvalidDoctorSelection
+        ? "doctor-unavailable"
+        : requestedSlot && !selectedSlot
+          ? "slot-unavailable"
+          : undefined);
+
   const confirmation =
     query.status === "booking-created"
       ? await readPublicBookingConfirmationCookie(typedClinic.slug)
@@ -206,7 +259,7 @@ export default async function PublicBookingPage({
   const flash =
     confirmation && query.status === "booking-created"
       ? null
-      : resolveBookingFlashMessage(query.status, query.error);
+      : resolveBookingFlashMessage(query.status, derivedError);
   const waitlistFlash =
     flash && (query.status === "waitlist-created" || query.focus === "lista-espera")
       ? flash
@@ -215,7 +268,7 @@ export default async function PublicBookingPage({
   const brandColor = normalizeBookingBrandColor(typedClinic.brandColor);
   const minDate = getBookingTodayDateValue(typedClinic.timezone);
   const dateOptions = getBookingDateOptions(typedClinic.timezone);
-  const waitlistOpen = query.waitlist === "1";
+  const waitlistOpen = query.waitlist === "1" && Boolean(selectedDate && selectedService);
 
   return (
     <BookingShell
@@ -228,7 +281,7 @@ export default async function PublicBookingPage({
       title="Reserva tu horario"
       description={
         typedClinic.publicDescription
-          ? "Elige servicio, profesional y horario disponible."
+          ? "Elige día, servicio, profesional y horario disponible."
           : getBookingClinicDescription(typedClinic)
       }
       brandColor={brandColor}
@@ -236,9 +289,9 @@ export default async function PublicBookingPage({
         confirmation ? undefined : (
           <BookingSummary
             clinic={typedClinic}
+            selectedDate={selectedDate}
             selectedService={selectedService}
             selectedDoctor={selectedDoctor}
-            selectedDate={selectedDate}
             selectedSlotDateTime={selectedSlot?.startAt ?? null}
           />
         )
@@ -265,47 +318,47 @@ export default async function PublicBookingPage({
         />
       ) : (
         <>
-          <ServiceStep
+          <DateStep
             clinicSlug={typedClinic.slug}
-            services={serviceOptions}
-            selectedServiceId={selectedService?.id ?? ""}
-            currency={typedClinic.currency}
+            selectedDate={selectedDate}
+            minDate={minDate}
+            dateOptions={dateOptions}
+            selectedServiceId={selectedService?.id}
           />
 
-          {selectedService ? (
-            <DoctorStep
+          {selectedDate ? (
+            <ServiceStep
               clinicSlug={typedClinic.slug}
-              doctors={doctorOptions}
-              selectedServiceId={selectedService.id}
-              selectedDoctorId={selectedDoctor?.id ?? ""}
+              services={serviceOptions}
+              selectedDate={selectedDate}
+              selectedServiceId={selectedService?.id ?? ""}
+              currency={typedClinic.currency}
             />
           ) : null}
 
-          {selectedService && selectedDoctor ? (
-            <DateStep
+          {selectedDate && selectedService ? (
+            <ProfessionalSlotsStep
               clinicSlug={typedClinic.slug}
-              selectedServiceId={selectedService.id}
-              selectedDoctorId={selectedDoctor.id}
               selectedDate={selectedDate}
-              selectedSlotTime={selectedSlotTime}
-              minDate={minDate}
-              dateOptions={dateOptions}
-              availableSlotResult={availableSlotResult}
+              selectedService={selectedService}
+              availableProfessionals={availableProfessionals}
+              selectedDoctorId={selectedDoctor?.id ?? ""}
+              selectedSlot={selectedSlot?.startTime ?? ""}
               waitlistOpen={waitlistOpen}
               waitlistFlash={waitlistFlash}
-              selectedService={selectedService}
-              selectedDoctor={selectedDoctor}
+              minDate={minDate}
+              selectedWaitlistDoctor={selectedWaitlistDoctor}
               waitlistAction={createPublicWaitlistEntryAction}
             />
           ) : null}
 
-          {selectedService && selectedDoctor && selectedDateParts && selectedSlot ? (
+          {selectedDate && selectedService && selectedDoctor && selectedSlot ? (
             <PatientDetailsStep
               clinicSlug={typedClinic.slug}
               serviceId={selectedService.id}
               doctorId={selectedDoctor.id}
               date={selectedDate}
-              slotTime={selectedSlot.startTime}
+              slot={selectedSlot.startTime}
               selectedService={selectedService}
               selectedDoctor={selectedDoctor}
               action={createPublicBookingAction}

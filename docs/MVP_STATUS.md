@@ -1,6 +1,6 @@
 # Agenda Viva - Estado del MVP
 
-Actualizado: 2026-07-07
+Actualizado: 2026-07-08
 
 ## Resumen del producto
 
@@ -14,6 +14,7 @@ Agenda Viva es una plataforma de reservas para negocios de servicios. El MVP ya 
 - Lista de espera separada del booking.
 - Notificaciones en cola.
 - Dashboard operativo y reportes basicos.
+- Confirmacion por email preparada con soporte de calendario.
 
 El producto ya es demostrable. Las integraciones externas mas sensibles siguen pausadas o parciales.
 
@@ -159,6 +160,7 @@ La landing larga ya fue separada en rutas publicas mas claras:
 ### Gestion desde agenda
 
 - Calendario operativo tipo Google Calendar ya validado
+- Calendario operativo mas pulido visualmente
 - Crear reserva desde calendario funciona
 - Crear reserva desde hueco disponible
 - Crear reserva desde hueco disponible funciona
@@ -175,6 +177,7 @@ La landing larga ya fue separada en rutas publicas mas claras:
 ## Validacion reciente de calendario y booking
 
 - El calendario operativo tipo Google Calendar ya fue validado
+- El calendario operativo quedo mas pulido visualmente para uso diario
 - Crear reserva desde calendario funciona
 - Crear reserva desde hueco disponible funciona
 - Bloqueos generales afectan el booking publico
@@ -262,6 +265,21 @@ Estado actual del panel:
 - Notificaciones en outbox
 - Reportes basicos
 
+## Confirmacion por email preparada
+
+Estado actual:
+
+- Existe base para confirmacion por email desde `NotificationOutbox`
+- El booking publico ya muestra el boton `Agregar a calendario`
+- El autoservicio publico por token tambien puede mostrar `Agregar a calendario`
+- Se genera archivo `.ics` desde ruta publica validada por token
+- Existe link web preparado para Google Calendar
+- El envio automatico de email sigue desactivado hasta configurar proveedor
+
+Ruta tecnica nueva:
+
+- `/api/calendar/appointments/[appointmentId]/ics`
+
 ## Meta Cloud API pausado
 
 Estado actual:
@@ -276,6 +294,7 @@ Regla actual:
 - No activar envio automatico todavia
 - No venderlo como WhatsApp real ya activo
 - Meta Cloud API sigue pausado
+- Email real y WhatsApp real siguen en modo manual o preparado, no automatico
 
 ## Que no se debe tocar por ahora
 
@@ -336,6 +355,9 @@ Regla actual:
 - `META_WHATSAPP_PHONE_NUMBER_ID`
 - `META_WHATSAPP_API_VERSION`
 - `META_WHATSAPP_VERIFY_TOKEN`
+- `EMAIL_FROM`
+- `EMAIL_PROVIDER`
+- `RESEND_API_KEY`
 - `NODE_ENV`
 
 ## Pendientes antes de demo comercial
@@ -345,22 +367,24 @@ Regla actual:
 - Validar booking publico de `clinica-demo`
 - Validar lista de espera separada del booking
 - Validar creacion de reserva desde panel y desde agenda
+- Validar boton `Agregar a calendario` desde booking y autoservicio
 - Revisar que `NEXT_PUBLIC_APP_URL` apunte al entorno correcto
 - Confirmar copy comercial final
 - Confirmar que Meta siga visualmente pausado y no genere falsas expectativas
+- Confirmar configuracion de proveedor si se quiere probar email real manual
 - Revisar datos demo visibles para que se sientan coherentes con el posicionamiento multiindustria
 
 ## Pendientes post-demo
 
 - Activar integracion real con Meta Cloud API
 - Definir templates reales de WhatsApp
-- Conectar proveedor real de email si aplica
+- Conectar proveedor real de email y activar envio automatico si aplica
 - Integrar Stripe para anticipos
 - Revisar dominio final
 - Cambiar el email demo visible cuando deje de ser necesario mantener compatibilidad
 - Evaluar selector de multiples negocios por usuario
 - Evaluar permisos mas finos por rol
-- Evaluar integracion con Google Calendar
+- Evaluar integracion directa con Google Calendar si aporta valor mas alla de `.ics`
 
 ## Riesgos conocidos
 
@@ -368,8 +392,9 @@ Regla actual:
 - El usuario demo sigue siendo `demo@citaflow.app` por compatibilidad actual
 - Los nombres internos de modelos siguen siendo medicos (`Doctor`, `Patient`, `Clinic`)
 - Meta Cloud API esta implementado solo de forma tecnica parcial
+- Email real depende de configurar proveedor y credenciales
 - No hay Stripe real todavia
-- No hay integracion con Google Calendar todavia
+- No hay integracion directa con Google Calendar todavia, solo link web y `.ics`
 - El producto depende de seed demo o datos minimos para una demo convincente
 
 ## Comandos utiles

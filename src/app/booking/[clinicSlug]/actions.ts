@@ -34,6 +34,7 @@ import {
   enqueueAppointmentCreatedNotifications,
   enqueueWaitlistEntryCreatedNotifications,
 } from "@/lib/notifications/outbox";
+import { buildAppointmentCalendarLinks } from "@/lib/notifications/email-calendar-links";
 import { prisma } from "@/lib/prisma";
 import type { BookingStepAnchor } from "@/types/booking";
 import { normalizeWhatsAppPhone } from "@/lib/whatsapp/engine";
@@ -57,6 +58,9 @@ type PublicClinicContext = {
   publicName: string | null;
   slug: string;
   timezone: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  websiteUrl: string | null;
   isActive: boolean;
 };
 
@@ -122,6 +126,9 @@ async function loadPublicClinic(clinicSlug: string) {
       publicName: true,
       slug: true,
       timezone: true,
+      contactEmail: true,
+      contactPhone: true,
+      websiteUrl: true,
       isActive: true,
     },
   }) as Promise<PublicClinicContext | null>;
@@ -321,6 +328,7 @@ async function findRecentPublicBookingAppointment(params: {
 async function redirectToPublicBookingConfirmation(params: {
   clinic: PublicClinicContext;
   clinicSlug: string;
+  appointmentId: string;
   serviceId: string;
   doctorId: string;
   date: string;
@@ -328,10 +336,31 @@ async function redirectToPublicBookingConfirmation(params: {
   serviceName: string;
   doctorName: string;
   appointmentStartAt: Date;
+  appointmentEndAt: Date;
+  selfServiceLinks?: {
+    confirmUrl: string;
+    cancelUrl: string;
+    rescheduleUrl: string;
+  } | null;
   ipAddress: string;
   phoneRateLimitKey: string;
 }) {
   clearPublicBookingRateLimit(params.ipAddress, params.phoneRateLimitKey);
+  const calendarLinks = buildAppointmentCalendarLinks({
+    appointmentId: params.appointmentId,
+    clinicName: getBookingClinicDisplayName(params.clinic),
+    clinicPublicName: params.clinic.publicName,
+    serviceName: params.serviceName,
+    doctorName: params.doctorName,
+    statusLabel: "Pendiente de confirmación",
+    startAt: params.appointmentStartAt,
+    endAt: params.appointmentEndAt,
+    timezone: params.clinic.timezone,
+    contactEmail: params.clinic.contactEmail,
+    contactPhone: params.clinic.contactPhone,
+    websiteUrl: params.clinic.websiteUrl,
+    selfServiceLinks: params.selfServiceLinks ?? null,
+  });
 
   await setPublicBookingConfirmationCookie({
     clinicSlug: params.clinic.slug,
@@ -341,6 +370,8 @@ async function redirectToPublicBookingConfirmation(params: {
     startAtIso: params.appointmentStartAt.toISOString(),
     timezone: params.clinic.timezone,
     statusLabel: "Pendiente de confirmación",
+    calendarIcsUrl: calendarLinks.calendarIcsUrl,
+    googleCalendarUrl: calendarLinks.googleCalendarUrl,
   });
 
   redirect(
@@ -836,7 +867,16 @@ export async function createPublicBookingAction(formData: FormData) {
     );
   }
 
+  let appointmentId: string | null = null;
   let appointmentStartAt: Date | null = null;
+  let appointmentEndAt: Date | null = null;
+  let appointmentSelfServiceLinks:
+    | {
+        confirmUrl: string;
+        cancelUrl: string;
+        rescheduleUrl: string;
+      }
+    | null = null;
 
   try {
     const appointment = await prisma.$transaction(async (transaction) => {
@@ -860,7 +900,10 @@ export async function createPublicBookingAction(formData: FormData) {
       });
 
       if (existingAppointment) {
-        return existingAppointment;
+        return {
+          ...existingAppointment,
+          selfServiceLinks: null,
+        };
       }
 
       const createdAppointment = await createAppointmentSafely({
@@ -904,7 +947,10 @@ export async function createPublicBookingAction(formData: FormData) {
       return createdAppointment;
     });
 
+    appointmentId = appointment.id;
     appointmentStartAt = appointment.startAt;
+    appointmentEndAt = appointment.endAt;
+    appointmentSelfServiceLinks = appointment.selfServiceLinks;
   } catch (error) {
     const duplicateAppointment = await findRecentPublicBookingAppointment({
       clinicId: clinic.id,
@@ -919,6 +965,7 @@ export async function createPublicBookingAction(formData: FormData) {
       await redirectToPublicBookingConfirmation({
         clinic,
         clinicSlug,
+        appointmentId: duplicateAppointment.id,
         serviceId: service.id,
         doctorId: doctor.id,
         date,
@@ -926,6 +973,7 @@ export async function createPublicBookingAction(formData: FormData) {
         serviceName: service.name,
         doctorName: doctor.name,
         appointmentStartAt: duplicateAppointment.startAt,
+        appointmentEndAt: duplicateAppointment.endAt,
         ipAddress,
         phoneRateLimitKey,
       });
@@ -973,7 +1021,7 @@ export async function createPublicBookingAction(formData: FormData) {
     );
   }
 
-  if (!appointmentStartAt) {
+  if (!appointmentId || !appointmentStartAt || !appointmentEndAt) {
     redirect(
       buildBookingRedirectPath({
         clinicSlug,
@@ -990,6 +1038,7 @@ export async function createPublicBookingAction(formData: FormData) {
   await redirectToPublicBookingConfirmation({
     clinic,
     clinicSlug,
+    appointmentId,
     serviceId: service.id,
     doctorId: doctor.id,
     date,
@@ -997,6 +1046,8 @@ export async function createPublicBookingAction(formData: FormData) {
     serviceName: service.name,
     doctorName: doctor.name,
     appointmentStartAt,
+    appointmentEndAt,
+    selfServiceLinks: appointmentSelfServiceLinks,
     ipAddress,
     phoneRateLimitKey,
   });

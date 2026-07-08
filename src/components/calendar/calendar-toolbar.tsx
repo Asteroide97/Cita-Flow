@@ -41,46 +41,46 @@ export function CalendarToolbar({
   blockPanelHref,
 }: CalendarToolbarProps) {
   return (
-    <article className="surface-card p-4 sm:p-5">
-      <div className="flex flex-col gap-4">
+    <article className="rounded-[28px] border border-line/80 bg-white/96 p-3 shadow-soft sm:p-4">
+      <form action="/app/calendar" method="get" className="grid gap-3">
+        <input type="hidden" name="view" value={view} />
+
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <Link
+              href={todayHref}
+              className="inline-flex h-11 items-center justify-center rounded-full border border-brand-200 bg-brand-50 px-4 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-100"
+            >
+              Hoy
+            </Link>
+
+            <div className="inline-flex h-11 overflow-hidden rounded-full border border-line/80 bg-white">
               <Link
-                href={todayHref}
-                className="inline-flex items-center justify-center rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-100"
+                href={previousHref}
+                className="inline-flex w-11 items-center justify-center text-sm font-semibold text-ink transition-colors hover:bg-brand-50"
               >
-                Hoy
+                {"<"}
               </Link>
-
-              <div className="inline-flex overflow-hidden rounded-full border border-line/80 bg-white shadow-soft">
-                <Link
-                  href={previousHref}
-                  className="px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-brand-50"
-                >
-                  {"<"}
-                </Link>
-                <Link
-                  href={nextHref}
-                  className="border-l border-line/80 px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-brand-50"
-                >
-                  {">"}
-                </Link>
-              </div>
+              <Link
+                href={nextHref}
+                className="inline-flex w-11 items-center justify-center border-l border-line/80 text-sm font-semibold text-ink transition-colors hover:bg-brand-50"
+              >
+                {">"}
+              </Link>
             </div>
 
-            <div className="rounded-[20px] border border-line/80 bg-surface-soft px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                Rango actual
-              </p>
-              <p className="mt-1 text-sm font-semibold text-ink sm:text-base">
-                {rangeLabel}
+            <div className="min-w-0 px-1">
+              <p className="truncate text-sm font-semibold text-ink">{rangeLabel}</p>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-muted">
+                {totalAppointments} reservas · {totalBlockedTimes} bloqueos
               </p>
             </div>
+          </div>
 
+          <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex w-full overflow-x-auto rounded-full border border-line/80 bg-surface-soft p-1 sm:w-auto">
               {[
-                { key: "day" as const, label: "Dia", href: dayHref },
+                { key: "day" as const, label: "Día", href: dayHref },
                 { key: "week" as const, label: "Semana", href: weekHref },
                 { key: "month" as const, label: "Mes", href: monthHref },
               ].map((option) => (
@@ -98,33 +98,25 @@ export function CalendarToolbar({
                 </Link>
               ))}
             </div>
-          </div>
 
-          <div className="grid gap-2 sm:grid-cols-2 xl:w-auto">
             <Link
               href={blockPanelHref}
-              className="inline-flex w-full items-center justify-center rounded-full border border-line/80 bg-white/92 px-5 py-3 text-sm font-semibold text-ink shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50"
+              className="inline-flex h-11 items-center justify-center rounded-full border border-line/80 bg-white px-4 text-sm font-semibold text-ink transition-colors hover:border-brand-200 hover:bg-brand-50"
             >
               Bloquear horario
             </Link>
             <Link
               href={createPanelHref}
-              className="inline-flex w-full items-center justify-center rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
             >
               Crear reserva
             </Link>
           </div>
         </div>
 
-        <form
-          action="/app/calendar"
-          method="get"
-          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,180px)_minmax(0,240px)_auto]"
-        >
-          <input type="hidden" name="view" value={view} />
-
+        <div className="grid gap-2 lg:grid-cols-[160px_minmax(0,240px)_auto]">
           <label className="text-sm font-medium text-ink">
-            Fecha
+            <span className="sr-only">Fecha</span>
             <input
               type="date"
               name="date"
@@ -134,7 +126,7 @@ export function CalendarToolbar({
           </label>
 
           <label className="text-sm font-medium text-ink">
-            Profesional
+            <span className="sr-only">Profesional</span>
             <select
               name="doctorId"
               defaultValue={doctorId}
@@ -151,22 +143,13 @@ export function CalendarToolbar({
             </select>
           </label>
 
-          <div className="flex items-end">
-            <Button type="submit" variant="secondary" className="w-full xl:w-auto">
+          <div className="flex items-center gap-2">
+            <Button type="submit" variant="secondary" className="h-11 w-full lg:w-auto">
               Aplicar
             </Button>
           </div>
-        </form>
-
-        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-          <span className="rounded-full border border-line/80 bg-white px-3 py-1.5">
-            {totalAppointments} reservas
-          </span>
-          <span className="rounded-full border border-line/80 bg-white px-3 py-1.5">
-            {totalBlockedTimes} bloqueos
-          </span>
         </div>
-      </div>
+      </form>
     </article>
   );
 }

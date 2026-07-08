@@ -579,9 +579,9 @@ export default async function CalendarPage({
     <PanelPage
       eyebrow="Agenda"
       title="Agenda"
-      description="Día, semana y mes en una sola vista."
+      description="Vista operativa del día, la semana o el mes."
     >
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         {flash ? (
           <div
             className={
@@ -643,7 +643,7 @@ export default async function CalendarPage({
           selectedServiceLabel={selectedCreateService?.name ?? null}
         />
 
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="min-w-0">
             {view === "day" ? (
               <CalendarDayView
@@ -681,7 +681,7 @@ export default async function CalendarPage({
             <CalendarSidePanel
               eyebrow="Reserva"
               title="Detalle"
-              description="Consulta, actualiza o reagenda la reserva seleccionada."
+              description="Consulta y actualiza la reserva."
               closeHref={baseCalendarHref}
             >
               <CalendarAppointmentDetails
@@ -707,7 +707,7 @@ export default async function CalendarPage({
             <CalendarSidePanel
               eyebrow="Reserva"
               title="Crear reserva"
-              description="Selecciona servicio, horario y cliente."
+              description="Servicio, horario y cliente."
               closeHref={baseCalendarHref}
             >
               <CalendarQuickCreateForm
@@ -755,7 +755,7 @@ export default async function CalendarPage({
             <CalendarSidePanel
               eyebrow="Panel"
               title="Acciones rápidas"
-              description="Selecciona una reserva o abre un hueco para trabajar desde aquí."
+              description="Crea una reserva o bloquea un horario."
             >
               <div className="grid gap-3">
                 <Link

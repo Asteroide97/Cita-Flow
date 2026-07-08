@@ -104,7 +104,7 @@ export function CalendarDayView({
 
   if (!appointments.length && !blockedTimes.length && !hasAnySlots) {
     return (
-      <article className="surface-card p-6 sm:p-7">
+      <article className="rounded-[28px] border border-line/80 bg-white p-6 shadow-soft sm:p-7">
         <CalendarEmptyState
           title="No hay reservas para este día."
           description="Abre el panel lateral para crear una reserva o bloquear horario."
@@ -131,20 +131,20 @@ export function CalendarDayView({
   ].sort((left, right) => left.startAt.getTime() - right.startAt.getTime());
 
   return (
-    <article className="surface-card overflow-hidden">
-      <div className="border-b border-line/80 px-5 py-4 sm:px-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <article className="overflow-hidden rounded-[28px] border border-line/80 bg-white shadow-soft">
+      <div className="border-b border-line/80 px-4 py-3 sm:px-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
               Vista día
             </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-ink">
+            <h2 className="mt-1 text-lg font-semibold tracking-[-0.04em] text-ink sm:text-xl">
               {day.label}
             </h2>
           </div>
 
           {selectedServiceLabel ? (
-            <span className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">
+            <span className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-700">
               Huecos para {selectedServiceLabel}
             </span>
           ) : null}
@@ -155,7 +155,7 @@ export function CalendarDayView({
         <div
           className="grid border-b border-line/80"
           style={{
-            gridTemplateColumns: `76px repeat(${Math.max(doctors.length, 1)}, minmax(220px, 1fr))`,
+            gridTemplateColumns: `72px repeat(${Math.max(doctors.length, 1)}, minmax(240px, 1fr))`,
           }}
         >
           <div className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
@@ -169,12 +169,12 @@ export function CalendarDayView({
             return (
               <div
                 key={doctor.id}
-                className="border-l border-line/80 bg-white/70 px-4 py-4"
+                className="border-l border-line/80 bg-white/70 px-4 py-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-ink">{doctor.name}</p>
-                    <p className="mt-1 text-xs text-muted">
+                    <p className="mt-0.5 text-xs text-muted">
                       {doctor.specialty ?? "Agenda"}
                     </p>
                   </div>
@@ -187,7 +187,7 @@ export function CalendarDayView({
                   </Link>
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
                   <span>{dayAppointments.length} reservas</span>
                   {daySlots.length ? <span>{daySlots.length} huecos</span> : null}
                 </div>
@@ -199,7 +199,7 @@ export function CalendarDayView({
         <div
           className="grid"
           style={{
-            gridTemplateColumns: `76px repeat(${Math.max(doctors.length, 1)}, minmax(220px, 1fr))`,
+            gridTemplateColumns: `72px repeat(${Math.max(doctors.length, 1)}, minmax(240px, 1fr))`,
           }}
         >
           <div className="relative border-r border-line/80 bg-white/70">
@@ -228,7 +228,7 @@ export function CalendarDayView({
             return (
               <div
                 key={doctor.id}
-                className="relative border-r border-line/80 bg-[linear-gradient(180deg,rgba(248,251,255,0.92)_0%,rgba(255,255,255,0.98)_100%)] last:border-r-0"
+                className="relative border-r border-line/80 bg-[linear-gradient(180deg,rgba(248,251,255,0.82)_0%,rgba(255,255,255,0.98)_100%)] last:border-r-0"
               >
                 <div
                   className="relative"
@@ -261,8 +261,8 @@ export function CalendarDayView({
                   ))}
 
                   {!dayAppointments.length && !daySlots.length && !blockedLayouts.length ? (
-                    <div className="absolute inset-x-4 top-6 rounded-[18px] border border-dashed border-line/80 bg-white/80 px-4 py-4 text-sm text-muted">
-                      Sin reservas ni huecos visibles.
+                    <div className="absolute inset-x-4 top-6 rounded-[16px] border border-dashed border-line/80 bg-white/86 px-4 py-3 text-sm text-muted">
+                      Sin reservas ni huecos.
                     </div>
                   ) : null}
 

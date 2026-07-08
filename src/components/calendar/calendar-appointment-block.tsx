@@ -39,7 +39,7 @@ export function CalendarAppointmentBlock({
       <Link
         href={href}
         className={cn(
-          "block rounded-[22px] border px-4 py-4 transition-all duration-200 hover:-translate-y-0.5",
+          "block rounded-[20px] border px-4 py-3.5 transition-all duration-200 hover:-translate-y-0.5",
           tone.blockClassName,
           isSelected ? "ring-2 ring-brand-300 ring-offset-2 ring-offset-white" : "",
         )}
@@ -49,10 +49,9 @@ export function CalendarAppointmentBlock({
             <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-80">
               {timeLabel}
             </p>
-            <p className="mt-2 text-base font-semibold tracking-[-0.02em]">
+            <p className="mt-1.5 text-base font-semibold tracking-[-0.02em]">
               {appointment.patient.name}
             </p>
-            <p className="mt-1 text-sm opacity-80">{appointment.doctor.name}</p>
           </div>
 
           <span
@@ -76,7 +75,7 @@ export function CalendarAppointmentBlock({
     <Link
       href={href}
       className={cn(
-        "absolute z-20 overflow-hidden rounded-[18px] border px-2.5 py-2 transition-all duration-200 hover:-translate-y-0.5",
+        "absolute z-20 overflow-hidden rounded-[16px] border px-2.5 py-2 transition-all duration-200 hover:-translate-y-0.5",
         tone.blockClassName,
         isSelected ? "ring-2 ring-brand-300 ring-offset-2 ring-offset-white" : "",
         appointment.status === "CANCELLED" ? "opacity-80" : "",

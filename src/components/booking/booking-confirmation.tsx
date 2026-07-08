@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CalendarLinkActions } from "@/components/ui/calendar-link-actions";
 import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
 import { brand } from "@/lib/brand";
 import type { BookingConfirmationData } from "@/types/booking";
@@ -78,6 +79,11 @@ export function BookingConfirmation({
       </div>
 
       <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap">
+        <CalendarLinkActions
+          calendarIcsUrl={confirmation.calendarIcsUrl}
+          googleCalendarUrl={confirmation.googleCalendarUrl}
+          className="contents"
+        />
         <Link
           href={resetHref}
           className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"

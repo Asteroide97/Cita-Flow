@@ -40,14 +40,14 @@ export function CalendarMonthView({
     }));
 
   return (
-    <article className="surface-card overflow-hidden">
-      <div className="border-b border-line/80 px-5 py-4 sm:px-6">
+    <article className="overflow-hidden rounded-[28px] border border-line/80 bg-white shadow-soft">
+      <div className="border-b border-line/80 px-4 py-3 sm:px-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
               Vista mes
             </p>
-            <h2 className="mt-2 text-xl font-semibold tracking-[-0.05em] text-ink">
+            <h2 className="mt-1 text-lg font-semibold tracking-[-0.04em] text-ink sm:text-xl">
               Resumen mensual
             </h2>
           </div>

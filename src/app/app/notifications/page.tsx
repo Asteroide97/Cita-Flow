@@ -16,6 +16,7 @@ import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
 import { requireAuthContext } from "@/lib/auth/session";
 import { getMetaWhatsAppConfigStatus } from "@/lib/meta/whatsapp-client";
 import { listNotificationOutbox } from "@/lib/notifications/outbox";
+import { getEmailDeliveryConfigStatus } from "@/lib/notifications/send-email";
 import {
   notificationTemplateKeys,
   notificationTemplateLabels,
@@ -25,6 +26,7 @@ import {
   cancelNotificationAction,
   markNotificationFailedAction,
   markNotificationSentAction,
+  sendEmailNotificationAction,
   sendWhatsAppNotificationAction,
 } from "./actions";
 
@@ -55,6 +57,11 @@ function resolveFlashMessage(status?: string, error?: string) {
           tone: "error" as const,
           message: "Configura Meta Cloud API antes de intentar enviar notificaciones reales por WhatsApp.",
         };
+      case "notification-email-not-configured":
+        return {
+          tone: "error" as const,
+          message: "Email real no configurado. Define EMAIL_PROVIDER y credenciales antes de probar envíos.",
+        };
       default:
         return {
           tone: "error" as const,
@@ -73,6 +80,16 @@ function resolveFlashMessage(status?: string, error?: string) {
       return {
         tone: "error" as const,
         message: "No se pudo enviar por WhatsApp. Revisa el error guardado en la notificacion.",
+      };
+    case "notification-email-sent":
+      return {
+        tone: "success" as const,
+        message: "Email enviado correctamente desde el panel.",
+      };
+    case "notification-email-failed":
+      return {
+        tone: "error" as const,
+        message: "No se pudo enviar el email. Revisa el error guardado en la notificación.",
       };
     case "notification-sent":
       return {
@@ -191,6 +208,41 @@ function isNotificationChannel(value: string): value is NotificationChannel {
   return Object.values(NotificationChannel).includes(value as NotificationChannel);
 }
 
+function extractCalendarLinks(payloadJson: unknown) {
+  if (!payloadJson || typeof payloadJson !== "object") {
+    return {
+      calendarIcsUrl: null,
+      googleCalendarUrl: null,
+      hasCalendarLinks: false,
+    };
+  }
+
+  const rawCalendarLinks = (payloadJson as { calendarLinks?: unknown }).calendarLinks;
+
+  if (!rawCalendarLinks || typeof rawCalendarLinks !== "object") {
+    return {
+      calendarIcsUrl: null,
+      googleCalendarUrl: null,
+      hasCalendarLinks: false,
+    };
+  }
+
+  const calendarIcsUrl =
+    typeof (rawCalendarLinks as { calendarIcsUrl?: unknown }).calendarIcsUrl === "string"
+      ? (rawCalendarLinks as { calendarIcsUrl: string }).calendarIcsUrl
+      : null;
+  const googleCalendarUrl =
+    typeof (rawCalendarLinks as { googleCalendarUrl?: unknown }).googleCalendarUrl === "string"
+      ? (rawCalendarLinks as { googleCalendarUrl: string }).googleCalendarUrl
+      : null;
+
+  return {
+    calendarIcsUrl,
+    googleCalendarUrl,
+    hasCalendarLinks: Boolean(calendarIcsUrl || googleCalendarUrl),
+  };
+}
+
 export default async function NotificationsPage({
   searchParams,
 }: NotificationsPageProps) {
@@ -202,6 +254,7 @@ export default async function NotificationsPage({
     clinicId: authContext.clinic.id,
   });
   const metaConfig = getMetaWhatsAppConfigStatus();
+  const emailConfig = getEmailDeliveryConfigStatus();
   const flash = resolveFlashMessage(query.status, query.error);
   const filterStatus = isNotificationStatus(query.filterStatus?.trim() ?? "")
     ? (query.filterStatus?.trim() as NotificationStatus)
@@ -249,9 +302,9 @@ export default async function NotificationsPage({
         </div>
 
         <article className="rounded-[22px] border border-line/80 bg-white px-4 py-3 text-sm text-muted">
-          {metaConfig.isConfigured
-            ? "Meta Cloud API esta lista, pero el envio automatico sigue en pausa."
-            : "WhatsApp real esta pendiente de configuracion. La cola sigue en modo manual."}
+          {emailConfig.isConfigured
+            ? "Email listo para pruebas manuales. WhatsApp sigue en cola y sin envío automático."
+            : "Email real pendiente de configuración. La cola ya prepara mensajes con resumen y calendario."}
         </article>
 
         {flash ? (
@@ -332,9 +385,13 @@ export default async function NotificationsPage({
                 const canSendWhatsApp =
                   notification.channel === NotificationChannel.WHATSAPP &&
                   notification.status === NotificationStatus.PENDING;
+                const canSendEmail =
+                  notification.channel === NotificationChannel.EMAIL &&
+                  notification.status === NotificationStatus.PENDING;
                 const canTransition =
                   notification.status !== NotificationStatus.SENT &&
                   notification.status !== NotificationStatus.CANCELLED;
+                const calendarLinks = extractCalendarLinks(notification.payloadJson);
                 const appointmentSummary = notification.appointment
                   ? `${formatDateTimeInTimeZone(notification.appointment.startAt, authContext.clinic.timezone)} - ${notification.appointment.patient.name}`
                   : "Sin reserva relacionada";
@@ -353,6 +410,11 @@ export default async function NotificationsPage({
                           <StatusPill className={getStatusClassName(notification.status)}>
                             {getStatusLabel(notification.status)}
                           </StatusPill>
+                          {calendarLinks.hasCalendarLinks ? (
+                            <StatusPill className="border-brand-200 bg-brand-50 text-brand-700">
+                              Calendario
+                            </StatusPill>
+                          ) : null}
                         </div>
 
                         <h2 className="mt-3 text-base font-semibold tracking-[-0.03em] text-ink">
@@ -394,6 +456,35 @@ export default async function NotificationsPage({
                               </button>
                               <p className="text-xs text-muted">
                                 Configura Meta Cloud API para enviar.
+                              </p>
+                            </>
+                          )
+                        ) : canSendEmail ? (
+                          emailConfig.isConfigured ? (
+                            <form action={sendEmailNotificationAction} className="w-full sm:w-auto">
+                              <input
+                                type="hidden"
+                                name="notificationId"
+                                value={notification.id}
+                              />
+                              <button
+                                type="submit"
+                                className={`${actionButtonClassName("sent")} w-full sm:w-auto`}
+                              >
+                                Probar email
+                              </button>
+                            </form>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                disabled
+                                className={`${actionButtonClassName("sent")} w-full sm:w-auto`}
+                              >
+                                Probar email
+                              </button>
+                              <p className="text-xs text-muted">
+                                Email real pendiente de configuración.
                               </p>
                             </>
                           )
@@ -461,6 +552,37 @@ export default async function NotificationsPage({
                           </div>
                         </div>
 
+                        {notification.channel === NotificationChannel.EMAIL ? (
+                          <div className="rounded-[18px] border border-line/80 bg-surface-soft px-4 py-3 text-sm text-muted">
+                            {emailConfig.isConfigured
+                              ? "Email listo para prueba manual desde el panel."
+                              : "Email real pendiente de configuración."}
+                          </div>
+                        ) : null}
+
+                        {calendarLinks.hasCalendarLinks ? (
+                          <div className="flex flex-wrap gap-2">
+                            {calendarLinks.calendarIcsUrl ? (
+                              <a
+                                href={calendarLinks.calendarIcsUrl}
+                                className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink transition hover:border-brand-200 hover:bg-brand-50"
+                              >
+                                Agregar a calendario
+                              </a>
+                            ) : null}
+                            {calendarLinks.googleCalendarUrl ? (
+                              <a
+                                href={calendarLinks.googleCalendarUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center justify-center rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 transition hover:border-brand-300 hover:bg-brand-100"
+                              >
+                                Google Calendar
+                              </a>
+                            ) : null}
+                          </div>
+                        ) : null}
+
                         <div className="rounded-[18px] border border-line/80 bg-slate-950 px-4 py-4 text-slate-100">
                           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
                             Mensaje completo
@@ -500,6 +622,32 @@ export default async function NotificationsPage({
                                 className={`${actionButtonClassName("whatsapp")} w-full sm:w-auto`}
                               >
                                 Enviar WhatsApp
+                              </button>
+                            )
+                          ) : null}
+
+                          {canSendEmail ? (
+                            emailConfig.isConfigured ? (
+                              <form action={sendEmailNotificationAction} className="w-full sm:w-auto">
+                                <input
+                                  type="hidden"
+                                  name="notificationId"
+                                  value={notification.id}
+                                />
+                                <button
+                                  type="submit"
+                                  className={`${actionButtonClassName("sent")} w-full sm:w-auto`}
+                                >
+                                  Probar email
+                                </button>
+                              </form>
+                            ) : (
+                              <button
+                                type="button"
+                                disabled
+                                className={`${actionButtonClassName("sent")} w-full sm:w-auto`}
+                              >
+                                Probar email
                               </button>
                             )
                           ) : null}

@@ -18,6 +18,7 @@ import {
   renderWaitlistNotificationTemplate,
   type WaitlistNotificationTemplateContext,
 } from "./templates";
+import { buildAppointmentCalendarLinks } from "./email-calendar-links";
 
 type NotificationClient = Prisma.TransactionClient | typeof prisma;
 
@@ -30,6 +31,10 @@ const appointmentNotificationInclude = {
       timezone: true,
       currency: true,
       brandColor: true,
+      publicName: true,
+      websiteUrl: true,
+      contactEmail: true,
+      contactPhone: true,
     },
   },
   patient: {
@@ -173,6 +178,32 @@ function toTemplateContext(
     doctor: appointment.doctor,
     service: appointment.service,
     selfServiceLinks,
+    calendarLinks: buildAppointmentCalendarLinks({
+      appointmentId: appointment.id,
+      clinicName: appointment.clinic.name,
+      clinicPublicName: appointment.clinic.publicName,
+      serviceName: appointment.service.name,
+      doctorName: appointment.doctor.name,
+      statusLabel:
+        appointment.status === AppointmentStatus.PENDING
+          ? "Pendiente de confirmación"
+          : appointment.status === AppointmentStatus.CONFIRMED
+            ? "Confirmada"
+            : appointment.status === AppointmentStatus.CANCELLED
+              ? "Cancelada"
+              : appointment.status === AppointmentStatus.RESCHEDULED
+                ? "Reagendada"
+                : appointment.status === AppointmentStatus.COMPLETED
+                  ? "Completada"
+                  : "No show",
+      startAt: appointment.startAt,
+      endAt: appointment.endAt,
+      timezone: appointment.clinic.timezone,
+      contactEmail: appointment.clinic.contactEmail,
+      contactPhone: appointment.clinic.contactPhone,
+      websiteUrl: appointment.clinic.websiteUrl,
+      selfServiceLinks,
+    }),
   };
 }
 

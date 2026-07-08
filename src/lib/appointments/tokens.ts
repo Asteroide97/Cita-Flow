@@ -68,6 +68,10 @@ export type PublicAppointmentTokenContext = Prisma.AppointmentTokenGetPayload<{
             timezone: true;
             currency: true;
             brandColor: true;
+            publicName: true;
+            websiteUrl: true;
+            contactEmail: true;
+            contactPhone: true;
             isActive: true;
           };
         };
@@ -328,6 +332,10 @@ export async function validateAppointmentToken({
               timezone: true,
               currency: true,
               brandColor: true,
+              publicName: true,
+              websiteUrl: true,
+              contactEmail: true,
+              contactPhone: true,
               isActive: true,
             },
           },

@@ -17,17 +17,17 @@ export function CalendarSidePanel({
   children,
 }: CalendarSidePanelProps) {
   return (
-    <aside className="surface-card min-w-0 p-5 sm:p-6 xl:sticky xl:top-6">
+    <aside className="min-w-0 rounded-[28px] border border-line/80 bg-white/96 p-4 shadow-soft sm:p-5 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:overflow-y-auto">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
             {eyebrow}
           </p>
-          <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-ink">
+          <h2 className="mt-1.5 text-lg font-semibold tracking-[-0.04em] text-ink sm:text-xl">
             {title}
           </h2>
           {description ? (
-            <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
+            <p className="mt-1.5 text-sm leading-6 text-muted">{description}</p>
           ) : null}
         </div>
 
@@ -41,7 +41,7 @@ export function CalendarSidePanel({
         ) : null}
       </div>
 
-      <div className="mt-5">{children}</div>
+      <div className="mt-4">{children}</div>
     </aside>
   );
 }

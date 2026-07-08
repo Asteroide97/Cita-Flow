@@ -2,6 +2,7 @@ import { AppointmentSource, AppointmentStatus, Prisma } from "@prisma/client";
 
 import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
 import type { AppointmentSelfServiceLinks } from "@/lib/appointments/tokens";
+import type { AppointmentCalendarLinks } from "@/lib/notifications/email-calendar-links";
 
 export const notificationTemplateKeys = [
   "APPOINTMENT_CREATED_PUBLIC",
@@ -45,6 +46,10 @@ export type AppointmentNotificationTemplateContext = {
     timezone: string;
     currency: string;
     brandColor: string | null;
+    publicName: string | null;
+    websiteUrl: string | null;
+    contactEmail: string | null;
+    contactPhone: string | null;
   };
   appointment: {
     id: string;
@@ -74,6 +79,7 @@ export type AppointmentNotificationTemplateContext = {
     depositCents: number | null;
   };
   selfServiceLinks?: AppointmentSelfServiceLinks | null;
+  calendarLinks?: AppointmentCalendarLinks | null;
 };
 
 export type RenderedNotificationTemplate = {
@@ -179,6 +185,12 @@ function buildAppointmentSummaryLine(context: AppointmentNotificationTemplateCon
   return `${context.service.name} con ${context.doctor.name}.`;
 }
 
+function getAppointmentClinicDisplayName(
+  context: AppointmentNotificationTemplateContext,
+) {
+  return context.clinic.publicName?.trim() || context.clinic.name;
+}
+
 function buildAppointmentScheduleLine(context: AppointmentNotificationTemplateContext) {
   const scheduleLabel = formatDateTimeInTimeZone(
     context.appointment.startAt,
@@ -200,6 +212,19 @@ function buildSelfServiceLines(links: AppointmentSelfServiceLinks | null | undef
   ];
 }
 
+function buildCalendarLines(links: AppointmentCalendarLinks | null | undefined) {
+  if (!links) {
+    return [];
+  }
+
+  return [
+    links.calendarIcsUrl ? `Agregar a calendario: ${links.calendarIcsUrl}` : null,
+    links.googleCalendarUrl
+      ? `Abrir en Google Calendar: ${links.googleCalendarUrl}`
+      : null,
+  ].filter(Boolean) as string[];
+}
+
 function buildPayload(
   templateKey: NotificationTemplateKey,
   context: AppointmentNotificationTemplateContext,
@@ -213,6 +238,10 @@ function buildPayload(
       timezone: context.clinic.timezone,
       currency: context.clinic.currency,
       brandColor: context.clinic.brandColor,
+      publicName: context.clinic.publicName,
+      websiteUrl: context.clinic.websiteUrl,
+      contactEmail: context.clinic.contactEmail,
+      contactPhone: context.clinic.contactPhone,
     },
     appointment: {
       id: context.appointment.id,
@@ -242,6 +271,7 @@ function buildPayload(
       depositCents: context.service.depositCents,
     },
     selfServiceLinks: context.selfServiceLinks ?? null,
+    calendarLinks: context.calendarLinks ?? null,
   } satisfies Prisma.InputJsonValue;
 }
 
@@ -260,11 +290,12 @@ function renderAppointmentMessage(params: {
   const links = params.includeLinks
     ? buildSelfServiceLines(params.context.selfServiceLinks)
     : [];
+  const calendarLinks = buildCalendarLines(params.context.calendarLinks);
   const whatsappBody = buildWhatsappMessage([params.headline, ...lines, ...links]);
   const emailBody = buildEmailMessage({
     headline: params.headline,
     lines,
-    links,
+    links: [...links, ...calendarLinks],
     footer: params.footer,
   });
 
@@ -288,8 +319,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CREATED_PUBLIC":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Solicitud de reserva recibida - ${context.clinic.name}`,
-        headline: `Reserva solicitada en ${context.clinic.name}.`,
+        subject: `Solicitud de reserva recibida - ${getAppointmentClinicDisplayName(context)}`,
+        headline: `Reserva solicitada en ${getAppointmentClinicDisplayName(context)}.`,
         context,
         includeLinks: true,
       });
@@ -297,8 +328,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CREATED_ADMIN":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Reserva registrada - ${context.clinic.name}`,
-        headline: `Reserva registrada en ${context.clinic.name}.`,
+        subject: `Reserva registrada - ${getAppointmentClinicDisplayName(context)}`,
+        headline: `Reserva registrada en ${getAppointmentClinicDisplayName(context)}.`,
         context,
         includeLinks: true,
       });
@@ -306,8 +337,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CREATED_WHATSAPP":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Reserva registrada por WhatsApp - ${context.clinic.name}`,
-        headline: `Reserva registrada por WhatsApp en ${context.clinic.name}.`,
+        subject: `Reserva registrada por WhatsApp - ${getAppointmentClinicDisplayName(context)}`,
+        headline: `Reserva registrada por WhatsApp en ${getAppointmentClinicDisplayName(context)}.`,
         context,
         includeLinks: true,
       });
@@ -315,8 +346,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CONFIRMED":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Reserva confirmada - ${context.clinic.name}`,
-        headline: `Reserva confirmada en ${context.clinic.name}.`,
+        subject: `Reserva confirmada - ${getAppointmentClinicDisplayName(context)}`,
+        headline: `Reserva confirmada en ${getAppointmentClinicDisplayName(context)}.`,
         context,
         includeLinks: true,
       });
@@ -324,16 +355,16 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_CANCELLED":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Reserva cancelada - ${context.clinic.name}`,
-        headline: `Reserva cancelada en ${context.clinic.name}.`,
+        subject: `Reserva cancelada - ${getAppointmentClinicDisplayName(context)}`,
+        headline: `Reserva cancelada en ${getAppointmentClinicDisplayName(context)}.`,
         context,
       });
 
     case "APPOINTMENT_RESCHEDULED":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Reserva reagendada - ${context.clinic.name}`,
-        headline: `Reserva reagendada en ${context.clinic.name}.`,
+        subject: `Reserva reagendada - ${getAppointmentClinicDisplayName(context)}`,
+        headline: `Reserva reagendada en ${getAppointmentClinicDisplayName(context)}.`,
         context,
         includeLinks: true,
       });
@@ -341,8 +372,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_REMINDER_24H":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Recordatorio de reserva para mañana - ${context.clinic.name}`,
-        headline: `Recordatorio de reserva en ${context.clinic.name}.`,
+        subject: `Recordatorio de reserva para mañana - ${getAppointmentClinicDisplayName(context)}`,
+        headline: `Recordatorio de reserva en ${getAppointmentClinicDisplayName(context)}.`,
         context,
         includeLinks: true,
       });
@@ -350,8 +381,8 @@ export function renderNotificationTemplate(
     case "APPOINTMENT_REMINDER_2H":
       return renderAppointmentMessage({
         templateKey,
-        subject: `Recordatorio de reserva en 2 horas - ${context.clinic.name}`,
-        headline: `Tu reserva en ${context.clinic.name} es hoy.`,
+        subject: `Recordatorio de reserva en 2 horas - ${getAppointmentClinicDisplayName(context)}`,
+        headline: `Tu reserva en ${getAppointmentClinicDisplayName(context)} es hoy.`,
         context,
         includeLinks: true,
       });

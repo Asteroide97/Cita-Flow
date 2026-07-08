@@ -23,6 +23,7 @@ import {
   validateAppointmentToken,
 } from "@/lib/appointments/tokens";
 import { createAuditLog } from "@/lib/audit";
+import { buildAppointmentCalendarLinks } from "@/lib/notifications/email-calendar-links";
 import { enqueueAppointmentStatusChangedNotification } from "@/lib/notifications/outbox";
 import { prisma } from "@/lib/prisma";
 import { processWaitlistForCancelledAppointment } from "@/lib/waitlist/matching";
@@ -40,11 +41,16 @@ function buildPublicAppointmentCookiePayload(params: {
   token: string;
   action: "confirm" | "cancel" | "reschedule";
   appointment: {
+    id: string;
     clinic: {
       name: string;
       slug: string;
       brandColor: string | null;
       timezone: string;
+      publicName: string | null;
+      websiteUrl: string | null;
+      contactEmail: string | null;
+      contactPhone: string | null;
     };
     patient: {
       name: string;
@@ -63,7 +69,28 @@ function buildPublicAppointmentCookiePayload(params: {
   };
   statusLabel: string;
   message: string;
+  selfServiceLinks?: {
+    confirmUrl: string;
+    cancelUrl: string;
+    rescheduleUrl: string;
+  } | null;
 }) {
+  const calendarLinks = buildAppointmentCalendarLinks({
+    appointmentId: params.appointment.id,
+    clinicName: params.appointment.clinic.name,
+    clinicPublicName: params.appointment.clinic.publicName,
+    serviceName: params.appointment.service.name,
+    doctorName: params.appointment.doctor.name,
+    statusLabel: params.statusLabel,
+    startAt: params.appointment.startAt,
+    endAt: params.appointment.endAt,
+    timezone: params.appointment.clinic.timezone,
+    contactEmail: params.appointment.clinic.contactEmail,
+    contactPhone: params.appointment.clinic.contactPhone,
+    websiteUrl: params.appointment.clinic.websiteUrl,
+    selfServiceLinks: params.selfServiceLinks ?? null,
+  });
+
   return {
     token: params.token,
     action: params.action,
@@ -81,6 +108,8 @@ function buildPublicAppointmentCookiePayload(params: {
     timezone: params.appointment.clinic.timezone,
     statusLabel: params.statusLabel,
     message: params.message,
+    calendarIcsUrl: calendarLinks.calendarIcsUrl,
+    googleCalendarUrl: calendarLinks.googleCalendarUrl,
   };
 }
 
@@ -124,6 +153,10 @@ export async function confirmAppointmentByTokenAction(formData: FormData) {
             slug: true,
             brandColor: true,
             timezone: true,
+            publicName: true,
+            websiteUrl: true,
+            contactEmail: true,
+            contactPhone: true,
           },
         },
         patient: {
@@ -168,23 +201,41 @@ export async function confirmAppointmentByTokenAction(formData: FormData) {
       transaction,
     );
 
+    const tokenBundle = await createAppointmentTokens({
+      clinicId: validation.context.clinicId,
+      appointmentId: appointment.id,
+      appointmentStartAt: appointment.startAt,
+      db: transaction,
+      invalidateExisting: false,
+    });
+    const selfServiceLinks = {
+      confirmUrl: tokenBundle.confirm.url,
+      cancelUrl: tokenBundle.cancel.url,
+      rescheduleUrl: tokenBundle.reschedule.url,
+    };
+
     await enqueueAppointmentStatusChangedNotification({
       clinicId: validation.context.clinicId,
       appointmentId: appointment.id,
       changeType: "CONFIRMED",
+      selfServiceLinks,
       db: transaction,
     });
 
-    return appointment;
+    return {
+      appointment,
+      selfServiceLinks,
+    };
   });
 
   await setPublicAppointmentResultCookie(
     buildPublicAppointmentCookiePayload({
       token,
       action: "confirm",
-      appointment: updatedAppointment,
+      appointment: updatedAppointment.appointment,
       statusLabel: "Confirmada",
       message: "Tu reserva quedó confirmada correctamente.",
+      selfServiceLinks: updatedAppointment.selfServiceLinks,
     }),
   );
 
@@ -233,6 +284,10 @@ export async function cancelAppointmentByTokenAction(formData: FormData) {
             slug: true,
             brandColor: true,
             timezone: true,
+            publicName: true,
+            websiteUrl: true,
+            contactEmail: true,
+            contactPhone: true,
           },
         },
         patient: {
@@ -419,6 +474,10 @@ export async function rescheduleAppointmentByTokenAction(formData: FormData) {
             slug: true,
             brandColor: true,
             timezone: true,
+            publicName: true,
+            websiteUrl: true,
+            contactEmail: true,
+            contactPhone: true,
           },
         },
         patient: {
@@ -453,6 +512,11 @@ export async function rescheduleAppointmentByTokenAction(formData: FormData) {
       appointmentStartAt: appointment.startAt,
       db: transaction,
     });
+    const selfServiceLinks = {
+      confirmUrl: tokenBundle.confirm.url,
+      cancelUrl: tokenBundle.cancel.url,
+      rescheduleUrl: tokenBundle.reschedule.url,
+    };
 
     await createAuditLog(
       {
@@ -478,25 +542,24 @@ export async function rescheduleAppointmentByTokenAction(formData: FormData) {
       clinicId: validation.context.clinicId,
       appointmentId: appointment.id,
       changeType: "RESCHEDULED",
-      selfServiceLinks: {
-        confirmUrl: tokenBundle.confirm.url,
-        cancelUrl: tokenBundle.cancel.url,
-        rescheduleUrl: tokenBundle.reschedule.url,
-      },
+      selfServiceLinks,
       db: transaction,
     });
 
-    return appointment;
+    return {
+      appointment,
+      selfServiceLinks,
+    };
   });
 
   await setPublicAppointmentResultCookie(
     buildPublicAppointmentCookiePayload({
       token,
       action: "reschedule",
-      appointment: updatedAppointment,
-      statusLabel: "Pendiente de confirmacion",
-      message:
-        "Tu reserva fue reagendada. El negocio revisará y confirmará el nuevo horario.",
+      appointment: updatedAppointment.appointment,
+      statusLabel: "Pendiente de confirmación",
+      message: "Tu reserva fue reagendada. El negocio revisará y confirmará el nuevo horario.",
+      selfServiceLinks: updatedAppointment.selfServiceLinks,
     }),
   );
 

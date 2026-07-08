@@ -5,6 +5,7 @@ import { AppointmentTokenSummary } from "@/components/public-appointment/appoint
 import { ConfirmAppointmentForm } from "@/components/public-appointment/confirm-appointment-form";
 import { PublicAppointmentShell } from "@/components/public-appointment/public-appointment-shell";
 import { TokenErrorState } from "@/components/public-appointment/token-error-state";
+import { CalendarLinkActions } from "@/components/ui/calendar-link-actions";
 import { readPublicAppointmentResultCookie } from "@/lib/appointments/public-result";
 import {
   canPatientConfirmAppointment,
@@ -14,6 +15,7 @@ import {
 import { validateAppointmentToken } from "@/lib/appointments/tokens";
 import { normalizeBookingBrandColor } from "@/lib/booking/public";
 import { brand, withBrandTitle } from "@/lib/brand";
+import { buildAppointmentCalendarLinks } from "@/lib/notifications/email-calendar-links";
 
 import { confirmAppointmentByTokenAction } from "../../actions";
 
@@ -88,6 +90,12 @@ export default async function ConfirmAppointmentPage({
               </p>
             </div>
           </div>
+
+          <CalendarLinkActions
+            calendarIcsUrl={successResult.calendarIcsUrl}
+            googleCalendarUrl={successResult.googleCalendarUrl}
+            className="mt-6 flex flex-wrap gap-3"
+          />
         </article>
       </PublicAppointmentShell>
     );
@@ -134,6 +142,23 @@ export default async function ConfirmAppointmentPage({
   }
 
   const flash = resolvePublicAppointmentFlashMessage(query.error);
+  const calendarLinks = buildAppointmentCalendarLinks({
+    appointmentId: validation.context.appointment.id,
+    clinicName: validation.context.appointment.clinic.name,
+    clinicPublicName: validation.context.appointment.clinic.publicName,
+    serviceName: validation.context.appointment.service.name,
+    doctorName: validation.context.appointment.doctor.name,
+    statusLabel: "Pendiente de confirmación",
+    startAt: validation.context.appointment.startAt,
+    endAt: validation.context.appointment.endAt,
+    timezone: validation.context.appointment.clinic.timezone,
+    contactEmail: validation.context.appointment.clinic.contactEmail,
+    contactPhone: validation.context.appointment.clinic.contactPhone,
+    websiteUrl: validation.context.appointment.clinic.websiteUrl,
+    selfServiceLinks: {
+      confirmUrl: `/cita/confirmar/${token}`,
+    },
+  });
 
   return (
     <PublicAppointmentShell
@@ -162,6 +187,8 @@ export default async function ConfirmAppointmentPage({
         source={validation.context.appointment.source}
         notes={validation.context.appointment.notes}
         currency={validation.context.appointment.clinic.currency}
+        calendarIcsUrl={calendarLinks.calendarIcsUrl}
+        googleCalendarUrl={calendarLinks.googleCalendarUrl}
       />
 
       {flash ? (

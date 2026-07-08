@@ -90,6 +90,8 @@ export type BookingConfirmationData = {
   startAtIso: string;
   timezone: string;
   statusLabel: string;
+  calendarIcsUrl?: string | null;
+  googleCalendarUrl?: string | null;
 };
 
 export type BookingAppointmentSummary = Prisma.AppointmentGetPayload<{

@@ -44,7 +44,7 @@ export function CalendarWeekView({
 
   if (!appointments.length && !blockedTimes.length) {
     return (
-      <article className="surface-card p-6 sm:p-7">
+      <article className="rounded-[28px] border border-line/80 bg-white p-6 shadow-soft sm:p-7">
         <CalendarEmptyState
           title="No hay reservas esta semana."
           description="Cambia de fecha o crea una nueva reserva desde el panel lateral."
@@ -54,18 +54,18 @@ export function CalendarWeekView({
   }
 
   return (
-    <article className="surface-card overflow-hidden">
-      <div className="border-b border-line/80 px-5 py-4 sm:px-6">
+    <article className="overflow-hidden rounded-[28px] border border-line/80 bg-white shadow-soft">
+      <div className="border-b border-line/80 px-4 py-3 sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">
               Vista semana
             </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-ink">
+            <h2 className="mt-1 text-lg font-semibold tracking-[-0.04em] text-ink sm:text-xl">
               Semana operativa
             </h2>
           </div>
-          <p className="text-sm text-muted">{appointments.length} reservas visibles</p>
+          <p className="text-sm text-muted">{appointments.length} reservas</p>
         </div>
       </div>
 

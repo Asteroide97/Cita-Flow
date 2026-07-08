@@ -7,6 +7,10 @@ import { redirect } from "next/navigation";
 import { createAuditLog } from "@/lib/audit";
 import { requireAuthContext } from "@/lib/auth/session";
 import { getMetaWhatsAppConfigStatus } from "@/lib/meta/whatsapp-client";
+import {
+  getEmailDeliveryConfigStatus,
+  sendPendingEmailNotification,
+} from "@/lib/notifications/send-email";
 import { sendPendingWhatsAppNotification } from "@/lib/notifications/send-whatsapp";
 import { prisma } from "@/lib/prisma";
 
@@ -237,6 +241,63 @@ export async function sendWhatsAppNotificationAction(formData: FormData) {
 
   if (result.reason === "SEND_FAILED") {
     redirect(buildNotificationsPath({ status: "notification-whatsapp-failed" }));
+  }
+
+  redirect(buildNotificationsPath({ error: "notification-action-invalid" }));
+}
+
+export async function sendEmailNotificationAction(formData: FormData) {
+  const authContext = await requireAuthContext();
+  const notificationId = String(formData.get("notificationId") ?? "").trim();
+  const emailConfig = getEmailDeliveryConfigStatus();
+
+  if (!notificationId) {
+    redirect(buildNotificationsPath({ error: "notification-not-found" }));
+  }
+
+  if (!emailConfig.isConfigured) {
+    redirect(buildNotificationsPath({ error: "notification-email-not-configured" }));
+  }
+
+  const notification = await prisma.notificationOutbox.findFirst({
+    where: {
+      id: notificationId,
+      clinicId: authContext.clinic.id,
+    },
+    select: {
+      id: true,
+      channel: true,
+      status: true,
+    },
+  });
+
+  if (!notification) {
+    redirect(buildNotificationsPath({ error: "notification-not-found" }));
+  }
+
+  if (
+    notification.channel !== NotificationChannel.EMAIL ||
+    notification.status !== NotificationStatus.PENDING
+  ) {
+    redirect(buildNotificationsPath({ error: "notification-action-invalid" }));
+  }
+
+  const result = await sendPendingEmailNotification(notification.id, {
+    actorUserId: authContext.user.id,
+  });
+
+  revalidateNotificationViews();
+
+  if (result.ok) {
+    redirect(buildNotificationsPath({ status: "notification-email-sent" }));
+  }
+
+  if (result.reason === "SEND_FAILED") {
+    redirect(buildNotificationsPath({ status: "notification-email-failed" }));
+  }
+
+  if (result.reason === "EMAIL_NOT_CONFIGURED") {
+    redirect(buildNotificationsPath({ error: "notification-email-not-configured" }));
   }
 
   redirect(buildNotificationsPath({ error: "notification-action-invalid" }));

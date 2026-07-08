@@ -767,7 +767,7 @@ export function getCalendarStatusTone(status: AppointmentStatus) {
 export function getCalendarBlockedTone() {
   return {
     blockClassName:
-      "border-slate-500 bg-[repeating-linear-gradient(-45deg,rgba(51,65,85,0.18),rgba(51,65,85,0.18)_10px,rgba(148,163,184,0.18)_10px,rgba(148,163,184,0.18)_20px)] text-slate-900 shadow-[0_18px_32px_-28px_rgba(15,23,42,0.28)]",
+      "border-slate-500/80 bg-[repeating-linear-gradient(-45deg,rgba(51,65,85,0.2),rgba(51,65,85,0.2)_10px,rgba(148,163,184,0.16)_10px,rgba(148,163,184,0.16)_20px)] text-slate-900 shadow-[0_18px_32px_-28px_rgba(15,23,42,0.28)]",
     badgeClassName: "border-slate-400 bg-slate-800 text-white",
     dotClassName: "bg-slate-700",
   };
@@ -776,7 +776,7 @@ export function getCalendarBlockedTone() {
 export function getCalendarAvailableTone() {
   return {
     blockClassName:
-      "border-brand-200/90 bg-brand-50/55 text-brand-700 hover:border-brand-300 hover:bg-brand-100/70",
+      "border-brand-200/70 bg-brand-50/30 text-brand-700 hover:border-brand-300 hover:bg-brand-100/55",
     badgeClassName: "border-brand-200 bg-brand-50 text-brand-700",
     dotClassName: "bg-brand-400",
   };

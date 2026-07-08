@@ -7,6 +7,7 @@ import {
   formatAppointmentPhone,
 } from "@/components/appointments/appointment-helpers";
 import { AppointmentStatusBadge } from "@/components/appointments/appointment-status-badge";
+import { CalendarLinkActions } from "@/components/ui/calendar-link-actions";
 import { formatDateTimeInTimeZone } from "@/lib/appointments/availability";
 
 type AppointmentTokenSummaryProps = {
@@ -26,6 +27,8 @@ type AppointmentTokenSummaryProps = {
   source: AppointmentSource;
   notes: string | null;
   currency: string;
+  calendarIcsUrl?: string | null;
+  googleCalendarUrl?: string | null;
 };
 
 export function AppointmentTokenSummary({
@@ -45,6 +48,8 @@ export function AppointmentTokenSummary({
   source,
   notes,
   currency,
+  calendarIcsUrl = null,
+  googleCalendarUrl = null,
 }: AppointmentTokenSummaryProps) {
   return (
     <article className="surface-card p-6 sm:p-7">
@@ -117,6 +122,12 @@ export function AppointmentTokenSummary({
           {notes ?? "Sin notas adicionales para esta reserva."}
         </p>
       </div>
+
+      <CalendarLinkActions
+        calendarIcsUrl={calendarIcsUrl}
+        googleCalendarUrl={googleCalendarUrl}
+        className="mt-4 flex flex-wrap gap-3"
+      />
     </article>
   );
 }

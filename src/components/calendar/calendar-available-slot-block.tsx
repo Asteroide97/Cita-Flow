@@ -23,7 +23,7 @@ export function CalendarAvailableSlotBlock({
       href={href}
       title={`Disponible a las ${layout.startLabel}`}
       className={cn(
-        "absolute inset-x-3 z-[1] h-3 -translate-y-1/2 rounded-full border border-dashed transition-all duration-200",
+        "absolute inset-x-4 z-[1] h-2 -translate-y-1/2 rounded-full border border-dashed transition-all duration-200",
         tone.blockClassName,
         isSelected ? "ring-2 ring-brand-200 ring-offset-1 ring-offset-white" : "",
       )}

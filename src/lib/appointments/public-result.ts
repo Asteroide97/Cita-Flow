@@ -19,6 +19,8 @@ export type PublicAppointmentResultPayload = {
   timezone: string;
   statusLabel: string;
   message: string;
+  calendarIcsUrl?: string | null;
+  googleCalendarUrl?: string | null;
 };
 
 const PUBLIC_APPOINTMENT_RESULT_COOKIE_NAME = "citaflow_public_appointment_result";

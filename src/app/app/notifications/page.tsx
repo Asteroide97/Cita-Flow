@@ -9,8 +9,7 @@ import {
 
 import { appointmentFieldClassName } from "@/components/appointments/appointment-helpers";
 import { PanelPage } from "@/components/app/panel-page";
-import { CollapsibleDetails } from "@/components/ui/collapsible-details";
-import { CompactStatCard } from "@/components/ui/compact-stat-card";
+import { NotificationDrawerPortal } from "@/components/notifications/notification-drawer-portal";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusPill } from "@/components/ui/status-pill";
@@ -27,7 +26,6 @@ import {
 import {
   bulkArchiveFailedNotificationsAction,
   bulkCancelPendingNotificationsAction,
-  bulkMarkNotificationsFailedAction,
   bulkMarkNotificationsSentAction,
   cancelNotificationAction,
   markAppointmentFakeAction,
@@ -50,23 +48,37 @@ type NotificationsPageProps = {
     to?: string;
     withAppointment?: string;
     onlyFailed?: string;
+    limit?: string;
+    page?: string;
+    details?: string;
   }>;
 };
 
 type NotificationsScope = "clean" | "all";
+type NotificationsLimit = 10 | 25 | 50;
 type NotificationItem = Awaited<ReturnType<typeof listNotificationOutbox>>[number];
 
 type NotificationFilterState = {
   scope: NotificationsScope;
-  filterStatus: string;
-  filterChannel: string;
+  filterStatus: NotificationStatus | "";
+  filterChannel: NotificationChannel | "";
   filterTemplate: string;
   queryText: string;
   from: string;
   to: string;
   onlyWithAppointment: boolean;
   onlyFailed: boolean;
+  limit: NotificationsLimit;
+  page: number;
+  detailsId: string;
 };
+
+const DEFAULT_LIMIT: NotificationsLimit = 10;
+const LIMIT_OPTIONS: NotificationsLimit[] = [10, 25, 50];
+const CLEAN_STATUSES: NotificationStatus[] = [
+  NotificationStatus.PENDING,
+  NotificationStatus.FAILED,
+];
 
 function resolveFlashMessage(status?: string, error?: string) {
   if (error) {
@@ -153,27 +165,23 @@ function resolveFlashMessage(status?: string, error?: string) {
     case "notifications-bulk-cancelled":
       return {
         tone: "success" as const,
-        message: "Pendientes filtradas archivadas correctamente.",
+        message: "Pendientes filtradas canceladas correctamente.",
       };
     case "notifications-bulk-sent":
       return {
         tone: "success" as const,
         message: "Notificaciones filtradas marcadas como enviadas.",
       };
-    case "notifications-bulk-failed":
-      return {
-        tone: "success" as const,
-        message: "Notificaciones filtradas marcadas como fallidas.",
-      };
     case "notifications-bulk-failed-archived":
       return {
         tone: "success" as const,
-        message: "Notificaciones fallidas archivadas correctamente.",
+        message: "Notificaciones fallidas canceladas correctamente.",
       };
     case "appointment-marked-fake":
       return {
         tone: "success" as const,
-        message: "La reserva quedó marcada como falsa y sus pendientes relacionadas fueron archivadas.",
+        message:
+          "La reserva quedó marcada como falsa y sus pendientes relacionadas fueron canceladas.",
       };
     default:
       return null;
@@ -257,15 +265,13 @@ function getAppointmentSourceLabel(source: AppointmentSource) {
 }
 
 function actionButtonClassName(
-  tone: "sent" | "failed" | "archive" | "whatsapp" | "danger",
+  tone: "sent" | "archive" | "whatsapp" | "danger",
 ) {
   switch (tone) {
     case "whatsapp":
       return "rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 transition hover:border-brand-300 hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-60";
     case "sent":
       return "rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60";
-    case "failed":
-      return "rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60";
     case "danger":
       return "rounded-full border border-rose-300 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-rose-700 transition hover:border-rose-400 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60";
     case "archive":
@@ -286,6 +292,24 @@ function resolveScope(value?: string): NotificationsScope {
   return value === "all" ? "all" : "clean";
 }
 
+function resolveLimit(value?: string): NotificationsLimit {
+  const parsed = Number.parseInt(value ?? "", 10);
+
+  return LIMIT_OPTIONS.includes(parsed as NotificationsLimit)
+    ? (parsed as NotificationsLimit)
+    : DEFAULT_LIMIT;
+}
+
+function resolvePage(value?: string) {
+  const parsed = Number.parseInt(value ?? "", 10);
+
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1;
+  }
+
+  return parsed;
+}
+
 function formatDateValueInTimeZone(date: Date, timezone: string) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: timezone,
@@ -297,6 +321,17 @@ function formatDateValueInTimeZone(date: Date, timezone: string) {
     parts.find((part) => part.type === type)?.value ?? "";
 
   return `${getValue("year")}-${getValue("month")}-${getValue("day")}`;
+}
+
+function formatInboxDateTime(date: Date, timezone: string) {
+  return new Intl.DateTimeFormat("es-MX", {
+    timeZone: timezone,
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 function buildNotificationsPath(filters: Partial<NotificationFilterState> = {}) {
@@ -336,6 +371,18 @@ function buildNotificationsPath(filters: Partial<NotificationFilterState> = {}) 
 
   if (filters.onlyFailed) {
     params.set("onlyFailed", "1");
+  }
+
+  if (filters.limit && filters.limit !== DEFAULT_LIMIT) {
+    params.set("limit", String(filters.limit));
+  }
+
+  if (filters.page && filters.page > 1) {
+    params.set("page", String(filters.page));
+  }
+
+  if (filters.detailsId) {
+    params.set("details", filters.detailsId);
   }
 
   const query = params.toString();
@@ -407,14 +454,25 @@ function buildClientSummary(notification: NotificationItem) {
 
 function buildAppointmentSummary(notification: NotificationItem, timezone: string) {
   if (!notification.appointment) {
-    return "Sin reserva";
+    return "Sin reserva relacionada";
   }
 
   return [
-    formatDateTimeInTimeZone(notification.appointment.startAt, timezone),
     notification.appointment.service.name,
     notification.appointment.doctor.name,
+    formatDateTimeInTimeZone(notification.appointment.startAt, timezone),
   ].join(" · ");
+}
+
+function buildSecondarySummary(notification: NotificationItem) {
+  const parts = [
+    notification.recipient,
+    notification.patient?.name ?? "",
+    notification.appointment?.service.name ?? "",
+    notification.appointment?.doctor.name ?? "",
+  ];
+
+  return [...new Set(parts.map((part) => part.trim()).filter(Boolean))].join(" · ");
 }
 
 function InlineActionForm({
@@ -430,7 +488,7 @@ function InlineActionForm({
   notificationId: string;
   redirectPath: string;
   label: string;
-  tone: "sent" | "failed" | "archive" | "whatsapp" | "danger";
+  tone: "sent" | "archive" | "whatsapp" | "danger";
   disabled?: boolean;
   extraFields?: Record<string, string>;
 }) {
@@ -454,45 +512,364 @@ function InlineActionForm({
   );
 }
 
-function BulkActionForm({
+function BulkActionMenuItem({
   action,
   notificationIds,
   redirectPath,
   label,
-  helper,
-  tone,
 }: {
   action: (formData: FormData) => Promise<void>;
   notificationIds: string[];
   redirectPath: string;
   label: string;
-  helper: string;
-  tone: "sent" | "failed" | "archive";
 }) {
   const count = notificationIds.length;
-  const confirmMessage = `Esta accion afectara ${count} notificacion${
+  const confirmMessage = `Esta acción afectará ${count} notificación${
     count === 1 ? "" : "es"
   } filtrada${count === 1 ? "" : "s"}.`;
 
   return (
-    <form action={action} className="rounded-[20px] border border-line/80 bg-white p-4">
+    <form action={action}>
       <input type="hidden" name="notificationIds" value={notificationIds.join(",")} />
       <input type="hidden" name="redirectPath" value={redirectPath} />
-      <p className="text-sm font-semibold text-ink">{label}</p>
-      <p className="mt-2 text-sm text-muted">
-        Esta acción afectará {count} notificacion{count === 1 ? "" : "es"} filtrada
-        {count === 1 ? "" : "s"}.
-      </p>
-      <p className="mt-1 text-xs text-muted">{helper}</p>
       <ConfirmSubmitButton
         confirmMessage={confirmMessage}
         type="submit"
         disabled={count === 0}
-        className={`${actionButtonClassName(tone)} mt-4 w-full sm:w-auto`}
+        className="flex w-full items-center justify-between rounded-2xl border border-line/80 px-3 py-3 text-left text-sm text-ink transition hover:border-brand-200 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {label}
+        <span>{label}</span>
+        <span className="text-xs font-semibold text-muted">{count}</span>
       </ConfirmSubmitButton>
     </form>
+  );
+}
+
+function BulkActionsMenu({
+  redirectPath,
+  pendingFilteredIds,
+  actionableFilteredIds,
+  failedFilteredIds,
+}: {
+  redirectPath: string;
+  pendingFilteredIds: string[];
+  actionableFilteredIds: string[];
+  failedFilteredIds: string[];
+}) {
+  return (
+    <details className="relative">
+      <summary className="inline-flex cursor-pointer list-none items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700">
+        Acciones
+      </summary>
+
+      <div className="absolute right-0 z-20 mt-3 w-[min(88vw,22rem)] rounded-[22px] border border-line/80 bg-white p-3 shadow-soft">
+        <div className="grid gap-2">
+          <BulkActionMenuItem
+            action={bulkCancelPendingNotificationsAction}
+            notificationIds={pendingFilteredIds}
+            redirectPath={redirectPath}
+            label="Cancelar pendientes filtradas"
+          />
+          <BulkActionMenuItem
+            action={bulkMarkNotificationsSentAction}
+            notificationIds={actionableFilteredIds}
+            redirectPath={redirectPath}
+            label="Marcar filtradas como enviadas"
+          />
+          <BulkActionMenuItem
+            action={bulkArchiveFailedNotificationsAction}
+            notificationIds={failedFilteredIds}
+            redirectPath={redirectPath}
+            label="Cancelar fallidas filtradas"
+          />
+        </div>
+      </div>
+    </details>
+  );
+}
+
+function NotificationDetailDrawer({
+  notification,
+  timezone,
+  redirectPath,
+  closePath,
+  metaConfig,
+  emailConfig,
+}: {
+  notification: NotificationItem;
+  timezone: string;
+  redirectPath: string;
+  closePath: string;
+  metaConfig: ReturnType<typeof getMetaWhatsAppConfigStatus>;
+  emailConfig: ReturnType<typeof getEmailDeliveryConfigStatus>;
+}) {
+  const appointment = notification.appointment;
+  const calendarLinks = extractCalendarLinks(notification.payloadJson);
+  const canSendWhatsApp =
+    notification.channel === NotificationChannel.WHATSAPP &&
+    notification.status === NotificationStatus.PENDING;
+  const canSendEmail =
+    notification.channel === NotificationChannel.EMAIL &&
+    notification.status === NotificationStatus.PENDING;
+  const canMarkSent =
+    notification.status !== NotificationStatus.SENT &&
+    notification.status !== NotificationStatus.CANCELLED;
+  const canArchive =
+    notification.status === NotificationStatus.PENDING ||
+    notification.status === NotificationStatus.FAILED;
+  const canMarkFake =
+    appointment !== null &&
+    appointment.status !== AppointmentStatus.COMPLETED &&
+    appointment.status !== AppointmentStatus.NO_SHOW;
+
+  return (
+    <NotificationDrawerPortal>
+      <Link
+        href={closePath}
+        aria-label="Cerrar detalles"
+        className="fixed inset-0 z-40 bg-slate-950/35"
+        style={{ position: "fixed" }}
+      />
+
+      <aside
+        className="fixed inset-x-0 bottom-0 z-50 max-h-[88vh] overflow-y-auto rounded-t-[28px] border border-line/80 bg-white p-5 shadow-2xl sm:inset-y-0 sm:right-0 sm:left-auto sm:max-h-none sm:w-[min(92vw,34rem)] sm:rounded-none sm:border-y-0 sm:border-r-0 sm:border-l"
+        style={{ position: "fixed" }}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-600">
+              Detalles
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-ink">
+              {resolveTemplateLabel(notification.templateKey)}
+            </h2>
+            <p className="mt-2 text-sm text-muted">
+              {formatDateTimeInTimeZone(notification.createdAt, timezone)}
+            </p>
+          </div>
+
+          <Link
+            href={closePath}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line/80 text-lg text-muted transition hover:border-brand-200 hover:text-brand-700"
+          >
+            ×
+          </Link>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <StatusPill className={getChannelClassName(notification.channel)}>
+            {getChannelLabel(notification.channel)}
+          </StatusPill>
+          <StatusPill className={getStatusClassName(notification.status)}>
+            {getStatusLabel(notification.status)}
+          </StatusPill>
+          {calendarLinks.hasCalendarLinks ? (
+            <StatusPill className="border-brand-200 bg-brand-50 text-brand-700">
+              Calendario
+            </StatusPill>
+          ) : null}
+        </div>
+
+        <div className="mt-6 grid gap-4">
+          <div className="rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+              Destinatario
+            </p>
+            <p className="mt-2 text-sm font-medium text-ink">{notification.recipient}</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                Cliente
+              </p>
+              <p className="mt-2 text-sm font-medium text-ink">
+                {buildClientSummary(notification)}
+              </p>
+            </div>
+
+            <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                Reserva
+              </p>
+              <p className="mt-2 text-sm font-medium text-ink">
+                {buildAppointmentSummary(notification, timezone)}
+              </p>
+            </div>
+          </div>
+
+          {appointment ? (
+            <div className="rounded-[22px] border border-line/80 bg-white px-4 py-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                    Estado de reserva
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-ink">
+                    {getAppointmentStatusLabel(appointment.status)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                    Origen
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-ink">
+                    {getAppointmentSourceLabel(appointment.source)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {calendarLinks.hasCalendarLinks ? (
+            <div className="flex flex-wrap gap-2">
+              {calendarLinks.calendarIcsUrl ? (
+                <a
+                  href={calendarLinks.calendarIcsUrl}
+                  className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink transition hover:border-brand-200 hover:bg-brand-50"
+                >
+                  Agregar a calendario
+                </a>
+              ) : null}
+              {calendarLinks.googleCalendarUrl ? (
+                <a
+                  href={calendarLinks.googleCalendarUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 transition hover:border-brand-300 hover:bg-brand-100"
+                >
+                  Google Calendar
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+
+          <div className="rounded-[22px] border border-line/80 bg-slate-950 px-4 py-4 text-slate-100">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+              Mensaje completo
+            </p>
+            <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6 text-slate-100">
+              {notification.body}
+            </pre>
+          </div>
+
+          {notification.errorMessage ? (
+            <div className="rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm text-rose-700">
+              <span className="font-semibold">Error:</span> {notification.errorMessage}
+            </div>
+          ) : null}
+
+          {notification.channel === NotificationChannel.EMAIL ? (
+            <p className="text-sm text-muted">
+              {emailConfig.isConfigured
+                ? "Email listo para prueba manual desde el panel."
+                : "Email real pendiente de configuración."}
+            </p>
+          ) : null}
+
+          {notification.channel === NotificationChannel.WHATSAPP && !metaConfig.isConfigured ? (
+            <p className="text-sm text-muted">
+              WhatsApp real pendiente de configuración.
+            </p>
+          ) : null}
+
+          <div className="grid gap-2">
+            {canSendWhatsApp ? (
+              metaConfig.isConfigured ? (
+                <InlineActionForm
+                  action={sendWhatsAppNotificationAction}
+                  notificationId={notification.id}
+                  redirectPath={redirectPath}
+                  label="Enviar WhatsApp"
+                  tone="whatsapp"
+                />
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className={`${actionButtonClassName("whatsapp")} w-full`}
+                >
+                  Configura Meta Cloud API para enviar
+                </button>
+              )
+            ) : null}
+
+            {canSendEmail ? (
+              emailConfig.isConfigured ? (
+                <InlineActionForm
+                  action={sendEmailNotificationAction}
+                  notificationId={notification.id}
+                  redirectPath={redirectPath}
+                  label="Probar email"
+                  tone="sent"
+                />
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className={`${actionButtonClassName("sent")} w-full`}
+                >
+                  Configura email real para enviar
+                </button>
+              )
+            ) : null}
+
+            {canMarkSent ? (
+              <InlineActionForm
+                action={markNotificationSentAction}
+                notificationId={notification.id}
+                redirectPath={redirectPath}
+                label="Marcar como enviada"
+                tone="sent"
+              />
+            ) : null}
+
+            {canArchive ? (
+              <InlineActionForm
+                action={cancelNotificationAction}
+                notificationId={notification.id}
+                redirectPath={redirectPath}
+                label="Cancelar notificación"
+                tone="archive"
+              />
+            ) : null}
+
+            {canMarkSent ? (
+              <InlineActionForm
+                action={markNotificationFailedAction}
+                notificationId={notification.id}
+                redirectPath={redirectPath}
+                label="Marcar como fallida"
+                tone="danger"
+                extraFields={{
+                  errorMessage: "Marcada manualmente como fallida desde notificaciones.",
+                }}
+              />
+            ) : null}
+
+            {canMarkFake && appointment ? (
+              <form action={markAppointmentFakeAction}>
+                <input type="hidden" name="appointmentId" value={appointment.id} />
+                <input type="hidden" name="redirectPath" value={redirectPath} />
+                <ConfirmSubmitButton
+                  confirmMessage={
+                    appointment.status === AppointmentStatus.CANCELLED
+                      ? "Esto cancelará las notificaciones pendientes relacionadas."
+                      : "Esto cancelará la reserva y cancelará sus notificaciones pendientes."
+                  }
+                  type="submit"
+                  className={`${actionButtonClassName("danger")} w-full`}
+                >
+                  {appointment.status === AppointmentStatus.CANCELLED
+                    ? "Cancelar notificaciones relacionadas"
+                    : "Marcar reserva como falsa"}
+                </ConfirmSubmitButton>
+              </form>
+            ) : null}
+          </div>
+        </div>
+      </aside>
+    </NotificationDrawerPortal>
   );
 }
 
@@ -503,16 +880,13 @@ export default async function NotificationsPage({
     requireAuthContext(),
     searchParams,
   ]);
+
   const allNotifications = await listNotificationOutbox({
     clinicId: authContext.clinic.id,
   });
   const metaConfig = getMetaWhatsAppConfigStatus();
   const emailConfig = getEmailDeliveryConfigStatus();
   const flash = resolveFlashMessage(query.status, query.error);
-  const cleanStatuses: NotificationStatus[] = [
-    NotificationStatus.PENDING,
-    NotificationStatus.FAILED,
-  ];
   const filters: NotificationFilterState = {
     scope: resolveScope(query.scope),
     filterStatus: isNotificationStatus(query.filterStatus?.trim() ?? "")
@@ -527,14 +901,17 @@ export default async function NotificationsPage({
     to: query.to?.trim() ?? "",
     onlyWithAppointment: query.withAppointment === "1",
     onlyFailed: query.onlyFailed === "1",
+    limit: resolveLimit(query.limit),
+    page: resolvePage(query.page),
+    detailsId: query.details?.trim() ?? "",
   };
   const normalizedSearch = filters.queryText.toLowerCase();
 
-  const notifications = allNotifications.filter((notification) => {
+  const filteredNotifications = allNotifications.filter((notification) => {
     if (
       !filters.filterStatus &&
       filters.scope === "clean" &&
-      !cleanStatuses.includes(notification.status)
+      !CLEAN_STATUSES.includes(notification.status)
     ) {
       return false;
     }
@@ -579,6 +956,14 @@ export default async function NotificationsPage({
     return true;
   });
 
+  const totalResults = filteredNotifications.length;
+  const totalPages = totalResults ? Math.ceil(totalResults / filters.limit) : 1;
+  const currentPage = Math.min(filters.page, totalPages);
+  const startIndex = (currentPage - 1) * filters.limit;
+  const pageNotifications = filteredNotifications.slice(
+    startIndex,
+    startIndex + filters.limit,
+  );
   const pendingCount = allNotifications.filter(
     (notification) => notification.status === NotificationStatus.PENDING,
   ).length;
@@ -592,27 +977,61 @@ export default async function NotificationsPage({
     (notification) => notification.status === NotificationStatus.CANCELLED,
   ).length;
 
-  const redirectPath = buildNotificationsPath(filters);
+  const listPath = buildNotificationsPath({
+    ...filters,
+    page: currentPage,
+    detailsId: "",
+  });
   const cleanPath = buildNotificationsPath({
     ...filters,
     scope: "clean",
+    page: 1,
+    detailsId: "",
   });
-  const allPath = buildNotificationsPath({
+  const historyPath = buildNotificationsPath({
     ...filters,
     scope: "all",
+    page: 1,
+    detailsId: "",
   });
-
-  const pendingFilteredIds = notifications
+  const previousPagePath =
+    currentPage > 1
+      ? buildNotificationsPath({
+          ...filters,
+          page: currentPage - 1,
+          detailsId: "",
+        })
+      : null;
+  const nextPagePath =
+    currentPage < totalPages
+      ? buildNotificationsPath({
+          ...filters,
+          page: currentPage + 1,
+          detailsId: "",
+        })
+      : null;
+  const advancedFiltersOpen = Boolean(
+    filters.filterTemplate ||
+      filters.from ||
+      filters.to ||
+      filters.onlyWithAppointment ||
+      filters.onlyFailed,
+  );
+  const selectedNotification = filters.detailsId
+    ? filteredNotifications.find((notification) => notification.id === filters.detailsId) ??
+      null
+    : null;
+  const pendingFilteredIds = filteredNotifications
     .filter((notification) => notification.status === NotificationStatus.PENDING)
     .map((notification) => notification.id);
-  const actionableFilteredIds = notifications
+  const actionableFilteredIds = filteredNotifications
     .filter(
       (notification) =>
         notification.status === NotificationStatus.PENDING ||
         notification.status === NotificationStatus.FAILED,
     )
     .map((notification) => notification.id);
-  const failedFilteredIds = notifications
+  const failedFilteredIds = filteredNotifications
     .filter((notification) => notification.status === NotificationStatus.FAILED)
     .map((notification) => notification.id);
 
@@ -623,14 +1042,19 @@ export default async function NotificationsPage({
       description="Mensajes preparados para email y WhatsApp."
     >
       <div className="grid gap-4">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <CompactStatCard label="Pendientes" value={pendingCount} tone="amber" />
-          <CompactStatCard label="Enviadas" value={sentCount} tone="emerald" />
-          <CompactStatCard label="Fallidas" value={failedCount} tone="slate" />
-          <CompactStatCard label="Canceladas" value={cancelledCount} tone="slate" />
-        </div>
-
         <div className="flex flex-wrap gap-2">
+          <StatusPill className="border-amber-200 bg-amber-100 text-amber-700">
+            Pendientes {pendingCount}
+          </StatusPill>
+          <StatusPill className="border-emerald-200 bg-emerald-100 text-emerald-700">
+            Enviadas {sentCount}
+          </StatusPill>
+          <StatusPill className="border-rose-200 bg-rose-100 text-rose-700">
+            Fallidas {failedCount}
+          </StatusPill>
+          <StatusPill className="border-slate-200 bg-slate-100 text-slate-700">
+            Canceladas {cancelledCount}
+          </StatusPill>
           <StatusPill className="border-line/80 bg-white text-ink">
             {emailConfig.isConfigured
               ? "Email listo para prueba manual"
@@ -655,196 +1079,190 @@ export default async function NotificationsPage({
           </div>
         ) : null}
 
-        <article className="rounded-[28px] border border-line/80 bg-white p-4 shadow-soft sm:p-5">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href={cleanPath}
-                className={
-                  filters.scope === "clean"
-                    ? "rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white"
-                    : "rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
-                }
-              >
-                Bandeja limpia
-              </Link>
-              <Link
-                href={allPath}
-                className={
-                  filters.scope === "all"
-                    ? "rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white"
-                    : "rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
-                }
-              >
-                Ver todo
-              </Link>
+        <section className="rounded-[28px] border border-line/80 bg-white p-4 shadow-soft sm:p-5">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={cleanPath}
+                  className={
+                    filters.scope === "clean"
+                      ? "rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white"
+                      : "rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                  }
+                >
+                  Bandeja limpia
+                </Link>
+                <Link
+                  href={historyPath}
+                  className={
+                    filters.scope === "all"
+                      ? "rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white"
+                      : "rounded-full border border-line/80 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+                  }
+                >
+                  Todo el historial
+                </Link>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusPill className="border-line/80 bg-white text-ink">
+                  Mostrando {pageNotifications.length} de {totalResults}
+                </StatusPill>
+                <BulkActionsMenu
+                  redirectPath={listPath}
+                  pendingFilteredIds={pendingFilteredIds}
+                  actionableFilteredIds={actionableFilteredIds}
+                  failedFilteredIds={failedFilteredIds}
+                />
+              </div>
             </div>
 
-            <p className="text-sm text-muted">
-              {notifications.length} resultado{notifications.length === 1 ? "" : "s"} visibles
-            </p>
-          </div>
-
-          <form className="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-4">
-            <label className="text-sm font-semibold text-ink">
-              Estado
-              <select
-                name="filterStatus"
-                defaultValue={filters.filterStatus}
-                className={appointmentFieldClassName}
-              >
-                <option value="">Todos</option>
-                {Object.values(NotificationStatus).map((status) => (
-                  <option key={status} value={status}>
-                    {getStatusLabel(status)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="text-sm font-semibold text-ink">
-              Canal
-              <select
-                name="filterChannel"
-                defaultValue={filters.filterChannel}
-                className={appointmentFieldClassName}
-              >
-                <option value="">Todos</option>
-                {Object.values(NotificationChannel).map((channel) => (
-                  <option key={channel} value={channel}>
-                    {getChannelLabel(channel)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="text-sm font-semibold text-ink">
-              Tipo
-              <select
-                name="filterTemplate"
-                defaultValue={filters.filterTemplate}
-                className={appointmentFieldClassName}
-              >
-                <option value="">Todos</option>
-                {notificationTemplateKeys.map((templateKey) => (
-                  <option key={templateKey} value={templateKey}>
-                    {resolveTemplateLabel(templateKey)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="text-sm font-semibold text-ink">
-              Buscar
-              <input
-                type="search"
-                name="q"
-                defaultValue={filters.queryText}
-                placeholder="Destinatario, cliente o reserva"
-                className={appointmentFieldClassName}
-              />
-            </label>
-
-            <label className="text-sm font-semibold text-ink">
-              Desde
-              <input
-                type="date"
-                name="from"
-                defaultValue={filters.from}
-                className={appointmentFieldClassName}
-              />
-            </label>
-
-            <label className="text-sm font-semibold text-ink">
-              Hasta
-              <input
-                type="date"
-                name="to"
-                defaultValue={filters.to}
-                className={appointmentFieldClassName}
-              />
-            </label>
-
-            <div className="flex flex-col justify-end gap-3 rounded-[22px] border border-line/80 bg-surface-soft px-4 py-4 text-sm text-ink">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="withAppointment"
-                  value="1"
-                  defaultChecked={filters.onlyWithAppointment}
-                  className="h-4 w-4 rounded border-line/80 text-brand-600 focus:ring-brand-200"
-                />
-                Solo con reserva relacionada
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="onlyFailed"
-                  value="1"
-                  defaultChecked={filters.onlyFailed}
-                  className="h-4 w-4 rounded border-line/80 text-brand-600 focus:ring-brand-200"
-                />
-                Solo fallidas
-              </label>
-            </div>
-
-            <div className="flex flex-col justify-end gap-2">
+            <form className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(7rem,8rem)_auto]">
               <input type="hidden" name="scope" value={filters.scope} />
+
+              <label className="text-sm font-semibold text-ink">
+                Estado
+                <select
+                  name="filterStatus"
+                  defaultValue={filters.filterStatus}
+                  className={appointmentFieldClassName}
+                >
+                  <option value="">Todos</option>
+                  {Object.values(NotificationStatus).map((status) => (
+                    <option key={status} value={status}>
+                      {getStatusLabel(status)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-sm font-semibold text-ink">
+                Canal
+                <select
+                  name="filterChannel"
+                  defaultValue={filters.filterChannel}
+                  className={appointmentFieldClassName}
+                >
+                  <option value="">Todos</option>
+                  {Object.values(NotificationChannel).map((channel) => (
+                    <option key={channel} value={channel}>
+                      {getChannelLabel(channel)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-sm font-semibold text-ink">
+                Buscar
+                <input
+                  type="search"
+                  name="q"
+                  defaultValue={filters.queryText}
+                  placeholder="Destinatario, cliente o reserva"
+                  className={appointmentFieldClassName}
+                />
+              </label>
+
+              <label className="text-sm font-semibold text-ink">
+                Mostrar
+                <select
+                  name="limit"
+                  defaultValue={String(filters.limit)}
+                  className={appointmentFieldClassName}
+                >
+                  {LIMIT_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
               <button
                 type="submit"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-brand-600 px-5 text-sm font-semibold text-white transition hover:bg-brand-700"
+                className="inline-flex h-12 items-center justify-center self-end rounded-full bg-brand-600 px-5 text-sm font-semibold text-white transition hover:bg-brand-700"
               >
-                Aplicar filtros
+                Aplicar
               </button>
-              <Link
-                href="/app/notifications"
-                className="inline-flex h-12 items-center justify-center rounded-full border border-line/80 bg-white px-5 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+
+              <details
+                open={advancedFiltersOpen}
+                className="lg:col-span-5 rounded-[22px] border border-line/80 bg-surface-soft/70 px-4 py-3"
               >
-                Limpiar filtros
-              </Link>
-            </div>
-          </form>
-        </article>
+                <summary className="cursor-pointer list-none text-sm font-semibold text-ink">
+                  Filtros avanzados
+                </summary>
 
-        {notifications.length ? (
-          <section className="grid gap-3">
-            <div className="grid gap-3 xl:grid-cols-2 2xl:grid-cols-4">
-              <BulkActionForm
-                action={bulkCancelPendingNotificationsAction}
-                notificationIds={pendingFilteredIds}
-                redirectPath={redirectPath}
-                label="Archivar pendientes"
-                helper="Usa CANCELLED para sacar mensajes no deseados de la bandeja principal."
-                tone="archive"
-              />
-              <BulkActionForm
-                action={bulkMarkNotificationsSentAction}
-                notificationIds={actionableFilteredIds}
-                redirectPath={redirectPath}
-                label="Marcar como enviadas"
-                helper="Útil para limpiar pruebas manuales o mensajes ya resueltos fuera del sistema."
-                tone="sent"
-              />
-              <BulkActionForm
-                action={bulkMarkNotificationsFailedAction}
-                notificationIds={pendingFilteredIds}
-                redirectPath={redirectPath}
-                label="Marcar como fallidas"
-                helper="Marca pendientes filtradas como fallidas sin borrarlas."
-                tone="failed"
-              />
-              <BulkActionForm
-                action={bulkArchiveFailedNotificationsAction}
-                notificationIds={failedFilteredIds}
-                redirectPath={redirectPath}
-                label="Archivar fallidas"
-                helper="Limpia fallidas ya revisadas manteniendo historial y auditoría."
-                tone="archive"
-              />
-            </div>
+                <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1fr)]">
+                  <label className="text-sm font-semibold text-ink">
+                    Template
+                    <select
+                      name="filterTemplate"
+                      defaultValue={filters.filterTemplate}
+                      className={appointmentFieldClassName}
+                    >
+                      <option value="">Todos</option>
+                      {notificationTemplateKeys.map((templateKey) => (
+                        <option key={templateKey} value={templateKey}>
+                          {resolveTemplateLabel(templateKey)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-            <div className="grid gap-2">
-              {notifications.map((notification) => {
+                  <label className="text-sm font-semibold text-ink">
+                    Desde
+                    <input
+                      type="date"
+                      name="from"
+                      defaultValue={filters.from}
+                      className={appointmentFieldClassName}
+                    />
+                  </label>
+
+                  <label className="text-sm font-semibold text-ink">
+                    Hasta
+                    <input
+                      type="date"
+                      name="to"
+                      defaultValue={filters.to}
+                      className={appointmentFieldClassName}
+                    />
+                  </label>
+
+                  <div className="flex flex-col justify-center gap-3 rounded-[18px] border border-line/80 bg-white px-4 py-3 text-sm text-ink">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        name="withAppointment"
+                        value="1"
+                        defaultChecked={filters.onlyWithAppointment}
+                        className="h-4 w-4 rounded border-line/80 text-brand-600 focus:ring-brand-200"
+                      />
+                      Solo con reserva
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        name="onlyFailed"
+                        value="1"
+                        defaultChecked={filters.onlyFailed}
+                        className="h-4 w-4 rounded border-line/80 text-brand-600 focus:ring-brand-200"
+                      />
+                      Solo fallidas
+                    </label>
+                  </div>
+                </div>
+              </details>
+            </form>
+          </div>
+        </section>
+
+        {pageNotifications.length ? (
+          <section className="overflow-hidden rounded-[24px] border border-line/80 bg-white shadow-soft">
+            <div className="divide-y divide-line/70">
+              {pageNotifications.map((notification) => {
                 const appointment = notification.appointment;
                 const canSendWhatsApp =
                   notification.channel === NotificationChannel.WHATSAPP &&
@@ -852,346 +1270,116 @@ export default async function NotificationsPage({
                 const canSendEmail =
                   notification.channel === NotificationChannel.EMAIL &&
                   notification.status === NotificationStatus.PENDING;
-                const canMarkSent =
-                  notification.status !== NotificationStatus.SENT &&
-                  notification.status !== NotificationStatus.CANCELLED;
-                const canMarkFailed =
-                  notification.status !== NotificationStatus.SENT &&
-                  notification.status !== NotificationStatus.CANCELLED;
                 const canArchive =
                   notification.status === NotificationStatus.PENDING ||
                   notification.status === NotificationStatus.FAILED;
-                const calendarLinks = extractCalendarLinks(notification.payloadJson);
-                const canMarkFake =
-                  appointment !== null &&
-                  appointment.status !== AppointmentStatus.COMPLETED &&
-                  appointment.status !== AppointmentStatus.NO_SHOW;
+                const detailPath = buildNotificationsPath({
+                  ...filters,
+                  page: currentPage,
+                  detailsId: notification.id,
+                });
 
                 return (
-                  <article
-                    key={notification.id}
-                    className="rounded-[24px] border border-line/80 bg-white p-4 shadow-soft"
-                  >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <article key={notification.id} className="px-4 py-4 sm:px-5">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <StatusPill className={getChannelClassName(notification.channel)}>
                             {getChannelLabel(notification.channel)}
                           </StatusPill>
                           <StatusPill className={getStatusClassName(notification.status)}>
                             {getStatusLabel(notification.status)}
                           </StatusPill>
-                          {calendarLinks.hasCalendarLinks ? (
-                            <StatusPill className="border-brand-200 bg-brand-50 text-brand-700">
-                              Calendario
-                            </StatusPill>
-                          ) : null}
+                          <p className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">
+                            {resolveTemplateLabel(notification.templateKey)}
+                          </p>
+                          <p className="text-xs font-medium text-muted">
+                            {formatInboxDateTime(
+                              notification.createdAt,
+                              authContext.clinic.timezone,
+                            )}
+                          </p>
                         </div>
 
-                        <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-ink">
-                              {resolveTemplateLabel(notification.templateKey)}
-                            </p>
-                            <p className="truncate text-sm text-muted">
-                              {notification.recipient}
-                            </p>
-                          </div>
-
-                          <div className="min-w-0">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                              Cliente
-                            </p>
-                            <p className="truncate text-sm font-medium text-ink">
-                              {buildClientSummary(notification)}
-                            </p>
-                          </div>
-
-                          <div className="min-w-0">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                              Reserva
-                            </p>
-                            <p className="truncate text-sm font-medium text-ink">
-                              {buildAppointmentSummary(
-                                notification,
-                                authContext.clinic.timezone,
-                              )}
-                            </p>
-                          </div>
-
-                          <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                              Creada
-                            </p>
-                            <p className="text-sm font-medium text-ink">
-                              {formatDateTimeInTimeZone(
-                                notification.createdAt,
-                                authContext.clinic.timezone,
-                              )}
-                            </p>
-                          </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+                          <span className="min-w-0 truncate">
+                            {buildSecondarySummary(notification) || "Sin detalles adicionales"}
+                          </span>
+                          <span className="hidden text-muted sm:inline">·</span>
+                          <Link
+                            href={detailPath}
+                            className="font-semibold text-brand-700 transition hover:text-brand-800"
+                          >
+                            Ver detalles
+                          </Link>
+                          {appointment ? (
+                            <>
+                              <span className="hidden text-muted sm:inline">·</span>
+                              <span className="truncate">
+                                {appointment.status === AppointmentStatus.CANCELLED
+                                  ? "Reserva cancelada"
+                                  : appointment.service.name}
+                              </span>
+                            </>
+                          ) : null}
                         </div>
                       </div>
 
-                      <div className="flex w-full flex-col gap-2 lg:w-auto lg:items-end">
+                      <div className="w-full shrink-0 lg:w-auto">
                         {canSendWhatsApp ? (
                           metaConfig.isConfigured ? (
                             <InlineActionForm
                               action={sendWhatsAppNotificationAction}
                               notificationId={notification.id}
-                              redirectPath={redirectPath}
+                              redirectPath={listPath}
                               label="Enviar WhatsApp"
                               tone="whatsapp"
                             />
                           ) : (
-                            <>
-                              <button
-                                type="button"
-                                disabled
-                                className={`${actionButtonClassName("whatsapp")} w-full sm:w-auto`}
-                              >
-                                Enviar WhatsApp
-                              </button>
-                              <p className="text-xs text-muted">
-                                Configura Meta para enviar.
-                              </p>
-                            </>
+                            <button
+                              type="button"
+                              disabled
+                              className={`${actionButtonClassName("whatsapp")} w-full sm:w-auto`}
+                            >
+                              Configurar Meta
+                            </button>
                           )
                         ) : canSendEmail ? (
                           emailConfig.isConfigured ? (
                             <InlineActionForm
                               action={sendEmailNotificationAction}
                               notificationId={notification.id}
-                              redirectPath={redirectPath}
+                              redirectPath={listPath}
                               label="Probar email"
                               tone="sent"
                             />
                           ) : (
-                            <>
-                              <button
-                                type="button"
-                                disabled
-                                className={`${actionButtonClassName("sent")} w-full sm:w-auto`}
-                              >
-                                Probar email
-                              </button>
-                              <p className="text-xs text-muted">
-                                Email real pendiente.
-                              </p>
-                            </>
+                            <button
+                              type="button"
+                              disabled
+                              className={`${actionButtonClassName("sent")} w-full sm:w-auto`}
+                            >
+                              Configurar email
+                            </button>
                           )
                         ) : canArchive ? (
                           <InlineActionForm
                             action={cancelNotificationAction}
                             notificationId={notification.id}
-                            redirectPath={redirectPath}
-                            label="Archivar"
+                            redirectPath={listPath}
+                            label="Cancelar"
                             tone="archive"
                           />
-                        ) : null}
+                        ) : (
+                          <Link
+                            href={detailPath}
+                            className={`${actionButtonClassName("archive")} inline-flex w-full items-center justify-center sm:w-auto`}
+                          >
+                            Ver detalles
+                          </Link>
+                        )}
                       </div>
                     </div>
-
-                    <CollapsibleDetails
-                      summary="Ver detalles"
-                      className="mt-4 border-line/70 bg-surface-soft/80"
-                      summaryClassName="flex items-center justify-between text-sm"
-                    >
-                      <div className="grid gap-4">
-                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                          <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                              Cliente
-                            </p>
-                            <p className="mt-2 text-sm font-semibold text-ink">
-                              {buildClientSummary(notification)}
-                            </p>
-                          </div>
-
-                          <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                              Estado reserva
-                            </p>
-                            <p className="mt-2 text-sm font-semibold text-ink">
-                              {notification.appointment
-                                ? getAppointmentStatusLabel(notification.appointment.status)
-                                : "Sin reserva"}
-                            </p>
-                          </div>
-
-                          <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                              Origen
-                            </p>
-                            <p className="mt-2 text-sm font-semibold text-ink">
-                              {notification.appointment
-                                ? getAppointmentSourceLabel(notification.appointment.source)
-                                : "Sin origen"}
-                            </p>
-                          </div>
-
-                          <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                              Template
-                            </p>
-                            <p className="mt-2 text-sm font-semibold text-ink">
-                              {resolveTemplateLabel(notification.templateKey)}
-                            </p>
-                          </div>
-                        </div>
-
-                        {notification.channel === NotificationChannel.EMAIL ? (
-                          <div className="rounded-[18px] border border-line/80 bg-white px-4 py-3 text-sm text-muted">
-                            {emailConfig.isConfigured
-                              ? "Email listo para prueba manual desde el panel."
-                              : "Email real pendiente de configuración."}
-                          </div>
-                        ) : null}
-
-                        {calendarLinks.hasCalendarLinks ? (
-                          <div className="flex flex-wrap gap-2">
-                            {calendarLinks.calendarIcsUrl ? (
-                              <a
-                                href={calendarLinks.calendarIcsUrl}
-                                className="inline-flex items-center justify-center rounded-full border border-line/80 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink transition hover:border-brand-200 hover:bg-brand-50"
-                              >
-                                Agregar a calendario
-                              </a>
-                            ) : null}
-                            {calendarLinks.googleCalendarUrl ? (
-                              <a
-                                href={calendarLinks.googleCalendarUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center justify-center rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 transition hover:border-brand-300 hover:bg-brand-100"
-                              >
-                                Google Calendar
-                              </a>
-                            ) : null}
-                          </div>
-                        ) : null}
-
-                        <div className="rounded-[18px] border border-line/80 bg-slate-950 px-4 py-4 text-slate-100">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-                            Mensaje completo
-                          </p>
-                          <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6 text-slate-100">
-                            {notification.body}
-                          </pre>
-                        </div>
-
-                        {notification.errorMessage ? (
-                          <div className="rounded-[18px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                            <span className="font-semibold">Error:</span>{" "}
-                            {notification.errorMessage}
-                          </div>
-                        ) : null}
-
-                        <div className="grid gap-2 sm:flex sm:flex-wrap">
-                          {canSendWhatsApp ? (
-                            metaConfig.isConfigured ? (
-                              <InlineActionForm
-                                action={sendWhatsAppNotificationAction}
-                                notificationId={notification.id}
-                                redirectPath={redirectPath}
-                                label="Enviar WhatsApp"
-                                tone="whatsapp"
-                              />
-                            ) : (
-                              <button
-                                type="button"
-                                disabled
-                                className={`${actionButtonClassName("whatsapp")} w-full sm:w-auto`}
-                              >
-                                Enviar WhatsApp
-                              </button>
-                            )
-                          ) : null}
-
-                          {canSendEmail ? (
-                            emailConfig.isConfigured ? (
-                              <InlineActionForm
-                                action={sendEmailNotificationAction}
-                                notificationId={notification.id}
-                                redirectPath={redirectPath}
-                                label="Probar email"
-                                tone="sent"
-                              />
-                            ) : (
-                              <button
-                                type="button"
-                                disabled
-                                className={`${actionButtonClassName("sent")} w-full sm:w-auto`}
-                              >
-                                Probar email
-                              </button>
-                            )
-                          ) : null}
-
-                          {canMarkSent ? (
-                            <InlineActionForm
-                              action={markNotificationSentAction}
-                              notificationId={notification.id}
-                              redirectPath={redirectPath}
-                              label="Marcar como enviada"
-                              tone="sent"
-                            />
-                          ) : null}
-
-                          {canMarkFailed ? (
-                            <InlineActionForm
-                              action={markNotificationFailedAction}
-                              notificationId={notification.id}
-                              redirectPath={redirectPath}
-                              label="Marcar como fallida"
-                              tone="failed"
-                              extraFields={{
-                                errorMessage:
-                                  "Marcada manualmente como fallida desde el panel.",
-                              }}
-                            />
-                          ) : null}
-
-                          {canArchive ? (
-                            <InlineActionForm
-                              action={cancelNotificationAction}
-                              notificationId={notification.id}
-                              redirectPath={redirectPath}
-                              label="Archivar"
-                              tone="archive"
-                            />
-                          ) : null}
-
-                          {canMarkFake && appointment ? (
-                            <form action={markAppointmentFakeAction} className="w-full sm:w-auto">
-                              <input
-                                type="hidden"
-                                name="appointmentId"
-                                value={appointment.id}
-                              />
-                              <input
-                                type="hidden"
-                                name="redirectPath"
-                                value={redirectPath}
-                              />
-                              <ConfirmSubmitButton
-                                confirmMessage={
-                                  appointment.status === AppointmentStatus.CANCELLED
-                                    ? "Esto cancelara las notificaciones pendientes relacionadas."
-                                    : "Esto cancelara la reserva y cancelara sus notificaciones pendientes."
-                                }
-                                type="submit"
-                                className={`${actionButtonClassName("danger")} w-full sm:w-auto`}
-                              >
-                                {appointment.status === AppointmentStatus.CANCELLED
-                                  ? "Cancelar notificaciones relacionadas"
-                                  : "Marcar reserva como falsa"}
-                              </ConfirmSubmitButton>
-                            </form>
-                          ) : null}
-                        </div>
-                      </div>
-                    </CollapsibleDetails>
                   </article>
                 );
               })}
@@ -1207,7 +1395,52 @@ export default async function NotificationsPage({
             description="Ajusta filtros o crea una reserva para poblar esta cola."
           />
         )}
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted">
+            Página {currentPage} de {totalPages}
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            {previousPagePath ? (
+              <Link
+                href={previousPagePath}
+                className="inline-flex h-11 items-center justify-center rounded-full border border-line/80 bg-white px-4 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+              >
+                Anterior
+              </Link>
+            ) : (
+              <span className="inline-flex h-11 items-center justify-center rounded-full border border-line/80 bg-surface-soft px-4 text-sm font-semibold text-muted">
+                Anterior
+              </span>
+            )}
+
+            {nextPagePath ? (
+              <Link
+                href={nextPagePath}
+                className="inline-flex h-11 items-center justify-center rounded-full border border-line/80 bg-white px-4 text-sm font-semibold text-ink transition hover:border-brand-200 hover:text-brand-700"
+              >
+                Siguiente
+              </Link>
+            ) : (
+              <span className="inline-flex h-11 items-center justify-center rounded-full border border-line/80 bg-surface-soft px-4 text-sm font-semibold text-muted">
+                Siguiente
+              </span>
+            )}
+          </div>
+        </div>
       </div>
+
+      {selectedNotification ? (
+        <NotificationDetailDrawer
+          notification={selectedNotification}
+          timezone={authContext.clinic.timezone}
+          redirectPath={listPath}
+          closePath={listPath}
+          metaConfig={metaConfig}
+          emailConfig={emailConfig}
+        />
+      ) : null}
     </PanelPage>
   );
 }

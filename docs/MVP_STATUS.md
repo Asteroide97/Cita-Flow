@@ -1,6 +1,6 @@
 # Agenda Viva - Estado del MVP
 
-Actualizado: 2026-07-08
+Actualizado: 2026-07-10
 
 ## Resumen del producto
 
@@ -12,7 +12,7 @@ Agenda Viva es una plataforma de reservas para negocios de servicios. El MVP ya 
 - Disponibilidad real por profesional.
 - Clientes, servicios y profesionales.
 - Lista de espera separada del booking.
-- Notificaciones en cola.
+- Notificaciones en cola con inbox operativo.
 - Dashboard operativo y reportes basicos.
 - Confirmacion por email preparada con soporte de calendario.
 
@@ -262,14 +262,31 @@ Estado actual del panel:
 - Disponibilidad real
 - Bloqueos del negocio
 - Lista de espera
-- Notificaciones en outbox
+- Notificaciones en outbox con inbox operativo
 - Reportes basicos
+
+## Inbox de notificaciones implementado
+
+Ruta:
+
+- `/app/notifications`
+
+Estado actual:
+
+- Funciona como inbox operativo, no como historial completo expandido
+- `Bandeja limpia` muestra `PENDING` y `FAILED` por defecto
+- La lista esta limitada con paginacion de `10`, `25` y `50`
+- Los detalles se abren en drawer
+- Las acciones masivas quedaron compactas bajo un menu `Acciones`
+- Permite marcar una reserva como falsa sin borrar datos
+- El historial completo sigue separado en `Todo el historial`
 
 ## Confirmacion por email preparada
 
 Estado actual:
 
 - Existe base para confirmacion por email desde `NotificationOutbox`
+- `/app/notifications` ya funciona como bandeja operativa para revisar esa cola
 - El booking publico ya muestra el boton `Agregar a calendario`
 - El autoservicio publico por token tambien puede mostrar `Agregar a calendario`
 - Se genera archivo `.ics` desde ruta publica validada por token
@@ -288,12 +305,13 @@ Estado actual:
 - Existe webhook base en `/api/meta/whatsapp/webhook`
 - Existen variables de entorno documentadas
 - Existen acciones manuales de desarrollo
+- Meta Cloud API sigue pausado
 
 Regla actual:
 
 - No activar envio automatico todavia
 - No venderlo como WhatsApp real ya activo
-- Meta Cloud API sigue pausado
+- `/app/notifications` solo prepara, revisa y limpia la cola
 - Email real y WhatsApp real siguen en modo manual o preparado, no automatico
 
 ## Que no se debe tocar por ahora
@@ -372,6 +390,7 @@ Regla actual:
 - Confirmar copy comercial final
 - Confirmar que Meta siga visualmente pausado y no genere falsas expectativas
 - Confirmar configuracion de proveedor si se quiere probar email real manual
+- Validar la bandeja limpia y el historial completo en `/app/notifications`
 - Revisar datos demo visibles para que se sientan coherentes con el posicionamiento multiindustria
 
 ## Pendientes post-demo
@@ -393,6 +412,7 @@ Regla actual:
 - Los nombres internos de modelos siguen siendo medicos (`Doctor`, `Patient`, `Clinic`)
 - Meta Cloud API esta implementado solo de forma tecnica parcial
 - Email real depende de configurar proveedor y credenciales
+- El inbox de notificaciones no agrupa duplicados por reserva todavia
 - No hay Stripe real todavia
 - No hay integracion directa con Google Calendar todavia, solo link web y `.ics`
 - El producto depende de seed demo o datos minimos para una demo convincente
